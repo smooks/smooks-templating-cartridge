@@ -26,11 +26,6 @@
         </dependency>
         <dependency>
             <groupId>org.antlr</groupId>
-            <artifactId>ST4</artifactId>
-            <version>4.3</version>
-        </dependency>
-        <dependency>
-            <groupId>org.antlr</groupId>
             <artifactId>antlr</artifactId>
             <version>3.5.2</version>
         </dependency>
@@ -94,28 +89,28 @@
             </testResource>
         </testResources>
         <plugins>
-            <!--            <plugin>-->
-            <!--                <groupId>org.apache.maven.plugins</groupId>-->
-            <!--                <artifactId>maven-enforcer-plugin</artifactId>-->
-            <!--                <version>3.0.0-M3</version>-->
-            <!--                <executions>-->
-            <!--                    <execution>-->
-            <!--                        <id>enforce</id>-->
-            <!--                        <configuration>-->
-            <!--                            <rules>-->
-            <!--                                <requireReleaseDeps>-->
-            <!--                                    <onlyWhenRelease>true</onlyWhenRelease>-->
-            <!--                                    <message>No Snapshots Allowed!</message>-->
-            <!--                                </requireReleaseDeps>-->
-            <!--                                <dependencyConvergence/>-->
-            <!--                            </rules>-->
-            <!--                        </configuration>-->
-            <!--                        <goals>-->
-            <!--                            <goal>enforce</goal>-->
-            <!--                        </goals>-->
-            <!--                    </execution>-->
-            <!--                </executions>-->
-            <!--            </plugin>-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>3.0.0-M3</version>
+                <executions>
+                    <execution>
+                        <id>enforce</id>
+                        <configuration>
+                            <rules>
+                                <requireReleaseDeps>
+                                    <onlyWhenRelease>true</onlyWhenRelease>
+                                    <message>No Snapshots Allowed!</message>
+                                </requireReleaseDeps>
+                                <dependencyConvergence/>
+                            </rules>
+                        </configuration>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
