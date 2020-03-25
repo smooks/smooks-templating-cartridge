@@ -1,0 +1,4 @@
+org.smooks.cartridges.templating.freemarker.FreeMarkerContentHandlerFactory
+org.smooks.cartridges.templating.stringtemplate.v4.StringTemplateContentHandlerFactory
+org.smooks.cartridges.templating.stringtemplate.StringTemplateContentHandlerFactory
+org.smooks.cartridges.templating.xslt.XslContentHandlerFactory
