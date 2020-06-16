@@ -90,6 +90,36 @@
         </testResources>
         <plugins>
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>2.0.0</version>
+                <configuration>
+                    <verbose>false</verbose>
+                    <addJavaLicenseAfterPackage>false</addJavaLicenseAfterPackage>
+                    <canUpdateDescription>false</canUpdateDescription>
+                    <licenseName>lgpl_v3_apache_v2</licenseName>
+                    <licenseResolver>file://${maven.multiModuleProjectDirectory}/license</licenseResolver>
+                    <inceptionYear>2020</inceptionYear>
+                    <organizationName>Smooks</organizationName>
+                    <processStartTag>========================LICENSE_START=================================</processStartTag>
+                    <processEndTag>=========================LICENSE_END==================================</processEndTag>
+                    <excludes>
+                        <exclude>main/java/org/smooks/cartridges/templating/xslt/DefaultMemberAccess.java</exclude>
+                        <exclude>test/java/org/smooks/cartridges/templating/freemarker/include.xml</exclude>
+                        <exclude>test/java/org/smooks/cartridges/templating/freemarker/test-template.ftl</exclude>
+                    </excludes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>update-file-header</id>
+                        <goals>
+                            <goal>update-file-header</goal>
+                        </goals>
+                        <phase>process-sources</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
                 <version>3.0.0-M3</version>
