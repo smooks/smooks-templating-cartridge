@@ -3,7 +3,7 @@
                       xmlns:ftl="https://www.smooks.org/xsd/smooks/freemarker-1.2.xsd"
                       xmlns:jb="https://www.smooks.org/xsd/smooks/javabean-1.6.xsd">
 
-    <ftl:freemarker applyOnElement="$document">
+    <ftl:freemarker applyOnElement="#document">
         <ftl:template><!--<mybean>${myBeanData.x}</mybean>--></ftl:template>
     </ftl:freemarker>
 

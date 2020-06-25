@@ -91,10 +91,10 @@ public class FreeMarkerProgramaticConfigTest {
     public void test_nodeModel_1(StreamFilterType filterType) throws IOException, SAXException, ParserConfigurationException {
         Smooks smooks = new Smooks();
 
-        smooks.addVisitor(new DomModelCreator(), "$document");
+        smooks.addVisitor(new DomModelCreator(), "#document");
         smooks.addVisitor(
                 new FreeMarkerTemplateProcessor(new TemplatingConfiguration("<#foreach c in a.b.c>'${c}'</#foreach>")),
-                "$document"
+                "#document"
         );
 
         smooks.setFilterSettings(new FilterSettings(filterType));
@@ -247,12 +247,12 @@ public class FreeMarkerProgramaticConfigTest {
     public void test_outputTo_Stream() throws IOException, SAXException {
         Smooks smooks = new Smooks();
 
-        smooks.addVisitor(new MockOutStreamResource("outRes"), "$document");
+        smooks.addVisitor(new MockOutStreamResource("outRes"), "#document");
         smooks.addVisitor(
                 new FreeMarkerTemplateProcessor(
                         new TemplatingConfiguration("data to outstream").setUsage(OutputTo.stream("outRes"))
                 ),
-                "$document"
+                "#document"
         );
 
         ExecutionContext context = smooks.createExecutionContext();
