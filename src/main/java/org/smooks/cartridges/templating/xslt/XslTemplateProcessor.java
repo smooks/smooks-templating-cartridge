@@ -43,10 +43,12 @@
 package org.smooks.cartridges.templating.xslt;
 
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.smooks.SmooksException;
+import org.smooks.cartridges.templating.AbstractTemplateProcessor;
 import org.smooks.cdr.SmooksConfigurationException;
 import org.smooks.cdr.SmooksResourceConfiguration;
-import org.smooks.cdr.annotation.ConfigParam;
 import org.smooks.container.ExecutionContext;
 import org.smooks.delivery.AbstractParser;
 import org.smooks.delivery.FilterBypass;
@@ -55,17 +57,15 @@ import org.smooks.delivery.ordering.Consumer;
 import org.smooks.event.report.annotation.VisitAfterReport;
 import org.smooks.event.report.annotation.VisitBeforeReport;
 import org.smooks.io.StreamUtils;
-import org.smooks.cartridges.templating.AbstractTemplateProcessor;
 import org.smooks.util.ClassUtil;
 import org.smooks.xml.DomUtils;
 import org.smooks.xml.XmlUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
+import javax.inject.Inject;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMResult;
@@ -104,8 +104,8 @@ public class XslTemplateProcessor extends AbstractTemplateProcessor implements C
      * This Visitor implements the {@link FilterBypass} interface.  This config param allows
      * the user to enable/disable the bypass.
      */
-    @ConfigParam(defaultVal = "true")
-    private boolean enableFilterBypass;
+    @Inject
+    private Boolean enableFilterBypass = true;
     
     /**
      * Is the Smooks configuration, for which this visitor is a part, targeted at an XML message stream.
@@ -143,7 +143,7 @@ public class XslTemplateProcessor extends AbstractTemplateProcessor implements C
             xslString = new String(xslBytes, getEncoding().name());
         }
 
-        boolean failOnWarning = resourceConfig.getBoolParameter("failOnWarning", true);
+        boolean failOnWarning = resourceConfig.getParameterValue("failOnWarning", Boolean.class, true);
 
         xslStreamSource = new StreamSource(new StringReader(xslString));
         transformerFactory.setErrorListener(new XslErrorListener(failOnWarning));

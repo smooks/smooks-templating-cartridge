@@ -51,7 +51,7 @@ package org.smooks.cartridges.templating;
  */
 public class Inline implements Usage {
 
-    public static final Inline ADDTO = new Inline();
+    public static final Inline ADD_TO = new Inline();
     public static final Inline REPLACE = new Inline();
     public static final Inline INSERT_BEFORE = new Inline();
     public static final Inline INSERT_AFTER = new Inline();

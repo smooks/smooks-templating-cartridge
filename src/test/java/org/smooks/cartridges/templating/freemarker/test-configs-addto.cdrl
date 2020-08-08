@@ -3,7 +3,7 @@
 
     <resource-config selector="c">
         <resource>/org/smooks/cartridges/templating/freemarker/test-template.ftl</resource>
-        <param name="action">addto</param>
+        <param name="action">ADD_TO</param>
     </resource-config>
 
     <jb:bean beanId="myBeanData" class="org.smooks.cartridges.templating.MyBean" createOnElement="b">

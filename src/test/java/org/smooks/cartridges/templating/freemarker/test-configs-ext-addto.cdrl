@@ -6,7 +6,7 @@
     <ftl:freemarker applyOnElement="c">
         <ftl:template>/org/smooks/cartridges/templating/freemarker/test-template.ftl</ftl:template>
         <ftl:use>
-            <ftl:inline directive="addto" />
+            <ftl:inline directive="ADD_TO" />
         </ftl:use>
     </ftl:freemarker>
 

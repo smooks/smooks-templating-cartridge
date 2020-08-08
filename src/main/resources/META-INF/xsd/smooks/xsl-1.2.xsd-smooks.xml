@@ -98,7 +98,7 @@
     <resource-config selector="xsl/use/bindTo">
         <resource>org.smooks.cdr.extension.SetOnResourceConfig</resource>
         <param name="setOn">action</param>
-        <param name="value">bindto</param>
+        <param name="value">BIND_TO</param>
     </resource-config>
 
     <resource-config selector="xsl/use/bindTo">

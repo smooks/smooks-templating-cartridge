@@ -5,7 +5,7 @@
     <ftl:freemarker applyOnElement="c">
         <ftl:template>/org/smooks/cartridges/templating/freemarker/test-template-include.ftl</ftl:template>
         <ftl:use>
-            <ftl:inline directive="replace" />
+            <ftl:inline directive="REPLACE" />
         </ftl:use>
     </ftl:freemarker>
 

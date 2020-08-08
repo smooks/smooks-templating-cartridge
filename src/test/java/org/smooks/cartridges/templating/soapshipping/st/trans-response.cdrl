@@ -7,7 +7,7 @@
     -->
     <resource-config selector="history">
         <resource>/org/smooks/cartridges/templating/soapshipping/st/HistoryTrans.st</resource>
-        <param name="action">replace</param>
+        <param name="action">REPLACE</param>
     </resource-config>
 
 	<!--

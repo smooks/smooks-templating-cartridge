@@ -49,9 +49,12 @@ import freemarker.cache.URLTemplateLoader;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.smooks.SmooksException;
+import org.smooks.cartridges.templating.AbstractTemplateProcessor;
+import org.smooks.cartridges.templating.TemplatingConfiguration;
 import org.smooks.cdr.SmooksResourceConfiguration;
-import org.smooks.cdr.annotation.ConfigParam;
 import org.smooks.container.ExecutionContext;
 import org.smooks.delivery.Filter;
 import org.smooks.delivery.Fragment;
@@ -62,16 +65,14 @@ import org.smooks.event.report.annotation.VisitAfterReport;
 import org.smooks.event.report.annotation.VisitBeforeReport;
 import org.smooks.io.AbstractOutputStreamResource;
 import org.smooks.io.NullWriter;
-import org.smooks.cartridges.templating.AbstractTemplateProcessor;
-import org.smooks.cartridges.templating.TemplatingConfiguration;
 import org.smooks.util.FreeMarkerTemplate;
 import org.smooks.util.FreeMarkerUtils;
 import org.smooks.xml.DomUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -100,10 +101,12 @@ public class FreeMarkerTemplateProcessor extends AbstractTemplateProcessor imple
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FreeMarkerTemplateProcessor.class);
 
-    @ConfigParam(name = Filter.ENTITIES_REWRITE, defaultVal = "true")
-    private boolean rewriteEntities;
-    @ConfigParam(name = "templating.freemarker.defaultNumberFormat", defaultVal = FreeMarkerTemplate.DEFAULT_MACHINE_READABLE_NUMBER_FORMAT)
-    private String defaultNumberFormat;
+    @Inject
+    @Named(Filter.ENTITIES_REWRITE)
+    private Boolean rewriteEntities = true;
+    @Inject
+    @Named("templating.freemarker.defaultNumberFormat")
+    private String defaultNumberFormat = FreeMarkerTemplate.DEFAULT_MACHINE_READABLE_NUMBER_FORMAT;
 
     private Template defaultTemplate;
     private Template templateBefore;
@@ -167,10 +170,10 @@ public class FreeMarkerTemplateProcessor extends AbstractTemplateProcessor imple
         }
 
         // We'll use the DefaultSAXElementSerializer to write out the targeted element
-        // where the action is not "replace" or "bindto".
+        // where the action is not "REPLACE" or "BIND_TO".
         targetWriter = new DefaultSAXElementSerializer();
         targetWriter.setWriterOwner(this);
-        targetWriter.setRewriteEntities(rewriteEntities);
+        targetWriter.setRewriteEntities(java.util.Optional.of(rewriteEntities));
     }
 
     public boolean consumes(Object object) {
@@ -314,7 +317,7 @@ public class FreeMarkerTemplateProcessor extends AbstractTemplateProcessor imple
                 applyTemplateToOutputStream(defaultTemplate, element, outputStreamResourceName, executionContext);
             }
         } else {
-            if (getAction() == Action.ADDTO) {
+            if (getAction() == Action.ADD_TO) {
                 if (!targetWriter.isStartWritten(element)) {
                     if (executionContext.getDeliveryConfig().isDefaultSerializationOn()) {
                         targetWriter.writeStartElement(element);

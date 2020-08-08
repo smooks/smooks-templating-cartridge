@@ -117,7 +117,7 @@
         <xs:attribute name="id" type="xs:string" use="required">
             <xs:annotation>
                 <xs:documentation xml:lang="en">
-                    The bean context ID under which the templating result is to be bound if the "bindTo" action is chosen.
+                    The bean context ID under which the templating result is to be bound if the "BIND_TO" action is chosen.
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
@@ -141,10 +141,10 @@
 
     <xs:simpleType name="inlineDirective">
 		<xs:restriction base="xs:string">
-            <xs:enumeration value="addto" />
-            <xs:enumeration value="replace" />
-            <xs:enumeration value="insertbefore" />
-            <xs:enumeration value="insertafter" />
+            <xs:enumeration value="ADD_TO" />
+            <xs:enumeration value="REPLACE" />
+            <xs:enumeration value="INSERT_BEFORE" />
+            <xs:enumeration value="INSERT_AFTER" />
 		</xs:restriction>
 	</xs:simpleType>
 
