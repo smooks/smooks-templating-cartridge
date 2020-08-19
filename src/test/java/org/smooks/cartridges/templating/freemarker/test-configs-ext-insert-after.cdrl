@@ -6,7 +6,7 @@
     <ftl:freemarker applyOnElement="c">
         <ftl:template>/org/smooks/cartridges/templating/freemarker/test-template.ftl</ftl:template>
         <ftl:use>
-            <ftl:inline directive="insertafter" />
+            <ftl:inline directive="INSERT_AFTER" />
         </ftl:use>
     </ftl:freemarker>
 

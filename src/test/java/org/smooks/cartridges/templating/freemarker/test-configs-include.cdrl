@@ -3,7 +3,7 @@
 
     <resource-config selector="c">
         <resource>/org/smooks/cartridges/templating/freemarker/test-template-include.ftl</resource>
-        <param name="action">replace</param>
+        <param name="action">REPLACE</param>
     </resource-config>
 
 </smooks-resource-list>

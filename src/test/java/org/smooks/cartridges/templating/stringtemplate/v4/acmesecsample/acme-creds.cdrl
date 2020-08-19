@@ -25,12 +25,12 @@
 	<!-- ==========================================================================
 		Use a StringTemplate template to write the Credentials info (gathered
 		during the Assembly Phase) into the SOAP header (add them to
-		the header i.e. "addto").
+		the header i.e. "ADD_TO").
 		Note: This template is applied during the "Processing Phase".
 	========================================================================== -->
 	<resource-config selector="Envelope Header" selector-namespace="http://schemas.xmlsoap.org/soap/envelope/">
            <resource type="stv4">/org/smooks/cartridges/templating/stringtemplate/v4/acmesecsample/WsseCredsWriter.st</resource>
-           <param name="action">addto</param>
+           <param name="action">ADD_TO</param>
 	</resource-config>
 	
 </smooks-resource-list>

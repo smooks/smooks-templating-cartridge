@@ -12,12 +12,12 @@
 
     <resource-config selector="c">
         <resource>/org/smooks/cartridges/templating/freemarker/test-template.ftl</resource>
-        <param name="action">insertbefore</param>
+        <param name="action">INSERT_BEFORE</param>
     </resource-config>
 
     <resource-config selector="e">
         <resource>/org/smooks/cartridges/templating/freemarker/test-template.ftl</resource>
-        <param name="action">insertafter</param>
+        <param name="action">INSERT_AFTER</param>
     </resource-config>
 
     <resource-config selector="d">

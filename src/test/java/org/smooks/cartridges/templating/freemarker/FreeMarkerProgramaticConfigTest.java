@@ -42,28 +42,27 @@
  */
 package org.smooks.cartridges.templating.freemarker;
 
-import org.junit.Test;
-
-import static org.junit.Assert.*;
-
 import org.custommonkey.xmlunit.XMLAssert;
 import org.custommonkey.xmlunit.XMLUnit;
+import org.junit.Test;
+import org.smooks.FilterSettings;
 import org.smooks.Smooks;
 import org.smooks.StreamFilterType;
-import org.smooks.FilterSettings;
+import org.smooks.cartridges.javabean.Bean;
 import org.smooks.cartridges.templating.*;
 import org.smooks.container.ExecutionContext;
 import org.smooks.delivery.DomModelCreator;
-import org.smooks.cartridges.javabean.Bean;
 import org.smooks.payload.StringResult;
 import org.smooks.payload.StringSource;
 import org.xml.sax.SAXException;
 
-import javax.xml.transform.stream.StreamSource;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.stream.StreamSource;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author <a href="mailto:tom.fennelly@jboss.com">tom.fennelly@jboss.com</a>
@@ -209,7 +208,7 @@ public class FreeMarkerProgramaticConfigTest {
         smooks.addVisitor(new Bean(MyBean.class, "myBeanData", "b").bindTo("x", "b/@x"));
         smooks.addVisitor(
                 new FreeMarkerTemplateProcessor(
-                        new TemplatingConfiguration("/org/smooks/cartridges/templating/freemarker/test-template.ftl").setUsage(Inline.ADDTO)
+                        new TemplatingConfiguration("/org/smooks/cartridges/templating/freemarker/test-template.ftl").setUsage(Inline.ADD_TO)
                 ),
                 "c"
         );
