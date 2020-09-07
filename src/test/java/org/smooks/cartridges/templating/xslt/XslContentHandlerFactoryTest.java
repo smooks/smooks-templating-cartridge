@@ -75,7 +75,7 @@ public class XslContentHandlerFactoryTest {
         String transResult = null;
 
         System.setProperty("javax.xml.transform.TransformerFactory", org.apache.xalan.processor.TransformerFactoryImpl.class.getName());
-        smooks.getApplicationContext().getRegistry().registerResource(res);
+        smooks.getApplicationContext().getRegistry().registerSmooksResourceConfiguration(res);
 
         try {
             InputStream stream = getClass().getResourceAsStream("htmlpage.html");
@@ -106,7 +106,7 @@ public class XslContentHandlerFactoryTest {
         res.setResourceType("xsl");
         res.setParameter(XslContentHandlerFactory.IS_XSLT_TEMPLATELET, "true");
         res.setParameter("action", action);
-        smooks.getApplicationContext().getRegistry().registerResource(res);
+        smooks.getApplicationContext().getRegistry().registerSmooksResourceConfiguration(res);
 
         try {
             InputStream stream = getClass().getResourceAsStream("htmlpage.html");

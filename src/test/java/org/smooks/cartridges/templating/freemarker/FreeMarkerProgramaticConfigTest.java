@@ -72,8 +72,7 @@ public class FreeMarkerProgramaticConfigTest {
     @Test
     public void testFreeMarkerTrans_01() throws SAXException, IOException {
         Smooks smooks = new Smooks();
-
-        smooks.addVisitor(new Bean(MyBean.class, "myBeanData", "c").bindTo("x", "c/@x"));
+        smooks.addVisitors(new Bean(MyBean.class, "myBeanData", "c").bindTo("x", "c/@x"));
         smooks.addVisitor(new FreeMarkerTemplateProcessor(new TemplatingConfiguration("/org/smooks/cartridges/templating/freemarker/test-template.ftl")), "c");
 
         test_ftl(smooks, "<a><b><c x='xvalueonc1' /><c x='xvalueonc2' /></b></a>", "<a><b><mybean>xvalueonc1</mybean><mybean>xvalueonc2</mybean></b></a>");
@@ -128,8 +127,7 @@ public class FreeMarkerProgramaticConfigTest {
         ExecutionContext context;
 
         Smooks smooks = new Smooks();
-
-        smooks.addVisitor(new Bean(MyBean.class, "myBeanData", "c").bindTo("x", "c/@x"));
+        smooks.addVisitors(new Bean(MyBean.class, "myBeanData", "c").bindTo("x", "c/@x"));
         smooks.addVisitor(
                 new FreeMarkerTemplateProcessor(
                         new TemplatingConfiguration("<mybean>${myBeanData.x}</mybean>").setUsage(BindTo.beanId("mybeanTemplate"))
@@ -152,8 +150,7 @@ public class FreeMarkerProgramaticConfigTest {
     @Test
     public void testInsertBefore() throws SAXException, IOException {
         Smooks smooks = new Smooks();
-
-        smooks.addVisitor(new Bean(MyBean.class, "myBeanData", "b").bindTo("x", "b/@x"));
+        smooks.addVisitors(new Bean(MyBean.class, "myBeanData", "b").bindTo("x", "b/@x"));
         smooks.addVisitor(
                 new FreeMarkerTemplateProcessor(
                         new TemplatingConfiguration("/org/smooks/cartridges/templating/freemarker/test-template.ftl").setUsage(Inline.INSERT_BEFORE)
@@ -178,8 +175,7 @@ public class FreeMarkerProgramaticConfigTest {
     @Test
     public void testInsertAfter() throws SAXException, IOException {
         Smooks smooks = new Smooks();
-
-        smooks.addVisitor(new Bean(MyBean.class, "myBeanData", "b").bindTo("x", "b/@x"));
+        smooks.addVisitors(new Bean(MyBean.class, "myBeanData", "b").bindTo("x", "b/@x"));
         smooks.addVisitor(
                 new FreeMarkerTemplateProcessor(
                         new TemplatingConfiguration("/org/smooks/cartridges/templating/freemarker/test-template.ftl").setUsage(Inline.INSERT_AFTER)
@@ -204,8 +200,7 @@ public class FreeMarkerProgramaticConfigTest {
     @Test
     public void testAddTo() throws SAXException, IOException {
         Smooks smooks = new Smooks();
-
-        smooks.addVisitor(new Bean(MyBean.class, "myBeanData", "b").bindTo("x", "b/@x"));
+        smooks.addVisitors(new Bean(MyBean.class, "myBeanData", "b").bindTo("x", "b/@x"));
         smooks.addVisitor(
                 new FreeMarkerTemplateProcessor(
                         new TemplatingConfiguration("/org/smooks/cartridges/templating/freemarker/test-template.ftl").setUsage(Inline.ADD_TO)
