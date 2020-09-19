@@ -161,12 +161,12 @@ public class FreeMarkerProgramaticConfigTest {
         test_ftl(smooks, "<a><b x='xvalueonc1' /><c/><d/></a>",
                 "<a><b x=\"xvalueonc1\"></b><mybean>xvalueonc1</mybean><c></c><d></d></a>");
 
-        smooks = new Smooks(getClass().getResourceAsStream("test-configs-insert-before.cdrl"));
+        smooks = new Smooks(getClass().getResourceAsStream("test-configs-insert-before.xml"));
         smooks.setFilterSettings(FilterSettings.DEFAULT_SAX);
         test_ftl(smooks, "<a><b x='xvalueonc1' /><c/><d/></a>",
                 "<a><b x=\"xvalueonc1\" /><mybean>xvalueonc1</mybean><c /><d /></a>");
 
-        smooks = new Smooks(getClass().getResourceAsStream("test-configs-insert-before.cdrl"));
+        smooks = new Smooks(getClass().getResourceAsStream("test-configs-insert-before.xml"));
         smooks.setFilterSettings(new FilterSettings(StreamFilterType.SAX).setDefaultSerializationOn(false));
         test_ftl(smooks, "<a><b x='xvalueonc1' /><c>11<f/>11</c><d/></a>",
                 "<mybean>xvalueonc1</mybean>");
@@ -186,12 +186,12 @@ public class FreeMarkerProgramaticConfigTest {
         test_ftl(smooks, "<a><b x='xvalueonc1' /><c/><d/></a>",
                 "<a><b x=\"xvalueonc1\"></b><c></c><mybean>xvalueonc1</mybean><d></d></a>");
 
-        smooks = new Smooks(getClass().getResourceAsStream("test-configs-insert-after.cdrl"));
+        smooks = new Smooks(getClass().getResourceAsStream("test-configs-insert-after.xml"));
         smooks.setFilterSettings(FilterSettings.DEFAULT_SAX);
         test_ftl(smooks, "<a><b x='xvalueonc1' /><c/><d/></a>",
                 "<a><b x=\"xvalueonc1\" /><c /><mybean>xvalueonc1</mybean><d /></a>");
 
-        smooks = new Smooks(getClass().getResourceAsStream("test-configs-insert-after.cdrl"));
+        smooks = new Smooks(getClass().getResourceAsStream("test-configs-insert-after.xml"));
         smooks.setFilterSettings(new FilterSettings(StreamFilterType.SAX).setDefaultSerializationOn(false));
         test_ftl(smooks, "<a><b x='xvalueonc1' /><c>11<f/>11</c><d/></a>",
                 "<mybean>xvalueonc1</mybean>");
@@ -211,27 +211,27 @@ public class FreeMarkerProgramaticConfigTest {
         test_ftl(smooks, "<a><b x='xvalueonc1' /><c/><d/></a>",
                 "<a><b x=\"xvalueonc1\"></b><c><mybean>xvalueonc1</mybean></c><d></d></a>");
 
-        smooks = new Smooks(getClass().getResourceAsStream("test-configs-addto.cdrl"));
+        smooks = new Smooks(getClass().getResourceAsStream("test-configs-addto.xml"));
         smooks.setFilterSettings(FilterSettings.DEFAULT_SAX);
         test_ftl(smooks, "<a><b x='xvalueonc1' /><c/><d/></a>",
                 "<a><b x=\"xvalueonc1\" /><c><mybean>xvalueonc1</mybean></c><d /></a>");
 
-        smooks = new Smooks(getClass().getResourceAsStream("test-configs-addto.cdrl"));
+        smooks = new Smooks(getClass().getResourceAsStream("test-configs-addto.xml"));
         smooks.setFilterSettings(FilterSettings.DEFAULT_SAX);
         test_ftl(smooks, "<a><b x='xvalueonc1' /><c>1111</c><d/></a>",
                 "<a><b x=\"xvalueonc1\" /><c>1111<mybean>xvalueonc1</mybean></c><d /></a>");
 
-        smooks = new Smooks(getClass().getResourceAsStream("test-configs-addto.cdrl"));
+        smooks = new Smooks(getClass().getResourceAsStream("test-configs-addto.xml"));
         smooks.setFilterSettings(FilterSettings.DEFAULT_SAX);
         test_ftl(smooks, "<a><b x='xvalueonc1' /><c><f/></c><d/></a>",
                 "<a><b x=\"xvalueonc1\" /><c><f /><mybean>xvalueonc1</mybean></c><d /></a>");
 
-        smooks = new Smooks(getClass().getResourceAsStream("test-configs-addto.cdrl"));
+        smooks = new Smooks(getClass().getResourceAsStream("test-configs-addto.xml"));
         smooks.setFilterSettings(FilterSettings.DEFAULT_SAX);
         test_ftl(smooks, "<a><b x='xvalueonc1' /><c>11<f/>11</c><d/></a>",
                 "<a><b x=\"xvalueonc1\" /><c>11<f />11<mybean>xvalueonc1</mybean></c><d /></a>");
 
-        smooks = new Smooks(getClass().getResourceAsStream("test-configs-addto.cdrl"));
+        smooks = new Smooks(getClass().getResourceAsStream("test-configs-addto.xml"));
         smooks.setFilterSettings(new FilterSettings(StreamFilterType.SAX).setDefaultSerializationOn(false));
         test_ftl(smooks, "<a><b x='xvalueonc1' /><c>11<f/>11</c><d/></a>",
                 "<mybean>xvalueonc1</mybean>");

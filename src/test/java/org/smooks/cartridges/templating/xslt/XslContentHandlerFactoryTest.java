@@ -121,8 +121,8 @@ public class XslContentHandlerFactoryTest {
 
     @Test
     public void test_xsl_bind() throws SAXException, IOException {
-        test_xsl_bind("test-configs-bind.cdrl");
-        test_xsl_bind("test-configs-bind-ext.cdrl");
+        test_xsl_bind("test-configs-bind.xml");
+        test_xsl_bind("test-configs-bind-ext.xml");
     }
 
     public void test_xsl_bind(String config) throws SAXException, IOException {
