@@ -44,16 +44,17 @@ package org.smooks.cartridges.templating.xslt;
 
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
+import org.smooks.FilterSettings;
 import org.smooks.Smooks;
 import org.smooks.StreamFilterType;
-import org.smooks.FilterSettings;
-import org.smooks.payload.StringSource;
 import org.smooks.cartridges.templating.MockOutStreamResource;
+import org.smooks.payload.StringSource;
 import org.xml.sax.SAXException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author <a href="mailto:tom.fennelly@gmail.com">tom.fennelly@gmail.com</a>
@@ -76,7 +77,7 @@ public class RouteToOutputStreamResourceTest {
     }
 
     public void test_1(StreamFilterType filterType) throws IOException, SAXException {
-        Smooks smooks = new Smooks(getClass().getResourceAsStream("route-to-stream-01.cdrl"));
+        Smooks smooks = new Smooks(getClass().getResourceAsStream("route-to-stream-01.xml"));
 
         smooks.setFilterSettings(new FilterSettings(filterType));
         smooks.filterSource(new StringSource("<a><c x='cx' /><d><e x='ex' /></d></a>"), null);
@@ -84,7 +85,7 @@ public class RouteToOutputStreamResourceTest {
     }
 
     public void test_2(StreamFilterType filterType) throws IOException, SAXException {
-        Smooks smooks = new Smooks(getClass().getResourceAsStream("route-to-stream-02.cdrl"));
+        Smooks smooks = new Smooks(getClass().getResourceAsStream("route-to-stream-02.xml"));
 
         smooks.setFilterSettings(new FilterSettings(filterType));
         smooks.filterSource(new StringSource("<a><c x='cx' /><d><e x='ex' /></d></a>"), null);

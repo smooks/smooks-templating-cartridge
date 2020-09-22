@@ -42,17 +42,16 @@
  */
 package org.smooks.cartridges.templating.soapshipping;
 
-import java.io.IOException;
-import java.io.InputStream;
-
+import org.junit.Test;
 import org.smooks.Smooks;
 import org.smooks.SmooksUtil;
+import org.smooks.cartridges.templating.util.CharUtils;
 import org.smooks.container.ExecutionContext;
 import org.smooks.profile.DefaultProfileSet;
-import org.smooks.cartridges.templating.util.CharUtils;
 import org.xml.sax.SAXException;
 
-import org.junit.Test;
+import java.io.IOException;
+import java.io.InputStream;
 
 public abstract class ShippingIntegTestBase {
 
@@ -63,8 +62,8 @@ public abstract class ShippingIntegTestBase {
         // Configure Smooks
         SmooksUtil.registerProfileSet(new DefaultProfileSet("shipping-request"), smooks);
         SmooksUtil.registerProfileSet(new DefaultProfileSet("shipping-response"), smooks);
-        smooks.addConfigurations("trans-request.cdrl", getClass().getResourceAsStream("trans-request.cdrl"));
-        smooks.addConfigurations("trans-response.cdrl", getClass().getResourceAsStream("trans-response.cdrl"));
+        smooks.addConfigurations("trans-request.xml", getClass().getResourceAsStream("trans-request.xml"));
+        smooks.addConfigurations("trans-response.xml", getClass().getResourceAsStream("trans-response.xml"));
                 
         InputStream requestStream = getClass().getResourceAsStream("/org/smooks/cartridges/templating/soapshipping/request.xml");
         ExecutionContext context = smooks.createExecutionContext("shipping-request");
