@@ -43,16 +43,15 @@
 package org.smooks.cartridges.templating.xslt;
 
 import org.junit.Test;
-import static org.junit.Assert.*;
 import org.smooks.Smooks;
 import org.smooks.SmooksException;
 import org.smooks.SmooksUtil;
+import org.smooks.cartridges.templating.util.CharUtils;
 import org.smooks.cdr.SmooksConfigurationException;
 import org.smooks.cdr.SmooksResourceConfiguration;
 import org.smooks.container.ExecutionContext;
 import org.smooks.payload.StringResult;
 import org.smooks.payload.StringSource;
-import org.smooks.cartridges.templating.util.CharUtils;
 import org.xml.sax.SAXException;
 
 import javax.xml.transform.stream.StreamSource;
@@ -60,67 +59,70 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 /**
  *
  * @author tfennelly
  */
 public class XslContentHandlerFactoryTest {
 
-        @Test
-	public void testXslUnitTrans_filebased_replace() {
-		Smooks smooks = new Smooks();
-		SmooksResourceConfiguration res = new SmooksResourceConfiguration("p", "org/smooks/cartridges/templating/xslt/xsltransunit.xsl");
-		String transResult = null;
+    @Test
+    public void testXslUnitTrans_filebased_replace() {
+        Smooks smooks = new Smooks();
+        SmooksResourceConfiguration res = new SmooksResourceConfiguration("p", "org/smooks/cartridges/templating/xslt/xsltransunit.xsl");
+        String transResult = null;
 
         System.setProperty("javax.xml.transform.TransformerFactory", org.apache.xalan.processor.TransformerFactoryImpl.class.getName());
-		SmooksUtil.registerResource(res, smooks);
+        smooks.getApplicationContext().getRegistry().registerSmooksResourceConfiguration(res);
 
-		try {
-			InputStream stream = getClass().getResourceAsStream("htmlpage.html");
+        try {
+            InputStream stream = getClass().getResourceAsStream("htmlpage.html");
             ExecutionContext context = smooks.createExecutionContext();
-			transResult = SmooksUtil.filterAndSerialize(context, stream, smooks);
-		} catch (SmooksException e) {
-			e.printStackTrace();
-			fail("unexpected exception: " + e.getMessage());
-		}
-		CharUtils.assertEquals("XSL Comparison Failure - See xsltransunit.expected1.", "/org/smooks/cartridges/templating/xslt/xsltransunit.expected1", transResult);
-	}
+            transResult = SmooksUtil.filterAndSerialize(context, stream, smooks);
+        } catch (SmooksException e) {
+            e.printStackTrace();
+            fail("unexpected exception: " + e.getMessage());
+        }
+        CharUtils.assertEquals("XSL Comparison Failure - See xsltransunit.expected1.", "/org/smooks/cartridges/templating/xslt/xsltransunit.expected1", transResult);
+    }
 
-        @Test
-	public void testXslUnitTrans_parambased() {
-		testXslUnitTrans_parambased("insertbefore", "xsltransunit.expected2");
-		testXslUnitTrans_parambased("insertafter", "xsltransunit.expected3");
-		testXslUnitTrans_parambased("addto", "xsltransunit.expected4");
-		testXslUnitTrans_parambased("replace", "xsltransunit.expected5");
-	}
+    @Test
+    public void testXslUnitTrans_parambased() {
+        testXslUnitTrans_parambased("INSERT_BEFORE", "xsltransunit.expected2");
+        testXslUnitTrans_parambased("INSERT_AFTER", "xsltransunit.expected3");
+        testXslUnitTrans_parambased("ADD_TO", "xsltransunit.expected4");
+        testXslUnitTrans_parambased("REPLACE", "xsltransunit.expected5");
+    }
 
-	public void testXslUnitTrans_parambased(String action, String expectedFileName) {
-		Smooks smooks = new Smooks();
-		SmooksResourceConfiguration res = new SmooksResourceConfiguration("p", "<z id=\"{@id}\">Content from template!!</z>");
-		String transResult = null;
+    public void testXslUnitTrans_parambased(String action, String expectedFileName) {
+        Smooks smooks = new Smooks();
+        SmooksResourceConfiguration res = new SmooksResourceConfiguration("p", "<z id=\"{@id}\">Content from template!!</z>");
+        String transResult = null;
 
-		System.setProperty("javax.xml.transform.TransformerFactory", org.apache.xalan.processor.TransformerFactoryImpl.class.getName());
+        System.setProperty("javax.xml.transform.TransformerFactory", org.apache.xalan.processor.TransformerFactoryImpl.class.getName());
 
-		res.setResourceType("xsl");
+        res.setResourceType("xsl");
         res.setParameter(XslContentHandlerFactory.IS_XSLT_TEMPLATELET, "true");
-		res.setParameter("action", action);
-		SmooksUtil.registerResource(res, smooks);
+        res.setParameter("action", action);
+        smooks.getApplicationContext().getRegistry().registerSmooksResourceConfiguration(res);
 
-		try {
-			InputStream stream = getClass().getResourceAsStream("htmlpage.html");
+        try {
+            InputStream stream = getClass().getResourceAsStream("htmlpage.html");
             ExecutionContext context = smooks.createExecutionContext();
-			transResult = SmooksUtil.filterAndSerialize(context, stream, smooks);
-		} catch (SmooksException e) {
-			e.printStackTrace();
-			fail("unexpected exception: " + e.getMessage());
-		}
-		CharUtils.assertEquals("XSL Comparison Failure.  action=" + action + ".  See " + expectedFileName, "/org/smooks/cartridges/templating/xslt/" + expectedFileName, transResult);
-	}
+            transResult = SmooksUtil.filterAndSerialize(context, stream, smooks);
+        } catch (SmooksException e) {
+            e.printStackTrace();
+            fail("unexpected exception: " + e.getMessage());
+        }
+        CharUtils.assertEquals("XSL Comparison Failure.  action=" + action + ".  See " + expectedFileName, "/org/smooks/cartridges/templating/xslt/" + expectedFileName, transResult);
+    }
 
     @Test
     public void test_xsl_bind() throws SAXException, IOException {
-        test_xsl_bind("test-configs-bind.cdrl");
-        test_xsl_bind("test-configs-bind-ext.cdrl");
+        test_xsl_bind("test-configs-bind.xml");
+        test_xsl_bind("test-configs-bind-ext.xml");
     }
 
     public void test_xsl_bind(String config) throws SAXException, IOException {
@@ -183,7 +185,7 @@ public class XslContentHandlerFactoryTest {
         try {
             smooks.filterSource(smooks.createExecutionContext(), new StreamSource(new StringReader("<doc/>")), null);
             fail("Expected SmooksConfigurationException.");
-        } catch(SmooksConfigurationException e) {
+        } catch (SmooksConfigurationException e) {
             assertEquals("Error loading Templating resource: Target Profile: [[org.smooks.profile.Profile#default_profile]], Selector: [#document], Selector Namespace URI: [null], Resource: [/org/smooks/cartridges/templating/xslt/bad-stylesheet.xsl], Num Params: [0]", e.getCause().getMessage());
         }
     }

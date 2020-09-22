@@ -42,16 +42,16 @@
  */
 package org.smooks.cartridges.templating.stringtemplate.acmesecsample;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 import org.junit.Test;
 import org.smooks.Smooks;
 import org.smooks.SmooksUtil;
+import org.smooks.cartridges.templating.util.CharUtils;
 import org.smooks.container.ExecutionContext;
 import org.smooks.profile.DefaultProfileSet;
-import org.smooks.cartridges.templating.util.CharUtils;
 import org.xml.sax.SAXException;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 public class FindAddressSampleTest {
 
@@ -61,7 +61,7 @@ public class FindAddressSampleTest {
 
         // Configure Smooks...
         SmooksUtil.registerProfileSet(DefaultProfileSet.create("acme-findAddresses-request", new String[]{"acme-request"}), smooks);
-        smooks.addConfigurations("acme-creds.cdrl", getClass().getResourceAsStream("acme-creds.cdrl"));
+        smooks.addConfigurations("acme-creds.xml", getClass().getResourceAsStream("acme-creds.xml"));
 
         // Perform the transformation...
         InputStream requestStream = getClass().getResourceAsStream("AcmeFindaddressRequest.xml");

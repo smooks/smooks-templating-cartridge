@@ -42,20 +42,19 @@
  */
 package org.smooks.cartridges.templating.stringtemplate;
 
-import static org.junit.Assert.assertEquals;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
-
-import javax.xml.transform.stream.StreamSource;
-
 import org.junit.Test;
 import org.smooks.Smooks;
 import org.smooks.SmooksUtil;
 import org.smooks.container.ExecutionContext;
 import org.xml.sax.SAXException;
+
+import javax.xml.transform.stream.StreamSource;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  *
@@ -65,7 +64,7 @@ public class StringTemplateContentDeliveryUnitCreatorTest {
 	
 	@Test
     public void testStringTemplateTrans_01() throws SAXException, IOException {
-        Smooks smooks = new Smooks(getClass().getResourceAsStream("test-configs.cdrl"));
+        Smooks smooks = new Smooks(getClass().getResourceAsStream("test-configs.xml"));
 
         test_st(smooks, "<a><b><c x='xvalueonc1' /><c x='xvalueonc2' /></b></a>", "<a><b><mybean>xvalueonc1</mybean><mybean>xvalueonc2</mybean></b></a>");
         // Test transformation via the <context-object /> by transforming the root element using StringTemplate.
@@ -82,7 +81,7 @@ public class StringTemplateContentDeliveryUnitCreatorTest {
 
     @Test
     public void test_st_bind() throws SAXException, IOException {
-        Smooks smooks = new Smooks(getClass().getResourceAsStream("test-configs-02.cdrl"));
+        Smooks smooks = new Smooks(getClass().getResourceAsStream("test-configs-02.xml"));
         StringReader input;
         ExecutionContext context;
 
