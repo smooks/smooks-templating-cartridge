@@ -79,14 +79,9 @@ public class FreeMarkerProgramaticConfigTest {
         // Test transformation via the <context-object /> by transforming the root element using StringTemplate.
         test_ftl(smooks, "<c x='xvalueonc1' />", "<mybean>xvalueonc1</mybean>");
     }
-
+    
     @Test
     public void test_nodeModel_1() throws IOException, SAXException, ParserConfigurationException {
-        test_nodeModel_1(StreamFilterType.DOM);
-        test_nodeModel_1(StreamFilterType.SAX);
-    }
-
-    public void test_nodeModel_1(StreamFilterType filterType) throws IOException, SAXException, ParserConfigurationException {
         Smooks smooks = new Smooks();
 
         smooks.addVisitor(new DomModelCreator(), "#document");
@@ -94,9 +89,7 @@ public class FreeMarkerProgramaticConfigTest {
                 new FreeMarkerTemplateProcessor(new TemplatingConfiguration("<#foreach c in a.b.c>'${c}'</#foreach>")),
                 "#document"
         );
-
-        smooks.setFilterSettings(new FilterSettings(filterType));
-
+        
         StringResult result = new StringResult();
         smooks.filterSource(new StringSource("<a><b><c>cvalue1</c><c>cvalue2</c><c>cvalue3</c></b></a>"), result);
         assertEquals("'cvalue1''cvalue2''cvalue3'", result.getResult());
@@ -104,11 +97,6 @@ public class FreeMarkerProgramaticConfigTest {
 
     @Test
     public void test_nodeModel_2() throws IOException, SAXException, ParserConfigurationException {
-        test_nodeModel_2(StreamFilterType.DOM);
-        test_nodeModel_2(StreamFilterType.SAX);
-    }
-
-    public void test_nodeModel_2(StreamFilterType filterType) throws IOException, SAXException, ParserConfigurationException {
         Smooks smooks = new Smooks();
 
         smooks.addVisitor(new DomModelCreator(), "c");
@@ -117,7 +105,6 @@ public class FreeMarkerProgramaticConfigTest {
                 "c"
         );
 
-        smooks.setFilterSettings(new FilterSettings(filterType));
         test_ftl(smooks, "<a><b><c>cvalue1</c><c>cvalue2</c><c>cvalue3</c></b></a>", "<a><b><x>'cvalue1'</x><x>'cvalue2'</x><x>'cvalue3'</x></b></a>");
     }
 
@@ -158,16 +145,12 @@ public class FreeMarkerProgramaticConfigTest {
                 "c"
         );
 
-        test_ftl(smooks, "<a><b x='xvalueonc1' /><c/><d/></a>",
-                "<a><b x=\"xvalueonc1\"></b><mybean>xvalueonc1</mybean><c></c><d></d></a>");
-
         smooks = new Smooks(getClass().getResourceAsStream("test-configs-insert-before.xml"));
-        smooks.setFilterSettings(FilterSettings.DEFAULT_SAX);
         test_ftl(smooks, "<a><b x='xvalueonc1' /><c/><d/></a>",
                 "<a><b x=\"xvalueonc1\" /><mybean>xvalueonc1</mybean><c /><d /></a>");
 
         smooks = new Smooks(getClass().getResourceAsStream("test-configs-insert-before.xml"));
-        smooks.setFilterSettings(new FilterSettings(StreamFilterType.SAX).setDefaultSerializationOn(false));
+        smooks.setFilterSettings(new FilterSettings(StreamFilterType.SAX_NG).setDefaultSerializationOn(false));
         test_ftl(smooks, "<a><b x='xvalueonc1' /><c>11<f/>11</c><d/></a>",
                 "<mybean>xvalueonc1</mybean>");
     }
@@ -183,16 +166,12 @@ public class FreeMarkerProgramaticConfigTest {
                 "c"
         );
 
-        test_ftl(smooks, "<a><b x='xvalueonc1' /><c/><d/></a>",
-                "<a><b x=\"xvalueonc1\"></b><c></c><mybean>xvalueonc1</mybean><d></d></a>");
-
         smooks = new Smooks(getClass().getResourceAsStream("test-configs-insert-after.xml"));
-        smooks.setFilterSettings(FilterSettings.DEFAULT_SAX);
         test_ftl(smooks, "<a><b x='xvalueonc1' /><c/><d/></a>",
                 "<a><b x=\"xvalueonc1\" /><c /><mybean>xvalueonc1</mybean><d /></a>");
 
         smooks = new Smooks(getClass().getResourceAsStream("test-configs-insert-after.xml"));
-        smooks.setFilterSettings(new FilterSettings(StreamFilterType.SAX).setDefaultSerializationOn(false));
+        smooks.setFilterSettings(new FilterSettings(StreamFilterType.SAX_NG).setDefaultSerializationOn(false));
         test_ftl(smooks, "<a><b x='xvalueonc1' /><c>11<f/>11</c><d/></a>",
                 "<mybean>xvalueonc1</mybean>");
     }
@@ -208,31 +187,24 @@ public class FreeMarkerProgramaticConfigTest {
                 "c"
         );
 
-        test_ftl(smooks, "<a><b x='xvalueonc1' /><c/><d/></a>",
-                "<a><b x=\"xvalueonc1\"></b><c><mybean>xvalueonc1</mybean></c><d></d></a>");
-
         smooks = new Smooks(getClass().getResourceAsStream("test-configs-addto.xml"));
-        smooks.setFilterSettings(FilterSettings.DEFAULT_SAX);
         test_ftl(smooks, "<a><b x='xvalueonc1' /><c/><d/></a>",
                 "<a><b x=\"xvalueonc1\" /><c><mybean>xvalueonc1</mybean></c><d /></a>");
 
         smooks = new Smooks(getClass().getResourceAsStream("test-configs-addto.xml"));
-        smooks.setFilterSettings(FilterSettings.DEFAULT_SAX);
         test_ftl(smooks, "<a><b x='xvalueonc1' /><c>1111</c><d/></a>",
                 "<a><b x=\"xvalueonc1\" /><c>1111<mybean>xvalueonc1</mybean></c><d /></a>");
 
         smooks = new Smooks(getClass().getResourceAsStream("test-configs-addto.xml"));
-        smooks.setFilterSettings(FilterSettings.DEFAULT_SAX);
         test_ftl(smooks, "<a><b x='xvalueonc1' /><c><f/></c><d/></a>",
                 "<a><b x=\"xvalueonc1\" /><c><f /><mybean>xvalueonc1</mybean></c><d /></a>");
 
         smooks = new Smooks(getClass().getResourceAsStream("test-configs-addto.xml"));
-        smooks.setFilterSettings(FilterSettings.DEFAULT_SAX);
         test_ftl(smooks, "<a><b x='xvalueonc1' /><c>11<f/>11</c><d/></a>",
                 "<a><b x=\"xvalueonc1\" /><c>11<f />11<mybean>xvalueonc1</mybean></c><d /></a>");
 
         smooks = new Smooks(getClass().getResourceAsStream("test-configs-addto.xml"));
-        smooks.setFilterSettings(new FilterSettings(StreamFilterType.SAX).setDefaultSerializationOn(false));
+        smooks.setFilterSettings(new FilterSettings(StreamFilterType.SAX_NG).setDefaultSerializationOn(false));
         test_ftl(smooks, "<a><b x='xvalueonc1' /><c>11<f/>11</c><d/></a>",
                 "<mybean>xvalueonc1</mybean>");
     }

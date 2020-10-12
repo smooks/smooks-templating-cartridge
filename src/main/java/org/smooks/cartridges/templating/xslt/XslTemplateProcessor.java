@@ -52,7 +52,7 @@ import org.smooks.cdr.SmooksResourceConfiguration;
 import org.smooks.container.ExecutionContext;
 import org.smooks.delivery.AbstractParser;
 import org.smooks.delivery.FilterBypass;
-import org.smooks.delivery.dom.serialize.GhostElementSerializationUnit;
+import org.smooks.delivery.dom.serialize.GhostElementSerializerVisitor;
 import org.smooks.delivery.ordering.Consumer;
 import org.smooks.event.report.annotation.VisitAfterReport;
 import org.smooks.event.report.annotation.VisitBeforeReport;
@@ -74,6 +74,7 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import java.io.IOException;
 import java.io.StringReader;
+import java.io.Writer;
 
 /**
  * XSLT template application ProcessingUnit.
@@ -157,27 +158,21 @@ public class XslTemplateProcessor extends AbstractTemplateProcessor implements C
             String rootElementNS = rootElement.getNamespaceURI();
 
             return (inlineXSL && !(rootElementNS != null && rootElementNS.equals("http://www.w3.org/1999/XSL/Transform") && DomUtils.getName(rootElement).equals("stylesheet")));
-        } catch (ParserConfigurationException e) {
-            throw new SmooksConfigurationException("Unable to parse XSL Document (Stylesheet/Templatelet).", e);
-        } catch (IOException e) {
+        } catch (ParserConfigurationException | IOException e) {
             throw new SmooksConfigurationException("Unable to parse XSL Document (Stylesheet/Templatelet).", e);
         } catch (SAXException e) {
             return inlineXSL;
         }
     }
 
+    @Override
     public boolean consumes(Object object) {
-        if(xslString.indexOf(object.toString()) != -1) {
-            return true;
-        }
-
-        return false;
+        return xslString.contains(object.toString());
     }
 
-    @Override
-    protected void visit(Element element, ExecutionContext executionContext) throws SmooksException {
+    protected void applyTemplate(Element element, ExecutionContext executionContext, Writer writer) {
         Document ownerDoc = element.getOwnerDocument();
-        Element ghostElement = GhostElementSerializationUnit.createElement(ownerDoc);
+        Element ghostElement = GhostElementSerializerVisitor.createElement(ownerDoc);
 
         try {
             if (isSynchronized) {
@@ -195,22 +190,31 @@ public class XslTemplateProcessor extends AbstractTemplateProcessor implements C
             // For bindTo or streamTo actions, we need to serialize the content and supply is as a Text DOM node.
             // AbstractTemplateProcessor will look after the rest, by extracting the content from the
             // Text node and attaching it to the ExecutionContext...
-            String serializedContent = XmlUtil.serialize(ghostElement.getChildNodes());
-            Text textNode = element.getOwnerDocument().createTextNode(serializedContent);
-
-            processTemplateAction(element, textNode, executionContext);
+            try {
+                writer.write(XmlUtil.serialize(ghostElement.getChildNodes()));
+            } catch (IOException e) {
+                throw new SmooksException(e.getMessage(), e);
+            }
         } else {
             NodeList children = ghostElement.getChildNodes();
 
             // Process the templating action, supplying the templating result...
-            if(children.getLength() == 1 && children.item(0).getNodeType() == Node.ELEMENT_NODE) {
-                processTemplateAction(element, children.item(0), executionContext);
+            if (children.getLength() == 1 && children.item(0).getNodeType() == Node.ELEMENT_NODE) {
+                try {
+                    writer.write(XmlUtil.serialize(children));
+                } catch (IOException e) {
+                    throw new SmooksException(e.getMessage(), e);
+                }
             } else {
-                processTemplateAction(element, ghostElement, executionContext);
+                try {
+                    writer.write(XmlUtil.serialize((NodeList) ghostElement));
+                } catch (IOException e) {
+                    throw new SmooksException(e.getMessage(), e);
+                }
             }
         }
     }
-
+    
     private void performTransform(Element element, Element transRes, Document ownerDoc) throws TransformerException {
         Transformer transformer = xslTemplate.newTransformer();
 
@@ -221,6 +225,7 @@ public class XslTemplateProcessor extends AbstractTemplateProcessor implements C
         }
     }
     
+    @Override
 	public boolean bypass(ExecutionContext executionContext, Source source, Result result) throws SmooksException {
 		if(!enableFilterBypass) {
 			return false;
@@ -233,12 +238,10 @@ public class XslTemplateProcessor extends AbstractTemplateProcessor implements C
 				Transformer transformer = xslTemplate.newTransformer();
 				transformer.transform(source, result);
 				return true;
-			} catch (TransformerConfigurationException e) {
-				throw new SmooksException("Error applying XSLT.", e);
 			} catch (TransformerException e) {
 				throw new SmooksException("Error applying XSLT.", e);
-			}			
-		}
+			}
+        }
 				
 		return false;
 	}
@@ -262,6 +265,31 @@ public class XslTemplateProcessor extends AbstractTemplateProcessor implements C
 		
 		return isXMLTargetedConfiguration;
 	}
+
+    @Override
+    protected void applyTemplateToOutputStream(Element element, String outputStreamResourceName, ExecutionContext executionContext, Writer writer) {
+        applyTemplate(element, executionContext, writer);
+    }
+
+    @Override
+    protected boolean beforeApplyTemplate(Element element, ExecutionContext executionContext, Writer writer) {
+        if (applyTemplateBefore() || getAction().equals(Action.INSERT_BEFORE)) {
+            applyTemplate(element, executionContext, writer);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    protected boolean afterApplyTemplate(Element element, ExecutionContext executionContext, Writer writer) {
+        if (!applyTemplateBefore()) {
+            applyTemplate(element, executionContext, writer);
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     private static class XslErrorListener implements ErrorListener {
         private final boolean failOnWarning;
@@ -294,20 +322,16 @@ public class XslTemplateProcessor extends AbstractTemplateProcessor implements C
      * @author <a href="mailto:daniel.bevenius@gmail.com">Daniel Bevenius</a>
      *
      */
-    private static class DomErrorHandler implements ErrorHandler
-    {
-        public void error(final SAXParseException exception) throws SAXException
-        {
+    private static class DomErrorHandler implements ErrorHandler {
+        public void error(final SAXParseException exception) throws SAXException {
             LOGGER.debug("SaxParseException error was reported : ", exception);
         }
 
-        public void fatalError(final SAXParseException exception) throws SAXException
-        {
+        public void fatalError(final SAXParseException exception) throws SAXException {
             LOGGER.debug("SaxParseException fatal error was reported : ", exception);
         }
 
-        public void warning(final SAXParseException exception) throws SAXException
-        {
+        public void warning(final SAXParseException exception) throws SAXException {
             LOGGER.debug("SaxParseException warning error was reported : ", exception);
         }
     }

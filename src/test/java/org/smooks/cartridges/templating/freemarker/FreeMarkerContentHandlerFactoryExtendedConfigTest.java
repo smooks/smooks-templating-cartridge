@@ -89,63 +89,37 @@ public class FreeMarkerContentHandlerFactoryExtendedConfigTest {
 
         test_ftl(smooks, "<a xmlns:x=\"http://x\"><b><x:c x='xvalueonc1' /><c x='xvalueonc2' /></b></a>", "<a xmlns:x=\"http://x\"><b><mybean>xvalueonc1</mybean><c x=\"xvalueonc2\"></c></b></a>");
     }
-
+    
     @Test
     public void test_nodeModel_1() throws IOException, SAXException {
-        test_nodeModel_1(StreamFilterType.DOM);
-        test_nodeModel_1(StreamFilterType.SAX);
-    }
-    public void test_nodeModel_1(StreamFilterType filterType) throws IOException, SAXException {
         Smooks smooks = new Smooks("/org/smooks/cartridges/templating/freemarker/test-configs-ext-05.xml");
-
-        smooks.setFilterSettings(new FilterSettings(filterType));
-
+        
         StringResult result = new StringResult();
         smooks.filterSource(new StringSource("<a><b><c>cvalue1</c><c>cvalue2</c><c>cvalue3</c></b></a>"), result);
         assertEquals("'cvalue1''cvalue2''cvalue3'", result.toString());
     }
-
+    
     @Test
     public void test_nodeModel_2() throws IOException, SAXException {
-        test_nodeModel_2(StreamFilterType.DOM);
-        test_nodeModel_2(StreamFilterType.SAX);
-    }
-    public void test_nodeModel_2(StreamFilterType filterType) throws IOException, SAXException {
         Smooks smooks = new Smooks("/org/smooks/cartridges/templating/freemarker/test-configs-ext-06.xml");
 
-        smooks.setFilterSettings(new FilterSettings(filterType));
         test_ftl(smooks, "<a><b><c>cvalue1</c><c>cvalue2</c><c>cvalue3</c></b></a>", "<a><b><x>'cvalue1'</x><x>'cvalue2'</x><x>'cvalue3'</x></b></a>");
     }
-
+    
     @Test
     public void test_nodeModel_3() throws IOException, SAXException {
-        test_nodeModel_3(StreamFilterType.DOM);
-        test_nodeModel_3(StreamFilterType.SAX);
-    }
-    public void test_nodeModel_3(StreamFilterType filterType) throws IOException, SAXException {
         Smooks smooks = new Smooks("/org/smooks/cartridges/templating/freemarker/test-configs-ext-07.xml");
 
-        smooks.setFilterSettings(new FilterSettings(filterType));
         StringResult result = new StringResult();
         smooks.filterSource(new StringSource("<a><b javabind='javaval'><c>cvalue1</c><c>cvalue2</c><c>cvalue3</c></b></a>"), result);
         assertEquals("'cvalue1''cvalue2''cvalue3' javaVal=javaval", result.toString());
     }
+    
 
     @Test
-    public void testFreeMarkerTrans_02_DOM() throws SAXException, IOException {
-        testFreeMarkerTrans_02(FilterSettings.DEFAULT_DOM);
-    }
-
-    @Test
-    public void testFreeMarkerTrans_02_SAX() throws SAXException, IOException {
-        testFreeMarkerTrans_02(FilterSettings.DEFAULT_SAX);
-    }
-
-    public void testFreeMarkerTrans_02(FilterSettings filterSettings) throws SAXException, IOException {
+    public void testFreeMarkerTrans_02() throws SAXException, IOException {
         Smooks smooks = new Smooks(getClass().getResourceAsStream("test-configs-ext-02.xml"));
-
-        smooks.setFilterSettings(filterSettings);
-
+        
         test_ftl(smooks, "<a><b><c x='xvalueonc1' /><c x='xvalueonc2' /></b></a>", "<a><b><mybean>xvalueonc1</mybean><mybean>xvalueonc2</mybean></b></a>");
         // Test transformation via the <context-object /> by transforming the root element using StringTemplate.
         test_ftl(smooks, "<c x='xvalueonc1' />", "<mybean>xvalueonc1</mybean>");
@@ -171,24 +145,13 @@ public class FreeMarkerContentHandlerFactoryExtendedConfigTest {
         // Check it...
         assertEquals("<mybean>xxxxxxx</mybean>", myTransformResult.toString());
     }
-
+    
     @Test
-    public void testFreeMarkerTrans_bind_DOM() throws SAXException, IOException {
-        testFreeMarkerTrans_bind(FilterSettings.DEFAULT_DOM);
-    }
-
-    @Test
-    public void testFreeMarkerTrans_bind_SAX() throws SAXException, IOException {
-        testFreeMarkerTrans_bind(FilterSettings.DEFAULT_SAX);
-    }
-
-    public void testFreeMarkerTrans_bind(FilterSettings filterSettings) throws SAXException, IOException {
+    public void testFreeMarkerTrans_bind() throws SAXException, IOException {
         Smooks smooks = new Smooks(getClass().getResourceAsStream("test-configs-ext-04.xml"));
         StringReader input;
         ExecutionContext context;
-
-        smooks.setFilterSettings(filterSettings);
-
+        
         context = smooks.createExecutionContext();
         input = new StringReader("<a><b><c x='xvalueonc2' /></b></a>");
         smooks.filterSource(context, new StreamSource(input));
@@ -211,69 +174,48 @@ public class FreeMarkerContentHandlerFactoryExtendedConfigTest {
 
     @Test
     public void testInsertBefore() throws SAXException, IOException {
-        Smooks smooks = new Smooks(getClass().getResourceAsStream("test-configs-ext-insert-before.xml"));
-
-        test_ftl(smooks, "<a><b x='xvalueonc1' /><c/><d/></a>",
-                         "<a><b x=\"xvalueonc1\"></b><mybean>xvalueonc1</mybean><c></c><d></d></a>");
-
-        smooks = new Smooks(getClass().getResourceAsStream("test-configs-insert-before.xml"));
-        smooks.setFilterSettings(FilterSettings.DEFAULT_SAX);
+        Smooks smooks = new Smooks(getClass().getResourceAsStream("test-configs-insert-before.xml"));
         test_ftl(smooks, "<a><b x='xvalueonc1' /><c/><d/></a>",
                          "<a><b x=\"xvalueonc1\" /><mybean>xvalueonc1</mybean><c /><d /></a>");
 
         smooks = new Smooks(getClass().getResourceAsStream("test-configs-insert-before.xml"));
-        smooks.setFilterSettings(new FilterSettings(StreamFilterType.SAX).setDefaultSerializationOn(false));
+        smooks.setFilterSettings(new FilterSettings(StreamFilterType.SAX_NG).setDefaultSerializationOn(false));
         test_ftl(smooks, "<a><b x='xvalueonc1' /><c>11<f/>11</c><d/></a>",
                          "<mybean>xvalueonc1</mybean>");
     }
 
     @Test
     public void testInsertAfter() throws SAXException, IOException {
-        Smooks smooks = new Smooks(getClass().getResourceAsStream("test-configs-ext-insert-after.xml"));
-
-        test_ftl(smooks, "<a><b x='xvalueonc1' /><c/><d/></a>",
-                         "<a><b x=\"xvalueonc1\"></b><c></c><mybean>xvalueonc1</mybean><d></d></a>");
-
-        smooks = new Smooks(getClass().getResourceAsStream("test-configs-insert-after.xml"));
-        smooks.setFilterSettings(FilterSettings.DEFAULT_SAX);
+        Smooks smooks = new Smooks(getClass().getResourceAsStream("test-configs-insert-after.xml"));
         test_ftl(smooks, "<a><b x='xvalueonc1' /><c/><d/></a>",
                          "<a><b x=\"xvalueonc1\" /><c /><mybean>xvalueonc1</mybean><d /></a>");
 
         smooks = new Smooks(getClass().getResourceAsStream("test-configs-insert-after.xml"));
-        smooks.setFilterSettings(new FilterSettings(StreamFilterType.SAX).setDefaultSerializationOn(false));
+        smooks.setFilterSettings(new FilterSettings(StreamFilterType.SAX_NG).setDefaultSerializationOn(false));
         test_ftl(smooks, "<a><b x='xvalueonc1' /><c>11<f/>11</c><d/></a>",
                          "<mybean>xvalueonc1</mybean>");
     }
 
     @Test
     public void testAddTo() throws SAXException, IOException {
-        Smooks smooks = new Smooks(getClass().getResourceAsStream("test-configs-ext-addto.xml"));
-
-        test_ftl(smooks, "<a><b x='xvalueonc1' /><c/><d/></a>",
-                         "<a><b x=\"xvalueonc1\"></b><c><mybean>xvalueonc1</mybean></c><d></d></a>");
-
-        smooks = new Smooks(getClass().getResourceAsStream("test-configs-addto.xml"));
-        smooks.setFilterSettings(FilterSettings.DEFAULT_SAX);
+        Smooks smooks = new Smooks(getClass().getResourceAsStream("test-configs-addto.xml"));
         test_ftl(smooks, "<a><b x='xvalueonc1' /><c/><d/></a>",
                          "<a><b x=\"xvalueonc1\" /><c><mybean>xvalueonc1</mybean></c><d /></a>");
 
         smooks = new Smooks(getClass().getResourceAsStream("test-configs-addto.xml"));
-        smooks.setFilterSettings(FilterSettings.DEFAULT_SAX);
         test_ftl(smooks, "<a><b x='xvalueonc1' /><c>1111</c><d/></a>",
                          "<a><b x=\"xvalueonc1\" /><c>1111<mybean>xvalueonc1</mybean></c><d /></a>");
 
         smooks = new Smooks(getClass().getResourceAsStream("test-configs-addto.xml"));
-        smooks.setFilterSettings(FilterSettings.DEFAULT_SAX);
         test_ftl(smooks, "<a><b x='xvalueonc1' /><c><f/></c><d/></a>",
                          "<a><b x=\"xvalueonc1\" /><c><f /><mybean>xvalueonc1</mybean></c><d /></a>");
 
         smooks = new Smooks(getClass().getResourceAsStream("test-configs-addto.xml"));
-        smooks.setFilterSettings(FilterSettings.DEFAULT_SAX);
         test_ftl(smooks, "<a><b x='xvalueonc1' /><c>11<f/>11</c><d/></a>",
                          "<a><b x=\"xvalueonc1\" /><c>11<f />11<mybean>xvalueonc1</mybean></c><d /></a>");
 
         smooks = new Smooks(getClass().getResourceAsStream("test-configs-addto.xml"));
-        smooks.setFilterSettings(new FilterSettings(StreamFilterType.SAX).setDefaultSerializationOn(false));
+        smooks.setFilterSettings(new FilterSettings(StreamFilterType.SAX_NG).setDefaultSerializationOn(false));
         test_ftl(smooks, "<a><b x='xvalueonc1' /><c>11<f/>11</c><d/></a>",
                          "<mybean>xvalueonc1</mybean>");
     }

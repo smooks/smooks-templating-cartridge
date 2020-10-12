@@ -67,27 +67,17 @@ public class RouteToOutputStreamResourceTest {
     }
 
     @Test
-    public void test_dom_1() throws IOException, SAXException {
-        test_1(StreamFilterType.DOM);
-    }
-
-    @Test
-    public void test_dom_2() throws IOException, SAXException {
-        test_2(StreamFilterType.DOM);
-    }
-
-    public void test_1(StreamFilterType filterType) throws IOException, SAXException {
+    public void test_1() throws IOException, SAXException {
         Smooks smooks = new Smooks(getClass().getResourceAsStream("route-to-stream-01.xml"));
 
-        smooks.setFilterSettings(new FilterSettings(filterType));
         smooks.filterSource(new StringSource("<a><c x='cx' /><d><e x='ex' /></d></a>"), null);
         assertEquals("xslfrome xslfromd ", new String(MockOutStreamResource.outputStream.toByteArray()));
     }
 
-    public void test_2(StreamFilterType filterType) throws IOException, SAXException {
+    @Test
+    public void test_2() throws IOException, SAXException {
         Smooks smooks = new Smooks(getClass().getResourceAsStream("route-to-stream-02.xml"));
 
-        smooks.setFilterSettings(new FilterSettings(filterType));
         smooks.filterSource(new StringSource("<a><c x='cx' /><d><e x='ex' /></d></a>"), null);
         assertEquals("xslfromd xslfrome ", new String(MockOutStreamResource.outputStream.toByteArray()));
     }
