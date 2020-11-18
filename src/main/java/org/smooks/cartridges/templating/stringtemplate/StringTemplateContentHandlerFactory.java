@@ -48,21 +48,22 @@ import org.smooks.SmooksException;
 import org.smooks.cartridges.templating.AbstractTemplateProcessor;
 import org.smooks.cdr.SmooksConfigurationException;
 import org.smooks.cdr.SmooksResourceConfiguration;
-import org.smooks.cdr.injector.Scope;
-import org.smooks.cdr.lifecycle.phase.PostConstructLifecyclePhase;
-import org.smooks.cdr.registry.lookup.LifecycleManagerLookup;
+import org.smooks.injector.Scope;
+import org.smooks.registry.lookup.LifecycleManagerLookup;
 import org.smooks.container.ApplicationContext;
 import org.smooks.container.ExecutionContext;
 import org.smooks.delivery.ContentHandler;
 import org.smooks.delivery.ContentHandlerFactory;
-import org.smooks.delivery.dom.serialize.TextSerializationUnit;
 import org.smooks.delivery.ordering.Consumer;
 import org.smooks.event.report.annotation.VisitAfterReport;
 import org.smooks.event.report.annotation.VisitBeforeReport;
+import org.smooks.lifecycle.phase.PostConstructLifecyclePhase;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import javax.inject.Inject;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.Map;
 
 /**
@@ -166,30 +167,50 @@ public class StringTemplateContentHandlerFactory implements ContentHandlerFactor
             template = templateGroup.getInstanceOf(path);
         }
 
-        @Override
-		protected void visit(Element element, ExecutionContext executionContext) {
+        protected void applyTemplate(ExecutionContext executionContext, Writer writer) {
             // First thing we do is clone the template for this transformation...
             StringTemplate thisTransTemplate = template.getInstanceOf();
             Map<String, Object> beans = executionContext.getBeanContext().getBeanMap();
             String templatingResult;
-            Node resultNode;
 
             // Set the document data beans on the template and apply it...
             thisTransTemplate.setAttributes(beans);
             templatingResult = thisTransTemplate.toString();
 
-            resultNode = TextSerializationUnit.createTextElement(element, templatingResult);
-
-            // Process the templating action, supplying the templating result...
-            processTemplateAction(element, resultNode, executionContext);
+            try {
+                writer.write(templatingResult);
+            } catch (IOException e) {
+                throw new SmooksException(e.getMessage(), e);
+            }
         }
 
         public boolean consumes(Object object) {
-            if(template.getTemplate().indexOf(object.toString()) != -1) {
-                return true;
-            }
+            return template.getTemplate().contains(object.toString());
+        }
 
-            return false;
+        @Override
+        protected void applyTemplateToOutputStream(Element element, String outputStreamResourceName, ExecutionContext executionContext, Writer writer) {
+            applyTemplate(executionContext, writer);
+        }
+
+        @Override
+        protected boolean beforeApplyTemplate(Element element, ExecutionContext executionContext, Writer writer) {
+            if (applyTemplateBefore() || getAction().equals(Action.INSERT_BEFORE)) {
+                applyTemplate(executionContext, writer);
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        @Override
+        protected boolean afterApplyTemplate(Element element, ExecutionContext executionContext, Writer writer) {
+            if (!applyTemplateBefore()) {
+                applyTemplate(executionContext, writer);
+                return true;
+            } else {
+                return false;
+            }
         }
     }
 }

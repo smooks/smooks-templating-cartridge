@@ -46,25 +46,24 @@ import org.smooks.SmooksException;
 import org.smooks.cartridges.templating.AbstractTemplateProcessor;
 import org.smooks.cdr.SmooksConfigurationException;
 import org.smooks.cdr.SmooksResourceConfiguration;
-import org.smooks.cdr.injector.Scope;
-import org.smooks.cdr.lifecycle.phase.PostConstructLifecyclePhase;
-import org.smooks.cdr.registry.lookup.LifecycleManagerLookup;
+import org.smooks.injector.Scope;
+import org.smooks.registry.lookup.LifecycleManagerLookup;
 import org.smooks.container.ApplicationContext;
 import org.smooks.container.ExecutionContext;
 import org.smooks.delivery.ContentHandler;
 import org.smooks.delivery.ContentHandlerFactory;
-import org.smooks.delivery.dom.serialize.TextSerializationUnit;
 import org.smooks.delivery.ordering.Consumer;
 import org.smooks.event.report.annotation.VisitAfterReport;
 import org.smooks.event.report.annotation.VisitBeforeReport;
 import org.smooks.javabean.context.BeanContext;
+import org.smooks.lifecycle.phase.PostConstructLifecyclePhase;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STRawGroupDir;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.Map;
 
 /**
@@ -116,14 +115,15 @@ import java.util.Map;
 public class StringTemplateContentHandlerFactory implements ContentHandlerFactory {
 
 	@Inject
-	private ApplicationContext applicationContext;
+    private ApplicationContext applicationContext;
 
-	/**
-	 * Create a StringTemplate based ContentHandler.
+    /**
+     * Create a StringTemplate based ContentHandler.
+     *
      * @param resourceConfig The SmooksResourceConfiguration for the StringTemplate.
      * @return The StringTemplate {@link org.smooks.delivery.ContentHandler} instance.
-	 */
-	public synchronized ContentHandler create(SmooksResourceConfiguration resourceConfig) throws SmooksConfigurationException {
+     */
+    public synchronized ContentHandler create(SmooksResourceConfiguration resourceConfig) throws SmooksConfigurationException {
         final StringTemplateTemplateProcessor stringTemplateTemplateProcessor = new StringTemplateTemplateProcessor();
         try {
             applicationContext.getRegistry().lookup(new LifecycleManagerLookup()).applyPhase(stringTemplateTemplateProcessor, new PostConstructLifecyclePhase(new Scope(applicationContext.getRegistry(), resourceConfig, stringTemplateTemplateProcessor)));
@@ -131,11 +131,11 @@ public class StringTemplateContentHandlerFactory implements ContentHandlerFactor
         } catch (SmooksConfigurationException e) {
             throw e;
         } catch (Exception e) {
-			InstantiationException instanceException = new InstantiationException("StringTemplate ProcessingUnit resource [" + resourceConfig.getResource() + "] not loadable.  StringTemplate resource invalid.");
-			instanceException.initCause(e);
-			throw new SmooksException(instanceException.getMessage(), instanceException);
-		}
-	}
+            InstantiationException instanceException = new InstantiationException("StringTemplate ProcessingUnit resource [" + resourceConfig.getResource() + "] not loadable.  StringTemplate resource invalid.");
+            instanceException.initCause(e);
+            throw new SmooksException(instanceException.getMessage(), instanceException);
+        }
+    }
 
     @Override
     public String getType() {
@@ -143,61 +143,81 @@ public class StringTemplateContentHandlerFactory implements ContentHandlerFactor
     }
 
     /**
-	 * StringTemplate template application ProcessingUnit.
-	 * @author tfennelly
-	 */
+     * StringTemplate template application ProcessingUnit.
+     *
+     * @author tfennelly
+     */
     @VisitBeforeReport(condition = "false")
     @VisitAfterReport(summary = "Applied StringTemplate Template.", detailTemplate = "reporting/StringTemplateTemplateProcessor_After.html")
-	private static class StringTemplateTemplateProcessor extends AbstractTemplateProcessor implements Consumer {
+    private static class StringTemplateTemplateProcessor extends AbstractTemplateProcessor implements Consumer {
 
-    	private ST template = null;
-    	private String templateName;
-    	STRawGroupDir templateGroupDir;
+        private ST template = null;
+        private String templateName;
+        STRawGroupDir templateGroupDir;
 
         @Override
-	protected void loadTemplate(SmooksResourceConfiguration config) throws IOException {
+        protected void loadTemplate(SmooksResourceConfiguration config) throws IOException {
             String path = config.getResource();
-            
-            if(path.charAt(0) == '/') {
-            	path = path.substring(1);
+
+            if (path.charAt(0) == '/') {
+                path = path.substring(1);
             }
 
             String dir = path.substring(0, path.lastIndexOf('/'));
-            
+
             templateName = path.substring(path.lastIndexOf('/'), path.indexOf(".st"));
-            templateGroupDir = new STRawGroupDir(dir, getEncoding().displayName(),'$','$');
+            templateGroupDir = new STRawGroupDir(dir, getEncoding().displayName(), '$', '$');
             template = templateGroupDir.getInstanceOf(templateName);
+        }
+        
+        protected void applyTemplate(ExecutionContext executionContext, Writer writer) {
+            // First thing we do is clone the template for this transformation...
+            // Commented out as due to https://github.com/antlr/stringtemplate4/issues/100
+            // ST transform = new ST(template);
+            ST transform = templateGroupDir.getInstanceOf(templateName);
+
+            Map<String, Object> beans = executionContext.getBeanContext().getBeanMap();
+
+            // Set the document data beans on the template and apply it...
+            for (Map.Entry<String, Object> entry : beans.entrySet()) {
+                transform.add(entry.getKey(), entry.getValue());
+            }
+
+            String templatingResult = transform.render().trim();
+            try {
+                writer.write(templatingResult);
+            } catch (IOException e) {
+                throw new SmooksException(e.getMessage(), e);
+            }
+        }
+        
+        public boolean consumes(Object object) {
+            return template.impl.getTemplateSource().contains(object.toString());
         }
 
         @Override
-	protected void visit(Element element, ExecutionContext executionContext) {
-            // First thing we do is clone the template for this transformation...
-       	    // Commented out as due to https://github.com/antlr/stringtemplate4/issues/100
-            // ST transform = new ST(template);
-            ST transform = templateGroupDir.getInstanceOf(templateName);
-        	        	
-            Map<String, Object> beans = executionContext.getBeanContext().getBeanMap();
-            
-            // Set the document data beans on the template and apply it...
-            for (Map.Entry<String, Object> entry : beans.entrySet()) {
-           		transform.add(entry.getKey(), entry.getValue());
-            }
-    
-            String templatingResult = transform.render().trim();
-
-            Node resultNode = TextSerializationUnit.createTextElement(element, templatingResult);
-
-            // Process the templating action, supplying the templating result...
-            processTemplateAction(element, resultNode, executionContext);
+        protected void applyTemplateToOutputStream(Element element, String outputStreamResourceName, ExecutionContext executionContext, Writer writer) {
+            applyTemplate(executionContext, writer);
         }
 
-        public boolean consumes(Object object) {
-        	
-        	if (template.impl.getTemplateSource().indexOf(object.toString()) != -1) {
-        		return true;
-        	}
-            
-            return false;
+        @Override
+        protected boolean beforeApplyTemplate(Element element, ExecutionContext executionContext, Writer writer) {
+            if (applyTemplateBefore() || getAction().equals(Action.INSERT_BEFORE)) {
+                applyTemplate(executionContext, writer);
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        @Override
+        protected boolean afterApplyTemplate(Element element, ExecutionContext executionContext, Writer writer) {
+            if (!applyTemplateBefore()) {
+                applyTemplate(executionContext, writer);
+                return true;
+            } else {
+                return false;
+            }
         }
     }
 }

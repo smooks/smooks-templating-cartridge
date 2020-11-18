@@ -71,20 +71,15 @@ public class XslContentHandlerFactoryTest {
     @Test
     public void testXslUnitTrans_filebased_replace() {
         Smooks smooks = new Smooks();
-        SmooksResourceConfiguration res = new SmooksResourceConfiguration("p", "org/smooks/cartridges/templating/xslt/xsltransunit.xsl");
-        String transResult = null;
+        SmooksResourceConfiguration smooksResourceConfiguration = new SmooksResourceConfiguration("p", "org/smooks/cartridges/templating/xslt/xsltransunit.xsl");
 
         System.setProperty("javax.xml.transform.TransformerFactory", org.apache.xalan.processor.TransformerFactoryImpl.class.getName());
-        smooks.getApplicationContext().getRegistry().registerSmooksResourceConfiguration(res);
+        smooks.getApplicationContext().getRegistry().registerSmooksResourceConfiguration(smooksResourceConfiguration);
 
-        try {
-            InputStream stream = getClass().getResourceAsStream("htmlpage.html");
-            ExecutionContext context = smooks.createExecutionContext();
-            transResult = SmooksUtil.filterAndSerialize(context, stream, smooks);
-        } catch (SmooksException e) {
-            e.printStackTrace();
-            fail("unexpected exception: " + e.getMessage());
-        }
+        InputStream stream = getClass().getResourceAsStream("htmlpage.html");
+        ExecutionContext context = smooks.createExecutionContext();
+        String transResult = SmooksUtil.filterAndSerialize(context, stream, smooks);
+    
         CharUtils.assertEquals("XSL Comparison Failure - See xsltransunit.expected1.", "/org/smooks/cartridges/templating/xslt/xsltransunit.expected1", transResult);
     }
 
@@ -107,7 +102,7 @@ public class XslContentHandlerFactoryTest {
         res.setParameter(XslContentHandlerFactory.IS_XSLT_TEMPLATELET, "true");
         res.setParameter("action", action);
         smooks.getApplicationContext().getRegistry().registerSmooksResourceConfiguration(res);
-
+        
         try {
             InputStream stream = getClass().getResourceAsStream("htmlpage.html");
             ExecutionContext context = smooks.createExecutionContext();
@@ -148,7 +143,7 @@ public class XslContentHandlerFactoryTest {
         StringResult result = new StringResult();
 
         smooks.filterSource(new StringSource("<a/>"), result);
-        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?><xxxxxx/>", result.getResult());
+        assertEquals("<xxxxxx/>", result.getResult());
     }
 
     @Test
@@ -157,7 +152,7 @@ public class XslContentHandlerFactoryTest {
         StringResult result = new StringResult();
 
         smooks.filterSource(new StringSource("<a name='kalle'/>"), result);
-        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?><x>kalle</x>", result.getResult());
+        assertEquals("<x>kalle</x>", result.getResult());
     }
 
     @Test
@@ -166,7 +161,7 @@ public class XslContentHandlerFactoryTest {
         StringResult result = new StringResult();
 
         smooks.filterSource(new StringSource("<a/>"), result);
-        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?>Hi there!", result.getResult());
+        assertEquals("Hi there!", result.getResult());
     }
 
     @Test
@@ -175,7 +170,7 @@ public class XslContentHandlerFactoryTest {
         StringResult result = new StringResult();
 
         smooks.filterSource(new StringSource("<a/>"), result);
-        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?><xxxxxx/>", result.getResult());
+        assertEquals("<xxxxxx/>", result.getResult());
     }
 
     @Test

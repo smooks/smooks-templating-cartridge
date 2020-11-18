@@ -3,12 +3,7 @@
   <SOAP-ENV:Header>
     <wsa:MessageID>9ccdc110-b5e1-11da-bb6e-e2761a0ce10a</wsa:MessageID>
     <wsa:Action>urn:x-acme:servicetype:Address:findAddresses</wsa:Action>
-  <wsse:Security xmlns:wsse="http://schemas.xmlsoap.org/ws/2002/04/secext">
-    <wsse:UsernameToken>
-        <wsse:Username>johnnym</wsse:Username>
-        <wsse:Password>guessagain</wsse:Password>
-    </wsse:UsernameToken>
-</wsse:Security></SOAP-ENV:Header>
+  </SOAP-ENV:Header>
 
   <SOAP-ENV:Body>
     <m:findAddresses SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:m="v2">

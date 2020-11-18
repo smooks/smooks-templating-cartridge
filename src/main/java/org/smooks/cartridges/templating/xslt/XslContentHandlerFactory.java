@@ -45,13 +45,13 @@ package org.smooks.cartridges.templating.xslt;
 import org.smooks.SmooksException;
 import org.smooks.cdr.SmooksConfigurationException;
 import org.smooks.cdr.SmooksResourceConfiguration;
-import org.smooks.cdr.injector.Scope;
-import org.smooks.cdr.lifecycle.phase.PostConstructLifecyclePhase;
-import org.smooks.cdr.registry.lookup.LifecycleManagerLookup;
+import org.smooks.injector.Scope;
+import org.smooks.registry.lookup.LifecycleManagerLookup;
 import org.smooks.container.ApplicationContext;
 import org.smooks.delivery.ContentHandler;
 import org.smooks.delivery.ContentHandlerFactory;
 import org.smooks.javabean.context.BeanContext;
+import org.smooks.lifecycle.phase.PostConstructLifecyclePhase;
 
 import javax.inject.Inject;
 

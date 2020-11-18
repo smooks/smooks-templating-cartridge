@@ -46,7 +46,7 @@
 
     <resource-config selector="global-parameters">
         <param name="default.serialization.on">false</param>
-        <param name="stream.filter.type">SAX</param>
+        <param name="close.empty.elements">true</param>
     </resource-config>
 
     <jb:bean beanId="myBeanData" class="org.smooks.cartridges.templating.MyBean" createOnElement="b">
@@ -64,7 +64,7 @@
     </resource-config>
 
     <resource-config selector="d">
-        <resource>org.smooks.delivery.sax.DefaultSAXElementSerializer</resource>
+        <resource>org.smooks.delivery.sax.ng.SaxNgSerializerVisitor</resource>
     </resource-config>
 
 </smooks-resource-list>

@@ -65,29 +65,19 @@ public class RouteToOutputStreamResourceTest {
     public void setUp() throws Exception {
         MockOutStreamResource.outputStream = new ByteArrayOutputStream();
     }
-
+    
     @Test
-    public void test_dom_1() throws IOException, SAXException {
-        test_1(StreamFilterType.DOM);
-    }
-
-    @Test
-    public void test_dom_2() throws IOException, SAXException {
-        test_2(StreamFilterType.DOM);
-    }
-
-    public void test_1(StreamFilterType filterType) throws IOException, SAXException {
+    public void test_1() throws IOException, SAXException {
         Smooks smooks = new Smooks(getClass().getResourceAsStream("route-to-stream-01.xml"));
 
-        smooks.setFilterSettings(new FilterSettings(filterType));
         smooks.filterSource(new StringSource("<a><c x='cx' /><d><e x='ex' /></d></a>"), null);
         assertEquals("<mybean>ex</mybean><mybean>cx</mybean>", new String(MockOutStreamResource.outputStream.toByteArray()));
     }
 
-    public void test_2(StreamFilterType filterType) throws IOException, SAXException {
+    @Test
+    public void test_2() throws IOException, SAXException {
         Smooks smooks = new Smooks(getClass().getResourceAsStream("route-to-stream-02.xml"));
 
-        smooks.setFilterSettings(new FilterSettings(filterType));
         smooks.filterSource(new StringSource("<a><c x='cx' /><d><e x='ex' /></d></a>"), null);
         assertEquals("<mybean>cx</mybean><mybean>ex</mybean>", new String(MockOutStreamResource.outputStream.toByteArray()));
     }

@@ -50,24 +50,24 @@ import org.smooks.cdr.SmooksConfigurationException;
 import org.smooks.cdr.SmooksResourceConfiguration;
 import org.smooks.container.ApplicationContext;
 import org.smooks.container.ExecutionContext;
+import org.smooks.delivery.Filter;
 import org.smooks.delivery.Fragment;
-import org.smooks.delivery.dom.DOMElementVisitor;
-import org.smooks.delivery.dom.serialize.ContextObjectSerializationUnit;
-import org.smooks.delivery.dom.serialize.TextSerializationUnit;
+import org.smooks.delivery.interceptor.WriterInterceptor;
 import org.smooks.delivery.ordering.Producer;
+import org.smooks.delivery.sax.ng.ElementVisitor;
+import org.smooks.delivery.sax.ng.SaxNgSerializerVisitor;
 import org.smooks.io.AbstractOutputStreamResource;
+import org.smooks.io.NullWriter;
 import org.smooks.javabean.repository.BeanId;
 import org.smooks.util.CollectionsUtil;
-import org.smooks.xml.DomUtils;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.xml.transform.TransformerConfigurationException;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -84,7 +84,7 @@ import java.util.Set;
  * @author tfennelly
  */
 @SuppressWarnings("unchecked")
-public abstract class AbstractTemplateProcessor implements DOMElementVisitor, Producer {
+public abstract class AbstractTemplateProcessor implements ElementVisitor, Producer {
 
     /**
      * Template split point processing instruction.
@@ -92,7 +92,6 @@ public abstract class AbstractTemplateProcessor implements DOMElementVisitor, Pr
     public static final String TEMPLATE_SPLIT_PI = "<\\?TEMPLATE-SPLIT-PI\\?>";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractTemplateProcessor.class);
-    private static boolean legactVisitBeforeParamWarn = false;
 
     protected enum Action {
         REPLACE,
@@ -103,6 +102,8 @@ public abstract class AbstractTemplateProcessor implements DOMElementVisitor, Pr
     }
 
     private TemplatingConfiguration templatingConfiguration;
+    private SaxNgSerializerVisitor targetWriter;
+    private BeanId bindBeanId;
 
     @Inject
     private Boolean applyTemplateBefore = false;
@@ -120,34 +121,36 @@ public abstract class AbstractTemplateProcessor implements DOMElementVisitor, Pr
     private Optional<String> outputStreamResource;
 
     @Inject
-    private SmooksResourceConfiguration smooksConfig;
+    private SmooksResourceConfiguration smooksResourceConfiguration;
 
     @Inject
     private ApplicationContext applicationContext;
 
-    private BeanId bindBeanId;
-
+    @Inject
+    @Named(Filter.ENTITIES_REWRITE)
+    private Boolean rewriteEntities = true;
+    
     @PostConstruct
-    public void initialize() {
-        if(templatingConfiguration != null) {
+    public void postConstruct() {
+        if (templatingConfiguration != null) {
             SmooksResourceConfiguration config = new SmooksResourceConfiguration();
 
             config.setResource(templatingConfiguration.getTemplate());
 
             Usage resultUsage = templatingConfiguration.getUsage();
-            if(resultUsage == Inline.ADD_TO) {
+            if (resultUsage == Inline.ADD_TO) {
                 action = Action.ADD_TO;
-            } else if(resultUsage == Inline.REPLACE) {
+            } else if (resultUsage == Inline.REPLACE) {
                 action = Action.REPLACE;
-            } else if(resultUsage == Inline.INSERT_BEFORE) {
+            } else if (resultUsage == Inline.INSERT_BEFORE) {
                 action = Action.INSERT_BEFORE;
-            } else if(resultUsage == Inline.INSERT_AFTER) {
+            } else if (resultUsage == Inline.INSERT_AFTER) {
                 action = Action.INSERT_AFTER;
-            } else if(resultUsage instanceof BindTo) {
+            } else if (resultUsage instanceof BindTo) {
                 action = Action.BIND_TO;
                 bindId = Optional.of(((BindTo) resultUsage).getBeanId());
                 bindBeanId = applicationContext.getBeanIdStore().register(bindId.get());
-            } else if(resultUsage instanceof OutputTo) {
+            } else if (resultUsage instanceof OutputTo) {
                 outputStreamResource = Optional.ofNullable(((OutputTo) resultUsage).getOutputStreamResource());
             }
 
@@ -156,32 +159,29 @@ public abstract class AbstractTemplateProcessor implements DOMElementVisitor, Pr
             } catch (Exception e) {
                 throw new SmooksConfigurationException("Error loading Templating resource: " + config, e);
             }
-        } else if(smooksConfig != null) {
-            if(smooksConfig.getResource() == null) {
-                throw new SmooksConfigurationException("Templating resource undefined in resource configuration: " + smooksConfig);
+        } else if (smooksResourceConfiguration != null) {
+            if (smooksResourceConfiguration.getResource() == null) {
+                throw new SmooksConfigurationException("Templating resource undefined in resource configuration: " + smooksResourceConfiguration);
             }
 
             try {
-                loadTemplate(smooksConfig);
+                loadTemplate(smooksResourceConfiguration);
             } catch (Exception e) {
-                throw new SmooksConfigurationException("Error loading Templating resource: " + smooksConfig, e);
-            }
-            String visitBefore = smooksConfig.getParameterValue("visitBefore", String.class);
-            if(visitBefore != null) {
-                if(!legactVisitBeforeParamWarn) {
-                    LOGGER.warn("Templating <param> 'visitBefore' deprecated.  Use 'applyTemplateBefore'.");
-                    legactVisitBeforeParamWarn = true;
-                }
-                this.applyTemplateBefore = visitBefore.equalsIgnoreCase("true");
+                throw new SmooksConfigurationException("Error loading Templating resource: " + smooksResourceConfiguration, e);
             }
 
-            if(action == Action.BIND_TO) {
-                if(!bindId.isPresent()) {
+            if (action == Action.BIND_TO) {
+                if (!bindId.isPresent()) {
                     throw new SmooksConfigurationException("'BIND_TO' templating action configurations must also specify a 'bindId' configuration for the Id under which the result is bound to the ExecutionContext");
                 } else {
                     bindBeanId = applicationContext.getBeanIdStore().register(bindId.get());
                 }
             }
+
+            targetWriter = new SaxNgSerializerVisitor();
+            targetWriter.setRewriteEntities(Optional.of(rewriteEntities));
+            targetWriter.setCloseEmptyElements(Optional.of(false));
+            targetWriter.postConstruct();
         } else {
             throw new SmooksConfigurationException(getClass().getSimpleName() + " not configured.");
         }
@@ -199,11 +199,7 @@ public abstract class AbstractTemplateProcessor implements DOMElementVisitor, Pr
     }
 
     public Set<String> getProducts() {
-        if(outputStreamResource.isPresent()) {
-            return CollectionsUtil.toSet(outputStreamResource.get());
-        } else {
-            return CollectionsUtil.toSet();
-        }
+        return outputStreamResource.map(CollectionsUtil::toSet).orElseGet(CollectionsUtil::toSet);
     }
 
     protected Action getAction() {
@@ -222,120 +218,134 @@ public abstract class AbstractTemplateProcessor implements DOMElementVisitor, Pr
         return outputStreamResource.orElse(null);
     }
 
-    protected void processTemplateAction(Element element, Node templatingResult, ExecutionContext executionContext) {
-		// REPLACE needs to be handled explicitly...
-		if(getOutputStreamResource() == null && action == Action.REPLACE) {
-            DomUtils.replaceNode(templatingResult, element);
-        } else {
-    		_processTemplateAction(element, templatingResult, action, executionContext);
-        }
-	}
-
-	protected void processTemplateAction(Element element, NodeList templatingResultNodeList, ExecutionContext executionContext) {
-		// If we're at the root element
-		if(element.getParentNode() instanceof Document) {
-			int count = templatingResultNodeList.getLength();
-
-			// Iterate over the NodeList and filter the action using the
-			// first element node we encounter as the transformation result...
-			for(int i = 0; i < count; i++) {
-				Node node = templatingResultNodeList.item(0);
-				if(node.getNodeType() == Node.ELEMENT_NODE) {
-					processTemplateAction(element, node, executionContext);
-					break;
-				}
-			}
-		} else if(action == Action.REPLACE) {
-			// When we're not at the root element, REPLACE needs to be handled explicitly
-			// by performing a series of insert-befores, followed by a remove of the
-			// target element...
-			processTemplateAction(element, templatingResultNodeList, Action.INSERT_BEFORE, executionContext);
-			element.getParentNode().removeChild(element);
-        } else {
-			processTemplateAction(element, templatingResultNodeList, action, executionContext);
-        }
-	}
-
-	private void processTemplateAction(Element element, NodeList templatingResultNodeList, Action action, ExecutionContext executionContext) {
-		int count = templatingResultNodeList.getLength();
-
-		// Iterate over the NodeList and filter each Node against the action.
-		for(int i = 0; i < count; i++) {
-			// We iterate over the list in this way because the nodes are auto removed from the
-			// the list as they are added/inserted elsewhere.
-			_processTemplateAction(element, templatingResultNodeList.item(0), action, executionContext);
-		}
-	}
-
-	private void _processTemplateAction(Element element, Node node, Action action, ExecutionContext executionContext) {
-        Node parent = element.getParentNode();
-
-        // Can't insert before or after the root element...
-        if(parent instanceof Document && (action == Action.INSERT_BEFORE || action == Action.INSERT_AFTER)) {
-            LOGGER.debug("Insert before/after root element not allowed.  Consider using the replace action!!");
-            return;
-        }
-
-        String outputStreamResourceName = getOutputStreamResource();
-        if(outputStreamResourceName != null) {
-            Writer writer = AbstractOutputStreamResource.getOutputWriter(outputStreamResourceName, executionContext);
-            String text = extractTextContent(node, executionContext);
-            try {
-                writer.write(text);
-            } catch (IOException e) {
-                throw new SmooksException("Failed to write to output stream resource '" + outputStreamResourceName + "'.", e);
-            }
-        } else {
-            if(action == Action.ADD_TO) {
-                element.appendChild(node);
-            } else if(action == Action.INSERT_BEFORE) {
-                DomUtils.insertBefore(node, element);
-            } else if(action == Action.INSERT_AFTER) {
-                Node nextSibling = element.getNextSibling();
-
-                if(nextSibling == null) {
-                    // "element" is the last child of "parent" so just add to "parent".
-                    parent.appendChild(node);
-                } else {
-                    // insert before the "nextSibling" - Node doesn't have an "INSERT_AFTER" operation!
-                    DomUtils.insertBefore(node, nextSibling);
-                }
-            } else if(action == Action.BIND_TO) {
-            	String text = extractTextContent(node, executionContext);
-
-            	executionContext.getBeanContext().addBean(bindBeanId, text, new Fragment(element));
-            } else if(action == Action.REPLACE) {
-                // Don't perform any "replace" actions here!
-            }
-        }
-    }
-
-    private String extractTextContent(Node node, ExecutionContext executionContext) {
-        if(node.getNodeType() == Node.TEXT_NODE) {
-            return node.getTextContent();
-        } else if(node.getNodeType() == Node.ELEMENT_NODE && ContextObjectSerializationUnit.isContextObjectElement((Element) node)) {
-            String contextKey = ContextObjectSerializationUnit.getContextKey((Element) node);
-            return (String) executionContext.getAttribute(contextKey);
-        } else if(node.getNodeType() == Node.ELEMENT_NODE && TextSerializationUnit.isTextElement((Element) node)) {
-            return TextSerializationUnit.getText((Element) node);
-        } else {
-            throw new SmooksException("Unsupported 'BIND_TO' or toOutStream templating action.  The bind data must be attached to a DOM Text node, or already bound to a <context-object> element.");
-        }
-    }
-
+    @Override
     public void visitBefore(Element element, ExecutionContext executionContext) throws SmooksException {
-        if(applyTemplateBefore) {
-            visit(element, executionContext);
+        String outputStreamResourceName = getOutputStreamResource();
+        if (outputStreamResourceName != null) {
+            if (applyTemplateBefore()) {
+                Writer writer = AbstractOutputStreamResource.getOutputWriter(outputStreamResourceName, executionContext);
+                applyTemplateToOutputStream(element, outputStreamResourceName, executionContext, writer);
+            }
+        } else {
+            if (getAction() == Action.INSERT_BEFORE) {
+                // apply the template...
+                beforeApplyTemplate(element, executionContext, executionContext.getWriter());
+                // write the start of the element...
+                if (executionContext.getDeliveryConfig().isDefaultSerializationOn()) {
+                    targetWriter.visitBefore(element, executionContext);
+                }
+            } else if (getAction() == Action.REPLACE) {
+                Writer currentWriter = executionContext.getWriter();
+                if (currentWriter instanceof WriterInterceptor.ExclusiveWriter) {
+                    ((WriterInterceptor.ExclusiveWriter) currentWriter).acquire();
+                }
+
+                if (!beforeApplyTemplate(element, executionContext, currentWriter) && executionContext.getDeliveryConfig().isDefaultSerializationOn()) {
+                    // If Default Serialization is on, we want to block output to the
+                    // output stream...
+                    executionContext.setWriter(new NullWriter(currentWriter));
+                }
+            } else if (getAction() != Action.REPLACE && getAction() != Action.BIND_TO) {
+                // write the start of the element...
+                if (executionContext.getDeliveryConfig().isDefaultSerializationOn()) {
+                    targetWriter.visitBefore(element, executionContext);
+                }
+            } else {
+                // Just acquire ownership of the writer, but only do so if the action is not a BIND_TO
+                // and default serialization is on.  BIND_TO will not use the writer, so no need to
+                // acquire it for that action...
+                if (getAction() != Action.BIND_TO && executionContext.getDeliveryConfig().isDefaultSerializationOn()) {
+                    Writer currentWriter = executionContext.getWriter();
+                    if (currentWriter instanceof WriterInterceptor.ExclusiveWriter) {
+                        ((WriterInterceptor.ExclusiveWriter) currentWriter).acquire();
+                    }
+                }
+            }
         }
     }
 
+    @Override
+    public void visitChildText(Element element, ExecutionContext executionContext) throws SmooksException {
+        if(getOutputStreamResource() == null) {
+            if (getAction() != Action.REPLACE && getAction() != Action.BIND_TO) {
+                if (executionContext.getDeliveryConfig().isDefaultSerializationOn()) {
+                    targetWriter.visitChildText(element, executionContext);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void visitChildElement(Element childElement, ExecutionContext executionContext) throws SmooksException {
+        if(getOutputStreamResource() == null) {
+            if (getAction() != Action.REPLACE && getAction() != Action.BIND_TO) {
+                if (executionContext.getDeliveryConfig().isDefaultSerializationOn()) {
+                    targetWriter.visitChildElement(childElement, executionContext);
+                }
+            }
+        }
+    }
+
+    protected abstract void applyTemplateToOutputStream(Element element, String outputStreamResourceName, ExecutionContext executionContext, Writer writer);
+
+    protected abstract boolean beforeApplyTemplate(Element element, ExecutionContext executionContext, Writer writer);
+
+    protected abstract boolean afterApplyTemplate(Element element, ExecutionContext executionContext, Writer writer);
+
+    @Override
     public void visitAfter(Element element, ExecutionContext executionContext) throws SmooksException {
-        if(!applyTemplateBefore) {
-            visit(element, executionContext);
+        String outputStreamResourceName = getOutputStreamResource();
+        if (outputStreamResourceName != null) {
+            if (!applyTemplateBefore()) {
+                Writer writer = AbstractOutputStreamResource.getOutputWriter(outputStreamResourceName, executionContext);
+                applyTemplateToOutputStream(element, outputStreamResourceName, executionContext, writer);
+            }
+        } else {
+            if (getAction() == Action.ADD_TO) {
+                if (executionContext.getDeliveryConfig().isDefaultSerializationOn()) {
+                    targetWriter.writeStartElement(element, executionContext);
+                }
+                // apply the template...
+                afterApplyTemplate(element, executionContext, executionContext.getWriter());
+                // write the end of the element...
+                if (executionContext.getDeliveryConfig().isDefaultSerializationOn()) {
+                    targetWriter.visitAfter(element, executionContext);
+                }
+            } else if (getAction() == Action.INSERT_BEFORE) {
+                // write the end of the element...
+                if (executionContext.getDeliveryConfig().isDefaultSerializationOn()) {
+                    targetWriter.visitAfter(element, executionContext);
+                }
+            } else if (getAction() == Action.INSERT_AFTER) {
+                // write the end of the element...
+                if (executionContext.getDeliveryConfig().isDefaultSerializationOn()) {
+                    targetWriter.visitAfter(element, executionContext);
+                }
+                // apply the template...
+                afterApplyTemplate(element, executionContext, executionContext.getWriter());
+            } else if (getAction() == Action.REPLACE) {
+                // Reset the writer and then apply the template...
+                Writer writer;
+                if (executionContext.getWriter() instanceof NullWriter) {
+                    writer = ((NullWriter) executionContext.getWriter()).getParentWriter();
+                } else {
+                    writer = executionContext.getWriter();
+                }
+
+                afterApplyTemplate(element, executionContext, writer);
+            } else if (getAction() == Action.BIND_TO) {
+                // just apply the template...
+                Writer ftlWriter = new StringWriter();
+                afterApplyTemplate(element, executionContext, ftlWriter);
+                try {
+                    ftlWriter.flush();
+                } catch (IOException e) {
+                    throw new SmooksException(e.getMessage(), e);
+                }
+                executionContext.getBeanContext().addBean(getBindBeanId(), ftlWriter.toString(), new Fragment(element));
+            }
         }
     }
-
-    protected abstract void visit(Element element, ExecutionContext executionContext) throws SmooksException;
     
 	/**
 	 * @return the bindBeanId
