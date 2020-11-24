@@ -46,8 +46,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.smooks.SmooksException;
 import org.smooks.assertion.AssertArgument;
+import org.smooks.cdr.ResourceConfig;
 import org.smooks.cdr.SmooksConfigurationException;
-import org.smooks.cdr.SmooksResourceConfiguration;
 import org.smooks.container.ApplicationContext;
 import org.smooks.container.ExecutionContext;
 import org.smooks.delivery.Filter;
@@ -121,7 +121,7 @@ public abstract class AbstractTemplateProcessor implements ElementVisitor, Produ
     private Optional<String> outputStreamResource;
 
     @Inject
-    private SmooksResourceConfiguration smooksResourceConfiguration;
+    private ResourceConfig smooksResourceConfiguration;
 
     @Inject
     private ApplicationContext applicationContext;
@@ -133,7 +133,7 @@ public abstract class AbstractTemplateProcessor implements ElementVisitor, Produ
     @PostConstruct
     public void postConstruct() {
         if (templatingConfiguration != null) {
-            SmooksResourceConfiguration config = new SmooksResourceConfiguration();
+            ResourceConfig config = new ResourceConfig();
 
             config.setResource(templatingConfiguration.getTemplate());
 
@@ -192,7 +192,7 @@ public abstract class AbstractTemplateProcessor implements ElementVisitor, Produ
         this.templatingConfiguration = templatingConfiguration;
     }
 
-    protected abstract void loadTemplate(SmooksResourceConfiguration config) throws IOException, TransformerConfigurationException;
+    protected abstract void loadTemplate(ResourceConfig resourceConfig) throws IOException, TransformerConfigurationException;
 
     public boolean applyTemplateBefore() {
         return applyTemplateBefore;
