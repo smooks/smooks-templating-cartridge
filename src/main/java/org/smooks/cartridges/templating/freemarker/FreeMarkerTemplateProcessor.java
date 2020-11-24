@@ -52,7 +52,7 @@ import freemarker.template.TemplateException;
 import org.smooks.SmooksException;
 import org.smooks.cartridges.templating.AbstractTemplateProcessor;
 import org.smooks.cartridges.templating.TemplatingConfiguration;
-import org.smooks.cdr.SmooksResourceConfiguration;
+import org.smooks.cdr.ResourceConfig;
 import org.smooks.container.ExecutionContext;
 import org.smooks.delivery.ordering.Consumer;
 import org.smooks.event.report.annotation.VisitAfterReport;
@@ -96,7 +96,7 @@ public class FreeMarkerTemplateProcessor extends AbstractTemplateProcessor imple
     private Template defaultTemplate;
     private Template templateBefore;
     private Template templateAfter;
-    private SmooksResourceConfiguration config;
+    private ResourceConfig resourceConfig;
 
     /**
      * Default constructor.
@@ -114,16 +114,16 @@ public class FreeMarkerTemplateProcessor extends AbstractTemplateProcessor imple
     }
 
     @Override
-	protected void loadTemplate(SmooksResourceConfiguration config) throws IOException {
-        this.config = config;
+	protected void loadTemplate(ResourceConfig resourceConfig) throws IOException {
+        this.resourceConfig = resourceConfig;
 
         Configuration configuration = new Configuration(Configuration.VERSION_2_3_21);
 
         configuration.setSharedVariable("serialize", new NodeModelSerializer());
         configuration.setNumberFormat(defaultNumberFormat);
 
-        if (config.isInline()) {
-            byte[] templateBytes = config.getBytes();
+        if (resourceConfig.isInline()) {
+            byte[] templateBytes = resourceConfig.getBytes();
             String[] templates = (new String(templateBytes)).split(AbstractTemplateProcessor.TEMPLATE_SPLIT_PI);
 
             if(templates.length == 1) {
@@ -142,7 +142,7 @@ public class FreeMarkerTemplateProcessor extends AbstractTemplateProcessor imple
             MultiTemplateLoader multiLoader = new MultiTemplateLoader(loaders);
 
             configuration.setTemplateLoader(multiLoader);
-            defaultTemplate = configuration.getTemplate(config.getResource());
+            defaultTemplate = configuration.getTemplate(resourceConfig.getResource());
         }
     }
 
@@ -196,7 +196,7 @@ public class FreeMarkerTemplateProcessor extends AbstractTemplateProcessor imple
             Map<String, Object> model = FreeMarkerUtils.getMergedModel(executionContext);
             template.process(model, writer);
         } catch (TemplateException | IOException e) {
-            throw new SmooksException("Failed to apply FreeMarker template to fragment '" + DomUtils.getXPath(element) + "'.  Resource: " + config, e);
+            throw new SmooksException("Failed to apply FreeMarker template to fragment '" + DomUtils.getXPath(element) + "'.  Resource: " + resourceConfig, e);
         }
     }
 

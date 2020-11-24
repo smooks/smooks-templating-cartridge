@@ -47,8 +47,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.smooks.SmooksException;
 import org.smooks.cartridges.templating.AbstractTemplateProcessor;
+import org.smooks.cdr.ResourceConfig;
 import org.smooks.cdr.SmooksConfigurationException;
-import org.smooks.cdr.SmooksResourceConfiguration;
 import org.smooks.container.ExecutionContext;
 import org.smooks.delivery.AbstractParser;
 import org.smooks.delivery.FilterBypass;
@@ -60,7 +60,10 @@ import org.smooks.io.StreamUtils;
 import org.smooks.util.ClassUtil;
 import org.smooks.xml.DomUtils;
 import org.smooks.xml.XmlUtil;
-import org.w3c.dom.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
@@ -125,7 +128,7 @@ public class XslTemplateProcessor extends AbstractTemplateProcessor implements C
 
 
     @Override
-    protected void loadTemplate(SmooksResourceConfiguration resourceConfig) throws IOException, TransformerConfigurationException {
+    protected void loadTemplate(ResourceConfig resourceConfig) throws IOException, TransformerConfigurationException {
         TransformerFactory transformerFactory = TransformerFactory.newInstance();
         StreamSource xslStreamSource;
         boolean isInlineXSL = resourceConfig.isInline();
@@ -250,7 +253,7 @@ public class XslTemplateProcessor extends AbstractTemplateProcessor implements C
 		if(isXMLTargetedConfiguration == null) {
 			synchronized (this) {				
 				if(isXMLTargetedConfiguration == null) {
-					SmooksResourceConfiguration readerConfiguration = AbstractParser.getSAXParserConfiguration(executionContext.getDeliveryConfig());
+                    ResourceConfig readerConfiguration = AbstractParser.getSAXParserConfiguration(executionContext.getDeliveryConfig());
 					if(readerConfiguration != null) {
 						// We have an reader config, if the class is not configured, we assume 
 						// the expected Source to be XML...

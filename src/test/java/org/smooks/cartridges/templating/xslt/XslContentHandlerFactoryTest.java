@@ -47,8 +47,8 @@ import org.smooks.Smooks;
 import org.smooks.SmooksException;
 import org.smooks.SmooksUtil;
 import org.smooks.cartridges.templating.util.CharUtils;
+import org.smooks.cdr.ResourceConfig;
 import org.smooks.cdr.SmooksConfigurationException;
-import org.smooks.cdr.SmooksResourceConfiguration;
 import org.smooks.container.ExecutionContext;
 import org.smooks.payload.StringResult;
 import org.smooks.payload.StringSource;
@@ -71,10 +71,10 @@ public class XslContentHandlerFactoryTest {
     @Test
     public void testXslUnitTrans_filebased_replace() {
         Smooks smooks = new Smooks();
-        SmooksResourceConfiguration smooksResourceConfiguration = new SmooksResourceConfiguration("p", "org/smooks/cartridges/templating/xslt/xsltransunit.xsl");
+        ResourceConfig resourceConfig = new ResourceConfig("p", "org/smooks/cartridges/templating/xslt/xsltransunit.xsl");
 
         System.setProperty("javax.xml.transform.TransformerFactory", org.apache.xalan.processor.TransformerFactoryImpl.class.getName());
-        smooks.getApplicationContext().getRegistry().registerSmooksResourceConfiguration(smooksResourceConfiguration);
+        smooks.getApplicationContext().getRegistry().registerResourceConfig(resourceConfig);
 
         InputStream stream = getClass().getResourceAsStream("htmlpage.html");
         ExecutionContext context = smooks.createExecutionContext();
@@ -93,7 +93,7 @@ public class XslContentHandlerFactoryTest {
 
     public void testXslUnitTrans_parambased(String action, String expectedFileName) {
         Smooks smooks = new Smooks();
-        SmooksResourceConfiguration res = new SmooksResourceConfiguration("p", "<z id=\"{@id}\">Content from template!!</z>");
+        ResourceConfig res = new ResourceConfig("p", "<z id=\"{@id}\">Content from template!!</z>");
         String transResult = null;
 
         System.setProperty("javax.xml.transform.TransformerFactory", org.apache.xalan.processor.TransformerFactoryImpl.class.getName());
@@ -101,7 +101,7 @@ public class XslContentHandlerFactoryTest {
         res.setResourceType("xsl");
         res.setParameter(XslContentHandlerFactory.IS_XSLT_TEMPLATELET, "true");
         res.setParameter("action", action);
-        smooks.getApplicationContext().getRegistry().registerSmooksResourceConfiguration(res);
+        smooks.getApplicationContext().getRegistry().registerResourceConfig(res);
         
         try {
             InputStream stream = getClass().getResourceAsStream("htmlpage.html");

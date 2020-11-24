@@ -46,10 +46,8 @@ import org.antlr.stringtemplate.StringTemplate;
 import org.antlr.stringtemplate.StringTemplateGroup;
 import org.smooks.SmooksException;
 import org.smooks.cartridges.templating.AbstractTemplateProcessor;
+import org.smooks.cdr.ResourceConfig;
 import org.smooks.cdr.SmooksConfigurationException;
-import org.smooks.cdr.SmooksResourceConfiguration;
-import org.smooks.injector.Scope;
-import org.smooks.registry.lookup.LifecycleManagerLookup;
 import org.smooks.container.ApplicationContext;
 import org.smooks.container.ExecutionContext;
 import org.smooks.delivery.ContentHandler;
@@ -57,9 +55,10 @@ import org.smooks.delivery.ContentHandlerFactory;
 import org.smooks.delivery.ordering.Consumer;
 import org.smooks.event.report.annotation.VisitAfterReport;
 import org.smooks.event.report.annotation.VisitBeforeReport;
+import org.smooks.injector.Scope;
 import org.smooks.lifecycle.phase.PostConstructLifecyclePhase;
+import org.smooks.registry.lookup.LifecycleManagerLookup;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -122,7 +121,7 @@ public class StringTemplateContentHandlerFactory implements ContentHandlerFactor
      * @param resourceConfig The SmooksResourceConfiguration for the StringTemplate.
      * @return The StringTemplate {@link org.smooks.delivery.ContentHandler} instance.
 	 */
-	public synchronized ContentHandler create(SmooksResourceConfiguration resourceConfig) throws SmooksConfigurationException {
+	public synchronized ContentHandler create(ResourceConfig resourceConfig) throws SmooksConfigurationException {
         final StringTemplateTemplateProcessor stringTemplateTemplateProcessor = new StringTemplateTemplateProcessor();
         try {
             applicationContext.getRegistry().lookup(new LifecycleManagerLookup()).applyPhase(stringTemplateTemplateProcessor, new PostConstructLifecyclePhase(new Scope(applicationContext.getRegistry(), resourceConfig, stringTemplateTemplateProcessor)));
@@ -152,7 +151,7 @@ public class StringTemplateContentHandlerFactory implements ContentHandlerFactor
         private StringTemplate template;
 
         @Override
-		protected void loadTemplate(SmooksResourceConfiguration config) {
+		protected void loadTemplate(ResourceConfig config) {
             String path = config.getResource();
 
             if(path.charAt(0) == '/') {

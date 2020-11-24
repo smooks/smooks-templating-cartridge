@@ -43,15 +43,15 @@
 package org.smooks.cartridges.templating.xslt;
 
 import org.smooks.SmooksException;
+import org.smooks.cdr.ResourceConfig;
 import org.smooks.cdr.SmooksConfigurationException;
-import org.smooks.cdr.SmooksResourceConfiguration;
-import org.smooks.injector.Scope;
-import org.smooks.registry.lookup.LifecycleManagerLookup;
 import org.smooks.container.ApplicationContext;
 import org.smooks.delivery.ContentHandler;
 import org.smooks.delivery.ContentHandlerFactory;
+import org.smooks.injector.Scope;
 import org.smooks.javabean.context.BeanContext;
 import org.smooks.lifecycle.phase.PostConstructLifecyclePhase;
+import org.smooks.registry.lookup.LifecycleManagerLookup;
 
 import javax.inject.Inject;
 
@@ -175,7 +175,7 @@ public class XslContentHandlerFactory implements ContentHandlerFactory {
      * @return XSL {@link org.smooks.delivery.ContentHandler} instance.
      * @see org.smooks.delivery.JavaContentHandlerFactory
      */
-    public synchronized ContentHandler create(SmooksResourceConfiguration resourceConfig) throws SmooksConfigurationException {
+    public synchronized ContentHandler create(ResourceConfig resourceConfig) throws SmooksConfigurationException {
         final XslTemplateProcessor xslTemplateProcessor = new XslTemplateProcessor();
         try {
             applicationContext.getRegistry().lookup(new LifecycleManagerLookup()).applyPhase(xslTemplateProcessor, new PostConstructLifecyclePhase(new Scope(applicationContext.getRegistry(), resourceConfig, xslTemplateProcessor)));
