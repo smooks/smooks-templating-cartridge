@@ -130,7 +130,7 @@ public class FreeMarkerContentHandlerFactoryExtendedConfigTest {
         Smooks smooks = new Smooks(getClass().getResourceAsStream("test-configs-ext-03.xml"));
 
         // Initialise the input bean map...
-        Map<String, Object> myBeans = new HashMap<String, Object>();
+        Map<String, Object> myBeans = new HashMap<>();
         MyBean myBean = new MyBean();
         myBean.setX("xxxxxxx");
         myBeans.put("myBeanData", myBean);

@@ -121,7 +121,7 @@ public abstract class AbstractTemplateProcessor implements ElementVisitor, Produ
     private Optional<String> outputStreamResource;
 
     @Inject
-    private ResourceConfig smooksResourceConfiguration;
+    private ResourceConfig resourceConfig;
 
     @Inject
     private ApplicationContext applicationContext;
@@ -159,15 +159,15 @@ public abstract class AbstractTemplateProcessor implements ElementVisitor, Produ
             } catch (Exception e) {
                 throw new SmooksConfigurationException("Error loading Templating resource: " + config, e);
             }
-        } else if (smooksResourceConfiguration != null) {
-            if (smooksResourceConfiguration.getResource() == null) {
-                throw new SmooksConfigurationException("Templating resource undefined in resource configuration: " + smooksResourceConfiguration);
+        } else if (resourceConfig != null) {
+            if (resourceConfig.getResource() == null) {
+                throw new SmooksConfigurationException("Templating resource undefined in resource configuration: " + resourceConfig);
             }
 
             try {
-                loadTemplate(smooksResourceConfiguration);
+                loadTemplate(resourceConfig);
             } catch (Exception e) {
-                throw new SmooksConfigurationException("Error loading Templating resource: " + smooksResourceConfiguration, e);
+                throw new SmooksConfigurationException("Error loading Templating resource: " + resourceConfig, e);
             }
 
             if (action == Action.BIND_TO) {
@@ -266,7 +266,7 @@ public abstract class AbstractTemplateProcessor implements ElementVisitor, Produ
 
     @Override
     public void visitChildText(Element element, ExecutionContext executionContext) throws SmooksException {
-        if(getOutputStreamResource() == null) {
+        if (getOutputStreamResource() == null) {
             if (getAction() != Action.REPLACE && getAction() != Action.BIND_TO) {
                 if (executionContext.getDeliveryConfig().isDefaultSerializationOn()) {
                     targetWriter.visitChildText(element, executionContext);
@@ -277,7 +277,7 @@ public abstract class AbstractTemplateProcessor implements ElementVisitor, Produ
 
     @Override
     public void visitChildElement(Element childElement, ExecutionContext executionContext) throws SmooksException {
-        if(getOutputStreamResource() == null) {
+        if (getOutputStreamResource() == null) {
             if (getAction() != Action.REPLACE && getAction() != Action.BIND_TO) {
                 if (executionContext.getDeliveryConfig().isDefaultSerializationOn()) {
                     targetWriter.visitChildElement(childElement, executionContext);

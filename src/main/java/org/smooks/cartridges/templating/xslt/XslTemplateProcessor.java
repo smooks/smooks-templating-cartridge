@@ -87,6 +87,9 @@ import java.io.Writer;
 @VisitBeforeReport(condition = "false")
 @VisitAfterReport(summary = "Applied XSL Template.", detailTemplate = "reporting/XslTemplateProcessor_After.html")
 public class XslTemplateProcessor extends AbstractTemplateProcessor implements Consumer, FilterBypass {
+    
+    static final ThreadLocal<ExecutionContext> executionContextThreadLocal = new ThreadLocal<>();
+    
     /**
      * Logger.
      */
@@ -180,10 +183,10 @@ public class XslTemplateProcessor extends AbstractTemplateProcessor implements C
         try {
             if (isSynchronized) {
                 synchronized (xslTemplate) {
-                    performTransform(element, ghostElement, ownerDoc);
+                    performTransform(element, ghostElement, ownerDoc, executionContext);
                 }
             } else {
-                performTransform(element, ghostElement, ownerDoc);
+                performTransform(element, ghostElement, ownerDoc, executionContext);
             }
         } catch (TransformerException e) {
             throw new SmooksException("Error applying XSLT to node [" + executionContext.getDocumentSource() + ":" + DomUtils.getXPath(element) + "]", e);
@@ -218,13 +221,18 @@ public class XslTemplateProcessor extends AbstractTemplateProcessor implements C
         }
     }
     
-    private void performTransform(Element element, Element transRes, Document ownerDoc) throws TransformerException {
+    private void performTransform(Element element, Element transRes, Document ownerDoc, ExecutionContext executionContext) throws TransformerException {
         Transformer transformer = xslTemplate.newTransformer();
 
-        if (element == ownerDoc.getDocumentElement()) {
-            transformer.transform(new DOMSource(ownerDoc), new DOMResult(transRes));
-        } else {
-            transformer.transform(new DOMSource(element), new DOMResult(transRes));
+        try {
+            executionContextThreadLocal.set(executionContext);
+            if (element == ownerDoc.getDocumentElement()) {
+                transformer.transform(new DOMSource(ownerDoc), new DOMResult(transRes));
+            } else {
+                transformer.transform(new DOMSource(element), new DOMResult(transRes));
+            }
+        } finally {
+            executionContextThreadLocal.remove();
         }
     }
     
