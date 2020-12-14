@@ -48,10 +48,9 @@ import ognl.OgnlException;
 import org.apache.xalan.extensions.XSLProcessorContext;
 import org.apache.xalan.templates.AVT;
 import org.apache.xalan.templates.ElemExtensionCall;
-import org.smooks.container.ExecutionContext;
-import org.smooks.delivery.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.smooks.container.ExecutionContext;
 
 import java.util.Hashtable;
 import java.util.Map;
@@ -138,7 +137,7 @@ public class XalanJavabeanExtension {
             throw new OgnlException("'ognl' expression not specified, or is blank.");
         }
 
-        ExecutionContext activeRequest = Filter.getCurrentExecutionContext();
+        ExecutionContext activeRequest = XslTemplateProcessor.executionContextThreadLocal.get();
 
         if (activeRequest == null) {
             String message = getClass().getName() + " can only be used within the context of a SmooksDOMFilter operation..";

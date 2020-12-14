@@ -182,7 +182,7 @@ public class FreeMarkerProgramaticConfigTest {
         smooks.addVisitors(new Bean(MyBean.class, "myBeanData", "b").bindTo("x", "b/@x"));
         smooks.addVisitor(
                 new FreeMarkerTemplateProcessor(
-                        new TemplatingConfiguration("/org/smooks/cartridges/templating/freemarker/test-template.ftl").setUsage(Inline.ADD_TO)
+                            new TemplatingConfiguration("/org/smooks/cartridges/templating/freemarker/test-template.ftl").setUsage(Inline.ADD_TO)
                 ),
                 "c"
         );

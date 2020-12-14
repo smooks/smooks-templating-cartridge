@@ -128,7 +128,7 @@ public class XslContentHandlerFactoryTest {
         input = new StringReader("<a><b><c/></b></a>");
         context = smooks.createExecutionContext();
         smooks.filterSource(context, new StreamSource(input), null);
-
+    
         assertEquals("<bind/>", context.getBeanContext().getBean("mybeanTemplate"));
 
         input = new StringReader("<c/>");
