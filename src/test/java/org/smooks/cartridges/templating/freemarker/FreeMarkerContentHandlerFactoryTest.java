@@ -73,7 +73,11 @@ public class FreeMarkerContentHandlerFactoryTest {
 
     @Test
     public void testFreeMarkerTrans_01() throws SAXException, IOException {
-        testFreeMarkerTrans_01("test-configs-01.xml");
+        Smooks smooks = new Smooks("/org/smooks/cartridges/templating/freemarker/test-configs-01.xml");
+
+        test_ftl(smooks, "<a><b><c x='xvalueonc1' /><c x='xvalueonc2' /></b></a>", "<a><b><mybean>xvalueonc1</mybean><mybean>xvalueonc2</mybean></b></a>");
+        // Test transformation via the <context-object /> by transforming the root element using StringTemplate.
+        test_ftl(smooks, "<c x='xvalueonc1' />", "<mybean>xvalueonc1</mybean>");
     }
     
     @Test
@@ -100,14 +104,6 @@ public class FreeMarkerContentHandlerFactoryTest {
         StringResult result = new StringResult();
         smooks.filterSource(new StringSource("<a><b javabind='javaval'><c>cvalue1</c><c>cvalue2</c><c>cvalue3</c></b></a>"), result);
         assertEquals("'cvalue1''cvalue2''cvalue3' javaVal=javaval", result.toString());
-    }
-
-    public void testFreeMarkerTrans_01(String config) throws SAXException, IOException {
-        Smooks smooks = new Smooks("/org/smooks/cartridges/templating/freemarker/" + config);
-
-        test_ftl(smooks, "<a><b><c x='xvalueonc1' /><c x='xvalueonc2' /></b></a>", "<a><b><mybean>xvalueonc1</mybean><mybean>xvalueonc2</mybean></b></a>");
-        // Test transformation via the <context-object /> by transforming the root element using StringTemplate.
-        test_ftl(smooks, "<c x='xvalueonc1' />", "<mybean>xvalueonc1</mybean>");
     }
 
     @Test
@@ -246,7 +242,7 @@ public class FreeMarkerContentHandlerFactoryTest {
 
         StringResult result = new StringResult();
         smooks.filterSource(new StringSource("<a><e><b x='xvalueonc1' /><c/><d/><b x='xvalueonc2' /></e></a>"), result);
-        assertEquals("<mybean>xvalueonc1</mybean><d /><mybean>xvalueonc2</mybean>", result.toString());
+        assertEquals("<mybean>xvalueonc1</mybean><d/><mybean>xvalueonc2</mybean>", result.toString());
     }
 
     private void test_ftl(Smooks smooks, String input, String expected) throws IOException, SAXException {

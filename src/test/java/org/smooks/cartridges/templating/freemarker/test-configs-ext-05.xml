@@ -44,14 +44,19 @@
 
 <smooks-resource-list xmlns="https://www.smooks.org/xsd/smooks-2.0.xsd"
                       xmlns:ftl="https://www.smooks.org/xsd/smooks/freemarker-2.0.xsd"
->
+                      xmlns:core="https://www.smooks.org/xsd/smooks/smooks-core-1.6.xsd">
 
-    <ftl:freemarker applyOnElement="#document">
-        <ftl:template><!--<#foreach c in a.b.c>'${c}'</#foreach>--></ftl:template>
-    </ftl:freemarker>
-
-    <resource-config selector="#document">
-        <resource>org.smooks.delivery.DomModelCreator</resource>
-    </resource-config>
+    <core:smooks filterSourceOn="#document" maxNodeDepth="0">
+        <core:action>
+            <core:inline directive="REPLACE"/>
+        </core:action>
+        <core:config>
+            <smooks-resource-list>
+                <ftl:freemarker applyOnElement="#document">
+                    <ftl:template><!--<#foreach c in a.b.c>'${c}'</#foreach>--></ftl:template>
+                </ftl:freemarker>
+            </smooks-resource-list>
+        </core:config>
+    </core:smooks>
 
 </smooks-resource-list>

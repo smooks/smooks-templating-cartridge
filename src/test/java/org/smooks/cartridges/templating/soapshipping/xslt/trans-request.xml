@@ -42,22 +42,35 @@
   =========================LICENSE_END==================================
   -->
 
-<smooks-resource-list xmlns="https://www.smooks.org/xsd/smooks-2.0.xsd" xmlns:jb="https://www.smooks.org/xsd/smooks/javabean-1.6.xsd" default-target-profile="shipping-request">
+<smooks-resource-list xmlns="https://www.smooks.org/xsd/smooks-2.0.xsd" 
+                      xmlns:jb="https://www.smooks.org/xsd/smooks/javabean-1.6.xsd"
+                      xmlns:core="https://www.smooks.org/xsd/smooks/smooks-core-1.6.xsd"
+                      default-target-profile="shipping-request">
 
 	<!--
 		Use a StringTemplate template to perform the transformation.
 		We're transforming the "trackingNumber" element...
 	-->
-	<resource-config selector="trackingNumber">
-        <resource type="xsl">
-			<!--
-			<trackingNumber>
-				<xsl:value-of select="smooks-bean:select('trackingNumber')" />
-			</trackingNumber>
-			-->
-        </resource>
-		<param name="is-xslt-templatelet">true</param>
-	</resource-config>
+    <core:smooks filterSourceOn="trackingNumber">
+        <core:action>
+            <core:inline directive="REPLACE"/>
+        </core:action>
+        <core:config>
+            <smooks-resource-list>
+                <resource-config selector="trackingNumber">
+                    <resource type="xsl">
+                        <!--
+                        <trackingNumber>
+                            <xsl:value-of select="smooks-bean:select('trackingNumber')" />
+                        </trackingNumber>
+                        -->
+                    </resource>
+                    <param name="is-xslt-templatelet">true</param>
+                </resource-config>
+            </smooks-resource-list>
+        </core:config>
+    </core:smooks>
+
 
     <!--
         Configure the TrackingNumber bean creation and population...

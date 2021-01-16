@@ -5,7 +5,9 @@
 	<body>
 		<table>
 			<tr>
+			    Some text... 
 				<x id="para1">Content from template!!</x>
+				Some more text... 
 				<x id="para2">Content from template!!</x>
 			</tr>
 		</table>

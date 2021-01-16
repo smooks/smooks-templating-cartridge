@@ -42,27 +42,39 @@
   =========================LICENSE_END==================================
   -->
 
-<smooks-resource-list xmlns="https://www.smooks.org/xsd/smooks-2.0.xsd" xmlns:jb="https://www.smooks.org/xsd/smooks/javabean-1.6.xsd" default-target-profile="shipping-request">
-
-	<!--
-		Use a FreeMarker template to perform the transformation.
-		We're transforming the "trackingNumber" element...
-	-->
-	<resource-config selector="trackingNumber">
-        <resource type="ftl">
-            <!--
-<trackingNumber>
- ${trackingNumber}
-</trackingNumber>
-            -->
-        </resource>
-    </resource-config>
-
+<smooks-resource-list xmlns="https://www.smooks.org/xsd/smooks-2.0.xsd" 
+                      xmlns:jb="https://www.smooks.org/xsd/smooks/javabean-1.6.xsd"
+                      xmlns:core="https://www.smooks.org/xsd/smooks/smooks-core-1.6.xsd"
+                      default-target-profile="shipping-request">
+    
     <!--
 		Configure the TrackingNumber bean creation and population...
 	-->
     <jb:bean beanId="trackingNumber" class="org.smooks.cartridges.templating.soapshipping.TrackingNumber" createOnElement="trackingNumber">
-      <jb:value property="shipperID" data="trackingNumber/shipperID" />
-      <jb:value property="shipmentNumber" data="trackingNumber/shipmentNumber" />
-    </jb:bean>	
+        <jb:value property="shipperID" data="trackingNumber/shipperID" />
+        <jb:value property="shipmentNumber" data="trackingNumber/shipmentNumber" />
+    </jb:bean>
+    
+    <!--
+     Use a FreeMarker template to perform the transformation.
+     We're transforming the "trackingNumber" element...
+     -->
+    <core:smooks filterSourceOn="trackingNumber" maxNodeDepth="0">
+        <core:action>
+            <core:inline directive="REPLACE"/>
+        </core:action>
+        <core:config>
+            <smooks-resource-list>
+                <resource-config selector="trackingNumber">
+                    <resource type="ftl">
+                        <!--
+            <trackingNumber>
+             ${trackingNumber}
+            </trackingNumber>
+                        -->
+                    </resource>
+                </resource-config>
+            </smooks-resource-list>
+        </core:config>
+    </core:smooks>
 </smooks-resource-list>

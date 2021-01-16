@@ -43,13 +43,21 @@
   -->
 
 
-<smooks-resource-list xmlns="https://www.smooks.org/xsd/smooks-2.0.xsd">
+<smooks-resource-list xmlns="https://www.smooks.org/xsd/smooks-2.0.xsd"
+                      xmlns:core="https://www.smooks.org/xsd/smooks/smooks-core-1.6.xsd">
 
-    <resource-config selector="c">
-        <resource type="xsl"><!--<bind />--></resource>
-        <param name="is-xslt-templatelet">true</param>
-        <param name="action">BIND_TO</param>
-        <param name="bindId">mybeanTemplate</param>
-    </resource-config>
+    <core:smooks filterSourceOn="c">
+        <core:action>
+            <core:bindTo id="mybeanTemplate"/>
+        </core:action>
+        <core:config>
+            <smooks-resource-list>
+                <resource-config selector="c">
+                    <resource type="xsl"><!--<bind />--></resource>
+                    <param name="is-xslt-templatelet">true</param>
+                </resource-config>
+            </smooks-resource-list>
+        </core:config>
+    </core:smooks>
 
 </smooks-resource-list>

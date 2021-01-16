@@ -42,7 +42,9 @@
   =========================LICENSE_END==================================
   -->
 
-<smooks-resource-list xmlns="https://www.smooks.org/xsd/smooks-2.0.xsd" xmlns:jb="https://www.smooks.org/xsd/smooks/javabean-1.6.xsd">
+<smooks-resource-list xmlns="https://www.smooks.org/xsd/smooks-2.0.xsd" 
+                      xmlns:jb="https://www.smooks.org/xsd/smooks/javabean-1.6.xsd"
+                      xmlns:core="https://www.smooks.org/xsd/smooks/smooks-core-1.6.xsd">
 
     <jb:bean beanId="myBeanCData" class="org.smooks.cartridges.templating.MyBean" createOnElement="c">
         <jb:value property="x" data="c/@x" />
@@ -57,15 +59,31 @@
         <param name="resourceName">mockOutStream</param>
     </resource-config>
 
-    <resource-config selector="d">
-        <resource type="stv4">/org/smooks/cartridges/templating/stringtemplate/v4/test-template-2.st</resource>
-        <param name="outputStreamResource">mockOutStream</param>
-        <param name="applyTemplateBefore">true</param>
-    </resource-config>
+    <core:smooks filterSourceOn="d">
+        <core:action>
+            <core:outputTo outputStreamResource="mockOutStream"/>
+        </core:action>
+        <core:config>
+            <smooks-resource-list>
+                <resource-config selector="d">
+                    <resource type="stv4">/org/smooks/cartridges/templating/stringtemplate/v4/test-template-2.st</resource>
+                    <param name="applyTemplateBefore">true</param>
+                </resource-config>
+            </smooks-resource-list>
+        </core:config>
+    </core:smooks>
 
-    <resource-config selector="e">
-        <resource type="stv4">/org/smooks/cartridges/templating/stringtemplate/v4/test-template-3.st</resource>
-        <param name="outputStreamResource">mockOutStream</param>
-    </resource-config>
+    <core:smooks filterSourceOn="e">
+        <core:action>
+            <core:outputTo outputStreamResource="mockOutStream"/>
+        </core:action>
+        <core:config>
+            <smooks-resource-list>
+                <resource-config selector="e">
+                    <resource type="stv4">/org/smooks/cartridges/templating/stringtemplate/v4/test-template-3.st</resource>
+                </resource-config>
+            </smooks-resource-list>
+        </core:config>
+    </core:smooks>
 
 </smooks-resource-list>

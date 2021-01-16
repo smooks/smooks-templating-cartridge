@@ -46,6 +46,7 @@ import freemarker.cache.FileTemplateLoader;
 import freemarker.cache.MultiTemplateLoader;
 import freemarker.cache.TemplateLoader;
 import freemarker.cache.URLTemplateLoader;
+import freemarker.ext.dom.NodeModel;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -68,6 +69,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.Writer;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -129,9 +131,6 @@ public class FreeMarkerTemplateProcessor extends AbstractTemplateProcessor imple
             if(templates.length == 1) {
                 defaultTemplate = new Template("free-marker-template", new StringReader(templates[0]), configuration);
             } else if(templates.length == 2) {
-                if(getAction() != Action.REPLACE) {
-                    throw new UnsupportedOperationException("Split templates only supported on the REPLACE action.");
-                }
                 templateBefore = new Template("free-marker-template-before", new StringReader(templates[0]), configuration);
                 templateAfter = new Template("free-marker-template-after", new StringReader(templates[1]), configuration);
             } else {
@@ -157,43 +156,16 @@ public class FreeMarkerTemplateProcessor extends AbstractTemplateProcessor imple
     }
 
     @Override
-    protected void applyTemplateToOutputStream(Element element, String outputStreamResourceName, ExecutionContext executionContext, Writer writer) {
+    protected void applyTemplate(Element element, ExecutionContext executionContext, Writer writer) {
         applyTemplate(defaultTemplate, element, executionContext, writer);
     }
-
-    @Override
-    protected boolean beforeApplyTemplate(Element element, ExecutionContext executionContext, Writer writer) {
-        if (getAction().equals(Action.REPLACE)) {
-            if (templateBefore != null) {
-                applyTemplate(templateBefore, element, executionContext, writer);
-            } else {
-                return false;
-            }
-        } else {
-            applyTemplate(defaultTemplate, element, executionContext, writer);
-        }
-
-        return true;
-    }
-
-    @Override
-    protected boolean afterApplyTemplate(Element element, ExecutionContext executionContext, Writer writer) {
-        if (getAction().equals(Action.ADD_TO) || getAction().equals(Action.BIND_TO) || getAction().equals(Action.INSERT_AFTER)) {
-            applyTemplate(defaultTemplate, element, executionContext, writer);
-        } else if (getAction().equals(Action.REPLACE)) {
-            if(templateAfter != null) {
-                applyTemplate(templateAfter, element, executionContext, writer);
-            } else {
-                applyTemplate(defaultTemplate, element, executionContext, writer);
-            }
-        }
-        
-        return true;
-    }
-
+    
     protected void applyTemplate(Template template, Element element, ExecutionContext executionContext, Writer writer) throws SmooksException {
         try {
-            Map<String, Object> model = FreeMarkerUtils.getMergedModel(executionContext);
+            final Map<String, Object> model = new HashMap<>(FreeMarkerUtils.getMergedModel(executionContext));
+            if (model.get(element.getNodeName()) == null) {
+                model.put(element.getNodeName(), NodeModel.wrap(element));
+            }
             template.process(model, writer);
         } catch (TemplateException | IOException e) {
             throw new SmooksException("Failed to apply FreeMarker template to fragment '" + DomUtils.getXPath(element) + "'.  Resource: " + resourceConfig, e);

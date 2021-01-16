@@ -176,6 +176,7 @@ public class XslTemplateProcessor extends AbstractTemplateProcessor implements C
         return xslString.contains(object.toString());
     }
 
+    @Override
     protected void applyTemplate(Element element, ExecutionContext executionContext, Writer writer) {
         Document ownerDoc = element.getOwnerDocument();
         Element ghostElement = GhostElementSerializerVisitor.createElement(ownerDoc);
@@ -192,32 +193,10 @@ public class XslTemplateProcessor extends AbstractTemplateProcessor implements C
             throw new SmooksException("Error applying XSLT to node [" + executionContext.getDocumentSource() + ":" + DomUtils.getXPath(element) + "]", e);
         }
 
-        if(getOutputStreamResource() != null || getAction() == Action.BIND_TO) {
-            // For bindTo or streamTo actions, we need to serialize the content and supply is as a Text DOM node.
-            // AbstractTemplateProcessor will look after the rest, by extracting the content from the
-            // Text node and attaching it to the ExecutionContext...
-            try {
-                writer.write(XmlUtil.serialize(ghostElement.getChildNodes()));
-            } catch (IOException e) {
-                throw new SmooksException(e.getMessage(), e);
-            }
-        } else {
-            NodeList children = ghostElement.getChildNodes();
-
-            // Process the templating action, supplying the templating result...
-            if (children.getLength() == 1 && children.item(0).getNodeType() == Node.ELEMENT_NODE) {
-                try {
-                    writer.write(XmlUtil.serialize(children));
-                } catch (IOException e) {
-                    throw new SmooksException(e.getMessage(), e);
-                }
-            } else {
-                try {
-                    writer.write(XmlUtil.serialize((NodeList) ghostElement));
-                } catch (IOException e) {
-                    throw new SmooksException(e.getMessage(), e);
-                }
-            }
+        try {
+            writer.write(XmlUtil.serialize(ghostElement.getChildNodes()));
+        } catch (IOException e) {
+            throw new SmooksException(e.getMessage(), e);
         }
     }
     
@@ -261,7 +240,7 @@ public class XslTemplateProcessor extends AbstractTemplateProcessor implements C
 		if(isXMLTargetedConfiguration == null) {
 			synchronized (this) {				
 				if(isXMLTargetedConfiguration == null) {
-                    ResourceConfig readerConfiguration = AbstractParser.getSAXParserConfiguration(executionContext.getDeliveryConfig());
+                    ResourceConfig readerConfiguration = AbstractParser.getSAXParserConfiguration(executionContext.getContentDeliveryRuntime().getContentDeliveryConfig());
 					if(readerConfiguration != null) {
 						// We have an reader config, if the class is not configured, we assume 
 						// the expected Source to be XML...
@@ -276,31 +255,6 @@ public class XslTemplateProcessor extends AbstractTemplateProcessor implements C
 		
 		return isXMLTargetedConfiguration;
 	}
-
-    @Override
-    protected void applyTemplateToOutputStream(Element element, String outputStreamResourceName, ExecutionContext executionContext, Writer writer) {
-        applyTemplate(element, executionContext, writer);
-    }
-
-    @Override
-    protected boolean beforeApplyTemplate(Element element, ExecutionContext executionContext, Writer writer) {
-        if (applyTemplateBefore() || getAction().equals(Action.INSERT_BEFORE)) {
-            applyTemplate(element, executionContext, writer);
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    protected boolean afterApplyTemplate(Element element, ExecutionContext executionContext, Writer writer) {
-        if (!applyTemplateBefore()) {
-            applyTemplate(element, executionContext, writer);
-            return true;
-        } else {
-            return false;
-        }
-    }
 
     private static class XslErrorListener implements ErrorListener {
         private final boolean failOnWarning;

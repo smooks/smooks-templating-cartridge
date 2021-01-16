@@ -196,28 +196,8 @@ public class StringTemplateContentHandlerFactory implements ContentHandlerFactor
         }
 
         @Override
-        protected void applyTemplateToOutputStream(Element element, String outputStreamResourceName, ExecutionContext executionContext, Writer writer) {
+        protected void applyTemplate(Element element, ExecutionContext executionContext, Writer writer) {
             applyTemplate(executionContext, writer);
-        }
-
-        @Override
-        protected boolean beforeApplyTemplate(Element element, ExecutionContext executionContext, Writer writer) {
-            if (applyTemplateBefore() || getAction().equals(Action.INSERT_BEFORE)) {
-                applyTemplate(executionContext, writer);
-                return true;
-            } else {
-                return false;
-            }
-        }
-
-        @Override
-        protected boolean afterApplyTemplate(Element element, ExecutionContext executionContext, Writer writer) {
-            if (!applyTemplateBefore()) {
-                applyTemplate(executionContext, writer);
-                return true;
-            } else {
-                return false;
-            }
         }
     }
 }
