@@ -56,7 +56,6 @@ public class TemplatingConfiguration {
 
     private String template;
     private boolean applyBefore = false;
-    private Usage usage = Inline.REPLACE;
 
     /**
      * Public constructor.
@@ -94,25 +93,6 @@ public class TemplatingConfiguration {
      */
     public TemplatingConfiguration setApplyBefore(boolean applyBefore) {
         this.applyBefore = applyBefore;
-        return this;
-    }
-
-    /**
-     * Get the templating {@link Usage} directive for the templating result.
-     * @return The templating result usage.
-     */
-    protected Usage getUsage() {
-        return usage;
-    }
-
-    /**
-     * Set the templating {@link Usage} directive for the templating result.
-     * @param usage The templating result usage.
-     * @return This instance.
-     */
-    public TemplatingConfiguration setUsage(Usage usage) {
-        AssertArgument.isNotNull(usage, "usage");
-        this.usage = usage;
         return this;
     }
 }

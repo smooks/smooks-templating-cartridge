@@ -43,13 +43,21 @@
   -->
 
 <smooks-resource-list xmlns="https://www.smooks.org/xsd/smooks-2.0.xsd"
-                      xmlns:xsl="https://www.smooks.org/xsd/smooks/xsl-2.0.xsd">
-
-    <xsl:xsl applyOnElement="c">
-        <xsl:template><!--<bind />--></xsl:template>
-        <xsl:use>
-            <xsl:bindTo id="mybeanTemplate" />
-        </xsl:use>
-    </xsl:xsl>
+                      xmlns:xsl="https://www.smooks.org/xsd/smooks/xsl-2.0.xsd"
+                      xmlns:core="https://www.smooks.org/xsd/smooks/smooks-core-1.6.xsd">
+    
+    <core:smooks filterSourceOn="c">
+        <core:action>
+            <core:bindTo id="mybeanTemplate"/>
+        </core:action>
+        <core:config>
+            <smooks-resource-list>
+                <xsl:xsl applyOnElement="c">
+                    <xsl:template><!--<bind />--></xsl:template>
+                </xsl:xsl>
+            </smooks-resource-list>
+        </core:config>
+    </core:smooks>
+    
 
 </smooks-resource-list>

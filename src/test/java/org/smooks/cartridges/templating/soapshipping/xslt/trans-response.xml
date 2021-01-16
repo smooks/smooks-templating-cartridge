@@ -42,15 +42,11 @@
   =========================LICENSE_END==================================
   -->
 
-<smooks-resource-list xmlns="https://www.smooks.org/xsd/smooks-2.0.xsd" xmlns:jb="https://www.smooks.org/xsd/smooks/javabean-1.6.xsd" default-target-profile="shipping-response">
+<smooks-resource-list xmlns="https://www.smooks.org/xsd/smooks-2.0.xsd" 
+                      xmlns:jb="https://www.smooks.org/xsd/smooks/javabean-1.6.xsd"
+                      xmlns:core="https://www.smooks.org/xsd/smooks/smooks-core-1.6.xsd"
+                      default-target-profile="shipping-response">
 
-	<!--
-		Use a XSL template to perform the transformation.
-		We're transforming the "history" element...
-	-->
-	<resource-config selector="history">
-        <resource>/org/smooks/cartridges/templating/soapshipping/xslt/HistoryTrans.xsl</resource>
-    </resource-config>
 
     <!--
         Configure the History bean creation and population...
@@ -58,5 +54,22 @@
     <jb:bean beanId="history" class="org.smooks.cartridges.templating.soapshipping.History" createOnElement="history">
         <jb:value property="trackingNumbers" data="history" />
     </jb:bean>
+    
+	<!--
+		Use a XSL template to perform the transformation.
+		We're transforming the "history" element...
+	-->
+    <core:smooks filterSourceOn="history">
+        <core:action>
+            <core:inline directive="REPLACE"/>
+        </core:action>
+        <core:config>
+            <smooks-resource-list>
+                <resource-config selector="history">
+                    <resource>/org/smooks/cartridges/templating/soapshipping/xslt/HistoryTrans.xsl</resource>
+                </resource-config>
+            </smooks-resource-list>
+        </core:config>
+    </core:smooks>
 
 </smooks-resource-list>
