@@ -47,10 +47,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.smooks.SmooksException;
 import org.smooks.cartridges.templating.AbstractTemplateProcessor;
+import org.smooks.cdr.ParameterAccessor;
 import org.smooks.cdr.ResourceConfig;
 import org.smooks.cdr.SmooksConfigurationException;
 import org.smooks.container.ExecutionContext;
 import org.smooks.delivery.AbstractParser;
+import org.smooks.delivery.Filter;
 import org.smooks.delivery.FilterBypass;
 import org.smooks.delivery.dom.serialize.GhostElementSerializerVisitor;
 import org.smooks.delivery.ordering.Consumer;
@@ -62,8 +64,6 @@ import org.smooks.xml.DomUtils;
 import org.smooks.xml.XmlUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
@@ -194,7 +194,7 @@ public class XslTemplateProcessor extends AbstractTemplateProcessor implements C
         }
 
         try {
-            writer.write(XmlUtil.serialize(ghostElement.getChildNodes()));
+            writer.write(XmlUtil.serialize(ghostElement.getChildNodes(), Boolean.parseBoolean(ParameterAccessor.getParameterValue(Filter.CLOSE_EMPTY_ELEMENTS, String.class, "false", executionContext.getContentDeliveryRuntime().getContentDeliveryConfig()))));
         } catch (IOException e) {
             throw new SmooksException(e.getMessage(), e);
         }
