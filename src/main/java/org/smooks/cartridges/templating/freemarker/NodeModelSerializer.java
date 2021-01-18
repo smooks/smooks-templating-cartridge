@@ -60,16 +60,16 @@ public class NodeModelSerializer implements TemplateDirectiveModel {
 
     public void execute(Environment environment, Map map, TemplateModel[] templateModels, TemplateDirectiveBody templateDirectiveBody) throws TemplateException, IOException {
         TemplateModel nodeModelVariable = (TemplateModel) map.get("nodeModel");
-        if(nodeModelVariable == null) {
+        if (nodeModelVariable == null) {
             throw new TemplateModelException("'nodeModel' variable not defined on 'serializer' directive.");
-        } else if(nodeModelVariable instanceof NodeModel) {
-            Element element = (Element) ((NodeModel)nodeModelVariable).getWrappedObject();
+        } else if (nodeModelVariable instanceof NodeModel) {
+            Element element = (Element) ((NodeModel) nodeModelVariable).getWrappedObject();
             TemplateModel format = (TemplateModel) map.get("format");
 
-            if(format instanceof TemplateBooleanModel) {
-                XmlUtil.serialize(element, ((TemplateBooleanModel)format).getAsBoolean(), environment.getOut());
+            if (format instanceof TemplateBooleanModel) {
+                XmlUtil.serialize(element, ((TemplateBooleanModel) format).getAsBoolean(), environment.getOut(), false);
             } else {
-                XmlUtil.serialize(element, false, environment.getOut());
+                XmlUtil.serialize(element, false, environment.getOut(), false);
             }
         } else {
             throw new TemplateModelException("Invalid NodeModel variable reference.  Not a NodeModel.");

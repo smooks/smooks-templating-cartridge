@@ -52,6 +52,9 @@
         </core:action>
         <core:config>
             <smooks-resource-list>
+                <resource-config selector="global-parameters">
+                    <param name="close.empty.elements">true</param>
+                </resource-config>
                 <xsl:xsl applyOnElement="c">
                     <xsl:template><!--<bind />--></xsl:template>
                 </xsl:xsl>
