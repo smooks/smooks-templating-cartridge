@@ -51,10 +51,12 @@ import org.smooks.cdr.SmooksConfigurationException;
 import org.smooks.container.ApplicationContext;
 import org.smooks.container.ExecutionContext;
 import org.smooks.delivery.fragment.NodeFragment;
+import org.smooks.delivery.memento.Memento;
 import org.smooks.delivery.sax.ng.AfterVisitor;
 import org.smooks.delivery.sax.ng.BeforeVisitor;
 import org.smooks.io.FragmentWriter;
-import org.smooks.io.FragmentWriterMemento;
+import org.smooks.io.NullWriter;
+import org.smooks.io.Stream;
 import org.w3c.dom.Element;
 
 import javax.annotation.PostConstruct;
@@ -142,15 +144,22 @@ public abstract class AbstractTemplateProcessor implements BeforeVisitor, AfterV
     
     @Override
     public void visitBefore(Element element, ExecutionContext executionContext) throws SmooksException {
-        final FragmentWriter fragmentWriter = new FragmentWriter(executionContext, new NodeFragment(element), false);
-        try {
-            fragmentWriter.capture();
-        } catch (IOException e) {
-            throw new SmooksException(e);
+        final Writer writer;
+        if (Stream.out(executionContext) instanceof NullWriter) {
+            writer = Stream.out(executionContext);
+        } else {
+            final NodeFragment nodeFragment = new NodeFragment(element);
+            final FragmentWriter fragmentWriter = new FragmentWriter(executionContext, nodeFragment, false);
+            try {
+                fragmentWriter.park();
+            } catch (IOException e) {
+                throw new SmooksException(e);
+            }
+            executionContext.getMementoCaretaker().capture(new Memento<>(nodeFragment, this, fragmentWriter));
+            writer = fragmentWriter;
         }
-        executionContext.getMementoCaretaker().save(new FragmentWriterMemento(this, fragmentWriter));
         if (applyTemplateBefore()) {
-            applyTemplate(element, executionContext, fragmentWriter);
+            applyTemplate(element, executionContext, writer);
         }
     }
     
@@ -159,9 +168,10 @@ public abstract class AbstractTemplateProcessor implements BeforeVisitor, AfterV
     @Override
     public void visitAfter(Element element, ExecutionContext executionContext) throws SmooksException {
         if (!applyTemplateBefore()) {
-            final FragmentWriterMemento fragmentWriterMemento = new FragmentWriterMemento(this, new FragmentWriter(executionContext, new NodeFragment(element), false));
+            final NodeFragment nodeFragment = new NodeFragment(element);
+            final Memento<FragmentWriter> fragmentWriterMemento = new Memento<>(nodeFragment, this, new FragmentWriter(executionContext, nodeFragment, false));
             executionContext.getMementoCaretaker().restore(fragmentWriterMemento);
-            applyTemplate(element, executionContext, fragmentWriterMemento.getFragmentWriter());
+            applyTemplate(element, executionContext, fragmentWriterMemento.getState());
         }
     }
 }
