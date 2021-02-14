@@ -49,7 +49,9 @@
 
     <core:smooks filterSourceOn="c">
         <core:action>
-            <core:inline directive="PREPEND_BEFORE"/>
+            <core:inline>
+                <core:prepend-before/>
+            </core:inline>
         </core:action>
         <core:config>
             <smooks-resource-list>

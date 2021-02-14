@@ -170,7 +170,7 @@ public class FreeMarkerContentHandlerFactoryTest {
         Smooks smooks = new Smooks(getClass().getResourceAsStream("test-configs-include.xml"));
 
         test_ftl(smooks, "<a><c/></a>",
-                         "<a><maintemplate><included>blah</included></maintemplate></a>");
+                         "<maintemplate><included>blah</included></maintemplate>");
     }
 
     @Test

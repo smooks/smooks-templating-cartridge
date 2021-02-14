@@ -48,11 +48,13 @@
     
     <core:smooks filterSourceOn="#document" maxNodeDepth="0">
         <core:action>
-            <core:inline directive="REPLACE"/>
+            <core:inline>
+                <core:replace/>
+            </core:inline>
         </core:action>
         <core:config>
             <smooks-resource-list>
-                <resource-config selector="#document">
+                <resource-config selector="a">
                     <resource type="ftl"><!--<#foreach c in a.b.c>'${c}'</#foreach> javaVal=${x.val}--></resource>
                 </resource-config>
             </smooks-resource-list>

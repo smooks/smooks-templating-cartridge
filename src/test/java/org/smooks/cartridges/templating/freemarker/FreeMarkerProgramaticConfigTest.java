@@ -74,9 +74,16 @@ public class FreeMarkerProgramaticConfigTest {
 
     @Test
     public void testFreeMarkerTrans_01() throws SAXException, IOException {
+        Smooks nestedSmooks = new Smooks(new DefaultApplicationContextBuilder().setRegisterSystemResources(false).build());
+        nestedSmooks.addVisitor(new FreeMarkerTemplateProcessor(new TemplatingConfiguration("/org/smooks/cartridges/templating/freemarker/test-template.ftl")), "c");
+
+        NestedSmooksVisitor nestedSmooksVisitor = new NestedSmooksVisitor();
+        nestedSmooksVisitor.setAction(Optional.of(NestedSmooksVisitor.Action.REPLACE));
+        nestedSmooksVisitor.setNestedSmooks(nestedSmooks);
+        
         Smooks smooks = new Smooks();
         smooks.addVisitors(new Bean(MyBean.class, "myBeanData", "c").bindTo("x", "c/@x"));
-        smooks.addVisitor(new FreeMarkerTemplateProcessor(new TemplatingConfiguration("/org/smooks/cartridges/templating/freemarker/test-template.ftl")), "c");
+        smooks.addVisitor(nestedSmooksVisitor, "c");
 
         test_ftl(smooks, "<a><b><c x='xvalueonc1'/><c x='xvalueonc2'/></b></a>", "<a><b><mybean>xvalueonc1</mybean><mybean>xvalueonc2</mybean></b></a>");
         // Test transformation via the <context-object/> by transforming the root element using StringTemplate.
@@ -85,13 +92,20 @@ public class FreeMarkerProgramaticConfigTest {
     
     @Test
     public void test_nodeModel_1() {
+        Smooks nestedSmooks = new Smooks(new DefaultApplicationContextBuilder().setRegisterSystemResources(false).build());
+        nestedSmooks.addVisitor(new FreeMarkerTemplateProcessor(new TemplatingConfiguration("<#foreach c in a.b.c>'${c}'</#foreach>")), "a");
+
+        NestedSmooksVisitor nestedSmooksVisitor = new NestedSmooksVisitor();
+        nestedSmooksVisitor.setMaxNodeDepth(Integer.MAX_VALUE);
+        nestedSmooksVisitor.setAction(Optional.of(NestedSmooksVisitor.Action.REPLACE));
+        nestedSmooksVisitor.setNestedSmooks(nestedSmooks);
+        
         Smooks smooks = new Smooks();
-        smooks.setFilterSettings(FilterSettings.newSaxNgSettings().setMaxNodeDepth(Integer.MAX_VALUE));
-        smooks.addVisitor(new FreeMarkerTemplateProcessor(new TemplatingConfiguration("<#foreach c in a.b.c>'${c}'</#foreach>")), "#document");
+        smooks.addVisitor(nestedSmooksVisitor, "a");
         
         StringResult result = new StringResult();
         smooks.filterSource(new StringSource("<a><b><c>cvalue1</c><c>cvalue2</c><c>cvalue3</c></b></a>"), result);
-        assertEquals("<b><c>cvalue1</c><c>cvalue2</c><c>cvalue3</c></b>'cvalue1''cvalue2''cvalue3'", result.getResult());
+        assertEquals("'cvalue1''cvalue2''cvalue3'", result.getResult());
     }
 
     @Test
