@@ -66,7 +66,7 @@ public class StringTemplateContentDeliveryUnitCreatorTest {
     public void testStringTemplateTrans_01() throws SAXException, IOException {
         Smooks smooks = new Smooks(getClass().getResourceAsStream("test-configs.xml"));
 
-        test_st(smooks, "<a><b><c x='xvalueonc1' /><c x='xvalueonc2' /></b></a>", "<a><b><mybean>xvalueonc1</mybean><mybean>xvalueonc2</mybean></b></a>");
+        test_st(smooks, "<a><b><c x='xvalueonc1' /><c x='xvalueonc2' /></b></a>", "<mybean>xvalueonc1</mybean><mybean>xvalueonc2</mybean>");
         // Test transformation via the <context-object /> by transforming the root element using StringTemplate.
         test_st(smooks, "<c x='xvalueonc1' />", "<mybean>xvalueonc1</mybean>");
     }

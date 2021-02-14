@@ -42,11 +42,25 @@
   =========================LICENSE_END==================================
   -->
 
-<smooks-resource-list xmlns="https://www.smooks.org/xsd/smooks-2.0.xsd" xmlns:jb="https://www.smooks.org/xsd/smooks/javabean-1.6.xsd">
+<smooks-resource-list xmlns="https://www.smooks.org/xsd/smooks-2.0.xsd"
+                      xmlns:core="https://www.smooks.org/xsd/smooks/smooks-core-1.6.xsd"
+                      xmlns:jb="https://www.smooks.org/xsd/smooks/javabean-1.6.xsd">
 
-    <resource-config selector="#document">
-        <resource type="ftl"><!--<mybean>${myBeanData.x}</mybean>--></resource>
-    </resource-config>
+    <core:smooks filterSourceOn="#document">
+        <core:action>
+            <core:inline>
+                <core:replace/>
+            </core:inline>
+        </core:action>
+        <core:config>
+            <smooks-resource-list>
+                <resource-config selector="#document">
+                    <resource type="ftl"><!--<mybean>${myBeanData.x}</mybean>--></resource>
+                </resource-config>
+            </smooks-resource-list>
+        </core:config>
+    </core:smooks>
+    
 
     <jb:bean beanId="myBeanData" class="org.smooks.cartridges.templating.MyBean" createOnElement="c">
         <jb:value property="x" data="c/@x" />

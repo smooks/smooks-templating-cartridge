@@ -5,10 +5,14 @@
 	<body>
 		<table>
 			<tr>
-			    Some text... 
-				<x id="para1">Content from template!!</x>
-				Some more text... 
-				<x id="para2">Content from template!!</x>
+			    <p id="para1">
+			        Some text... 
+				    <x id="para1">Content from template!!</x>
+				</p>
+				<p id="para2">
+				    Some more text... 
+				    <x id="para2">Content from template!!</x>
+				</p>
 			</tr>
 		</table>
 	</body>

@@ -47,6 +47,10 @@
                       xmlns:jb="https://www.smooks.org/xsd/smooks/javabean-1.6.xsd"
                       xmlns:x="http://x">
 
+    <resource-config selector="global-parameters">
+        <param name="default.serialization.on">false</param>
+    </resource-config>
+    
     <ftl:freemarker applyOnElement="x:c">
         <ftl:template>/org/smooks/cartridges/templating/freemarker/test-template.ftl</ftl:template>
     </ftl:freemarker>

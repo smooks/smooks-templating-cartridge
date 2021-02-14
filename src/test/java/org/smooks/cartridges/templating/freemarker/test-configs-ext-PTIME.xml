@@ -45,6 +45,10 @@
 <smooks-resource-list xmlns="https://www.smooks.org/xsd/smooks-2.0.xsd"
                       xmlns:ftl="https://www.smooks.org/xsd/smooks/freemarker-2.0.xsd">
 
+    <resource-config selector="global-parameters">
+        <param name="default.serialization.on">false</param>
+    </resource-config>
+    
     <ftl:freemarker applyOnElement="#document">
         <ftl:template><!--${PTIME.startMillis}--></ftl:template>
     </ftl:freemarker>

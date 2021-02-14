@@ -44,14 +44,23 @@
 
 <smooks-resource-list xmlns="https://www.smooks.org/xsd/smooks-2.0.xsd"
                       xmlns:ftl="https://www.smooks.org/xsd/smooks/freemarker-2.0.xsd"
-                      xmlns:jb="https://www.smooks.org/xsd/smooks/javabean-1.6.xsd">
+                      xmlns:jb="https://www.smooks.org/xsd/smooks/javabean-1.6.xsd"
+                      xmlns:core="https://www.smooks.org/xsd/smooks/smooks-core-1.6.xsd">
 
-    <ftl:freemarker applyOnElement="c">
-        <ftl:template>/org/smooks/cartridges/templating/freemarker/test-template.ftl</ftl:template>
-        <ftl:use>
-            <ftl:inline directive="ADD_TO" />
-        </ftl:use>
-    </ftl:freemarker>
+    <core:smooks filterSourceOn="c">
+        <core:action>
+            <core:inline>
+                <core:prepend-after/>
+            </core:inline>
+        </core:action>
+        <core:config>
+            <smooks-resource-list>
+                <ftl:freemarker applyOnElement="c">
+                    <ftl:template>/org/smooks/cartridges/templating/freemarker/test-template.ftl</ftl:template>
+                </ftl:freemarker>
+            </smooks-resource-list>
+        </core:config>
+    </core:smooks>
 
     <jb:bean createOnElement="b" class="org.smooks.cartridges.templating.MyBean" beanId="myBeanData">
         <jb:value property="x" data="b/@x" />

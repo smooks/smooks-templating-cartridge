@@ -47,6 +47,7 @@
 
     <resource-config selector="global-parameters">
         <param name="close.empty.elements">true</param>
+        <param name="default.serialization.on">false</param>
     </resource-config>
 
     <resource-config selector="#document">

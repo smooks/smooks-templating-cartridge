@@ -87,7 +87,7 @@ public class FreeMarkerContentHandlerFactoryExtendedConfigTest {
     public void testFreeMarkerTrans_01_NS() throws SAXException, IOException {
         Smooks smooks = new Smooks(getClass().getResourceAsStream("test-configs-ext-01-NS.xml"));
 
-        test_ftl(smooks, "<a xmlns:x=\"http://x\"><b><x:c x='xvalueonc1' /><c x='xvalueonc2' /></b></a>", "<a xmlns:x=\"http://x\"><b><mybean>xvalueonc1</mybean><c x=\"xvalueonc2\"></c></b></a>");
+        test_ftl(smooks, "<a xmlns:x=\"http://x\"><b><x:c x='xvalueonc1' /><c x='xvalueonc2' /></b></a>", "<mybean>xvalueonc1</mybean>");
     }
     
     @Test
@@ -115,7 +115,6 @@ public class FreeMarkerContentHandlerFactoryExtendedConfigTest {
         assertEquals("'cvalue1''cvalue2''cvalue3' javaVal=javaval", result.toString());
     }
     
-
     @Test
     public void testFreeMarkerTrans_02() throws SAXException, IOException {
         Smooks smooks = new Smooks(getClass().getResourceAsStream("test-configs-ext-02.xml"));
@@ -169,7 +168,7 @@ public class FreeMarkerContentHandlerFactoryExtendedConfigTest {
         Smooks smooks = new Smooks(getClass().getResourceAsStream("test-configs-ext-include.xml"));
 
         test_ftl(smooks, "<a><c/></a>",
-                         "<a><maintemplate><included>blah</included></maintemplate></a>");
+                         "<maintemplate><included>blah</included></maintemplate>");
     }
 
     @Test

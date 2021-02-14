@@ -49,11 +49,13 @@
 
     <core:smooks filterSourceOn="#document" maxNodeDepth="0">
         <core:action>
-            <core:inline directive="REPLACE"/>
+            <core:inline>
+                <core:replace/>
+            </core:inline>
         </core:action>
         <core:config>
             <smooks-resource-list>
-                <ftl:freemarker applyOnElement="#document">
+                <ftl:freemarker applyOnElement="a">
                     <ftl:template><!--<#foreach c in a.b.c>'${c}'</#foreach> javaVal=${x.val}--></ftl:template>
                 </ftl:freemarker>
             </smooks-resource-list>
