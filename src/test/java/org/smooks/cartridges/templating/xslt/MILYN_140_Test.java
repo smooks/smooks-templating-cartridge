@@ -43,13 +43,14 @@
 package org.smooks.cartridges.templating.xslt;
 
 import org.junit.Test;
-import static org.junit.Assert.*;
 import org.smooks.Smooks;
-import org.smooks.payload.StringResult;
-import org.smooks.payload.StringSource;
+import org.smooks.io.payload.StringResult;
+import org.smooks.io.payload.StringSource;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author <a href="mailto:tom.fennelly@gmail.com">tom.fennelly@gmail.com</a>

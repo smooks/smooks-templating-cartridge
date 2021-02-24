@@ -42,14 +42,15 @@
  */
 package org.smooks.cartridges.templating;
 
-import org.smooks.SmooksException;
+import org.smooks.api.ApplicationContext;
+import org.smooks.api.ExecutionContext;
+import org.smooks.api.SmooksConfigException;
+import org.smooks.api.SmooksException;
+import org.smooks.api.resource.config.ResourceConfig;
+import org.smooks.api.resource.visitor.sax.ng.AfterVisitor;
+import org.smooks.api.resource.visitor.sax.ng.BeforeVisitor;
 import org.smooks.assertion.AssertArgument;
-import org.smooks.cdr.ResourceConfig;
-import org.smooks.cdr.SmooksConfigurationException;
-import org.smooks.container.ApplicationContext;
-import org.smooks.container.ExecutionContext;
-import org.smooks.delivery.sax.ng.AfterVisitor;
-import org.smooks.delivery.sax.ng.BeforeVisitor;
+import org.smooks.engine.resource.config.DefaultResourceConfig;
 import org.smooks.io.Stream;
 import org.w3c.dom.Element;
 
@@ -95,27 +96,27 @@ public abstract class AbstractTemplateProcessor implements BeforeVisitor, AfterV
     @PostConstruct
     public void postConstruct() {
         if (templatingConfiguration != null) {
-            ResourceConfig config = new ResourceConfig();
+            ResourceConfig config = new DefaultResourceConfig();
 
             config.setResource(templatingConfiguration.getTemplate());
             
             try {
                 loadTemplate(config);
             } catch (Exception e) {
-                throw new SmooksConfigurationException("Error loading Templating resource: " + config, e);
+                throw new SmooksConfigException("Error loading Templating resource: " + config, e);
             }
         } else if (resourceConfig != null) {
             if (resourceConfig.getResource() == null) {
-                throw new SmooksConfigurationException("Templating resource undefined in resource configuration: " + resourceConfig);
+                throw new SmooksConfigException("Templating resource undefined in resource configuration: " + resourceConfig);
             }
 
             try {
                 loadTemplate(resourceConfig);
             } catch (Exception e) {
-                throw new SmooksConfigurationException("Error loading Templating resource: " + resourceConfig, e);
+                throw new SmooksConfigException("Error loading Templating resource: " + resourceConfig, e);
             }
         } else {
-            throw new SmooksConfigurationException(getClass().getSimpleName() + " not configured.");
+            throw new SmooksConfigException(getClass().getSimpleName() + " not configured.");
         }
     }
 

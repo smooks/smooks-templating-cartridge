@@ -44,15 +44,16 @@ package org.smooks.cartridges.templating.xslt;
 
 import org.junit.Test;
 import org.smooks.Smooks;
-import org.smooks.SmooksUtil;
+import org.smooks.api.ExecutionContext;
+import org.smooks.api.SmooksConfigException;
+import org.smooks.api.resource.config.ResourceConfig;
 import org.smooks.cartridges.templating.util.CharUtils;
-import org.smooks.cdr.ResourceConfig;
-import org.smooks.cdr.SmooksConfigurationException;
-import org.smooks.container.ExecutionContext;
-import org.smooks.container.standalone.DefaultApplicationContextBuilder;
-import org.smooks.payload.StringResult;
-import org.smooks.payload.StringSource;
-import org.smooks.visitors.smooks.NestedSmooksVisitor;
+import org.smooks.engine.DefaultApplicationContextBuilder;
+import org.smooks.engine.resource.config.DefaultResourceConfig;
+import org.smooks.engine.resource.visitor.smooks.NestedSmooksVisitor;
+import org.smooks.io.payload.StringResult;
+import org.smooks.io.payload.StringSource;
+import org.smooks.support.SmooksUtil;
 import org.xml.sax.SAXException;
 
 import javax.xml.transform.stream.StreamSource;
@@ -73,7 +74,7 @@ public class XslContentHandlerFactoryTest {
     @Test
     public void testXslUnitTrans_filebased_replace() {
         Smooks smooks = new Smooks();
-        ResourceConfig resourceConfig = new ResourceConfig("p", "org/smooks/cartridges/templating/xslt/xsltransunit.xsl");
+        ResourceConfig resourceConfig = new DefaultResourceConfig("p", "org/smooks/cartridges/templating/xslt/xsltransunit.xsl");
 
         System.setProperty("javax.xml.transform.TransformerFactory", org.apache.xalan.processor.TransformerFactoryImpl.class.getName());
         smooks.getApplicationContext().getRegistry().registerResourceConfig(resourceConfig);
@@ -94,7 +95,7 @@ public class XslContentHandlerFactoryTest {
     }
 
     public void testXslUnitTrans_parambased(NestedSmooksVisitor.Action action, String expectedFileName) {
-        ResourceConfig res = new ResourceConfig("p", "<z id=\"{@id}\">Content from template!!</z>");
+        ResourceConfig res = new DefaultResourceConfig("p", "<z id=\"{@id}\">Content from template!!</z>");
         res.setResourceType("xsl");
         res.setParameter(XslContentHandlerFactory.IS_XSLT_TEMPLATELET, "true");
 
@@ -182,8 +183,8 @@ public class XslContentHandlerFactoryTest {
         try {
             smooks.filterSource(smooks.createExecutionContext(), new StreamSource(new StringReader("<doc/>")), null);
             fail("Expected SmooksConfigurationException.");
-        } catch (SmooksConfigurationException e) {
-            assertEquals("Error loading Templating resource: Target Profile: [[org.smooks.profile.Profile#default_profile]], Selector: [#document], Selector Namespace URI: [null], Resource: [/org/smooks/cartridges/templating/xslt/bad-stylesheet.xsl], Num Params: [0]", e.getCause().getMessage());
+        } catch (SmooksConfigException e) {
+            assertEquals("Error loading Templating resource: Target Profile: [[org.smooks.api.profile.Profile#default_profile]], Selector: [#document], Selector Namespace URI: [null], Resource: [/org/smooks/cartridges/templating/xslt/bad-stylesheet.xsl], Num Params: [0]", e.getCause().getMessage());
         }
     }
 }

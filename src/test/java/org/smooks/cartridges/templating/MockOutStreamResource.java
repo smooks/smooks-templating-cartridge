@@ -42,7 +42,7 @@
  */
 package org.smooks.cartridges.templating;
 
-import org.smooks.container.ExecutionContext;
+import org.smooks.api.ExecutionContext;
 import org.smooks.io.AbstractOutputStreamResource;
 
 import java.io.ByteArrayOutputStream;

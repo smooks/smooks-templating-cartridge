@@ -42,15 +42,14 @@
  */
 package org.smooks.cartridges.templating.freemarker;
 
-import freemarker.template.*;
 import freemarker.core.Environment;
 import freemarker.ext.dom.NodeModel;
+import freemarker.template.*;
+import org.smooks.xml.XmlUtil;
+import org.w3c.dom.Element;
 
 import java.io.IOException;
 import java.util.Map;
-
-import org.w3c.dom.Element;
-import org.smooks.xml.XmlUtil;
 
 /**
  * Serialize a NodeModel variable to the template stream.

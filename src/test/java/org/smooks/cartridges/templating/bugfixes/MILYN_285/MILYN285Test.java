@@ -42,11 +42,11 @@
  */
 package org.smooks.cartridges.templating.bugfixes.MILYN_285;
 
+import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.Test;
 import org.smooks.Smooks;
-import org.smooks.payload.StringResult;
+import org.smooks.io.payload.StringResult;
 import org.xml.sax.SAXException;
-import org.custommonkey.xmlunit.XMLUnit;
 
 import javax.xml.transform.stream.StreamSource;
 import java.io.IOException;

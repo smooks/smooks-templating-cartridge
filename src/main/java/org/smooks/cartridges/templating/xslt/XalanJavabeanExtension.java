@@ -50,7 +50,7 @@ import org.apache.xalan.templates.AVT;
 import org.apache.xalan.templates.ElemExtensionCall;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.smooks.container.ExecutionContext;
+import org.smooks.api.ExecutionContext;
 
 import java.util.Hashtable;
 import java.util.Map;

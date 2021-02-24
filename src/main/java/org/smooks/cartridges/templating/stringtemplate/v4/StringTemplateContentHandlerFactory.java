@@ -42,21 +42,21 @@
  */
 package org.smooks.cartridges.templating.stringtemplate.v4;
 
-import org.smooks.SmooksException;
+import org.smooks.api.ApplicationContext;
+import org.smooks.api.ExecutionContext;
+import org.smooks.api.SmooksConfigException;
+import org.smooks.api.SmooksException;
+import org.smooks.api.bean.context.BeanContext;
+import org.smooks.api.delivery.ContentHandlerFactory;
+import org.smooks.api.delivery.ordering.Consumer;
+import org.smooks.api.resource.ContentHandler;
+import org.smooks.api.resource.config.ResourceConfig;
+import org.smooks.api.resource.visitor.VisitAfterReport;
+import org.smooks.api.resource.visitor.VisitBeforeReport;
 import org.smooks.cartridges.templating.AbstractTemplateProcessor;
-import org.smooks.cdr.ResourceConfig;
-import org.smooks.cdr.SmooksConfigurationException;
-import org.smooks.container.ApplicationContext;
-import org.smooks.container.ExecutionContext;
-import org.smooks.delivery.ContentHandler;
-import org.smooks.delivery.ContentHandlerFactory;
-import org.smooks.delivery.ordering.Consumer;
-import org.smooks.event.report.annotation.VisitAfterReport;
-import org.smooks.event.report.annotation.VisitBeforeReport;
-import org.smooks.injector.Scope;
-import org.smooks.javabean.context.BeanContext;
-import org.smooks.lifecycle.phase.PostConstructLifecyclePhase;
-import org.smooks.registry.lookup.LifecycleManagerLookup;
+import org.smooks.engine.injector.Scope;
+import org.smooks.engine.lifecycle.PostConstructLifecyclePhase;
+import org.smooks.engine.lookup.LifecycleManagerLookup;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STRawGroupDir;
 import org.w3c.dom.Element;
@@ -67,9 +67,9 @@ import java.io.Writer;
 import java.util.Map;
 
 /**
- * StringTemplate {@link org.smooks.delivery.dom.DOMElementVisitor} Creator class.
+ * StringTemplate {@link org.smooks.api.resource.visitor.dom.DOMElementVisitor} Creator class.
  * <p/>
- * Creates {@link org.smooks.delivery.dom.DOMElementVisitor} instances for applying
+ * Creates {@link org.smooks.api.resource.visitor.dom.DOMElementVisitor} instances for applying
  * <a href="http://www.stringtemplate.org/">StringTemplate</a> transformations (i.e. ".st" files).
  * <p/>
  * This templating solution relies on the <a href="http://milyn.codehaus.org/downloads">Smooks JavaBean Cartridge</a>
@@ -121,14 +121,14 @@ public class StringTemplateContentHandlerFactory implements ContentHandlerFactor
      * Create a StringTemplate based ContentHandler.
      *
      * @param resourceConfig The SmooksResourceConfiguration for the StringTemplate.
-     * @return The StringTemplate {@link org.smooks.delivery.ContentHandler} instance.
+     * @return The StringTemplate {@link ContentHandler} instance.
      */
-    public synchronized ContentHandler create(ResourceConfig resourceConfig) throws SmooksConfigurationException {
+    public synchronized ContentHandler create(ResourceConfig resourceConfig) throws SmooksConfigException {
         final StringTemplateTemplateProcessor stringTemplateTemplateProcessor = new StringTemplateTemplateProcessor();
         try {
             applicationContext.getRegistry().lookup(new LifecycleManagerLookup()).applyPhase(stringTemplateTemplateProcessor, new PostConstructLifecyclePhase(new Scope(applicationContext.getRegistry(), resourceConfig, stringTemplateTemplateProcessor)));
             return stringTemplateTemplateProcessor;
-        } catch (SmooksConfigurationException e) {
+        } catch (SmooksConfigException e) {
             throw e;
         } catch (Exception e) {
             InstantiationException instanceException = new InstantiationException("StringTemplate ProcessingUnit resource [" + resourceConfig.getResource() + "] not loadable.  StringTemplate resource invalid.");

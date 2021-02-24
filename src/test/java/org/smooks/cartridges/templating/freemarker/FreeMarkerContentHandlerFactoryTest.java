@@ -48,11 +48,11 @@ import org.junit.Test;
 import org.smooks.FilterSettings;
 import org.smooks.Smooks;
 import org.smooks.StreamFilterType;
+import org.smooks.api.ExecutionContext;
 import org.smooks.cartridges.templating.MyBean;
-import org.smooks.container.ExecutionContext;
-import org.smooks.payload.JavaSource;
-import org.smooks.payload.StringResult;
-import org.smooks.payload.StringSource;
+import org.smooks.io.payload.JavaSource;
+import org.smooks.io.payload.StringResult;
+import org.smooks.io.payload.StringSource;
 import org.xml.sax.SAXException;
 
 import javax.xml.transform.stream.StreamResult;
