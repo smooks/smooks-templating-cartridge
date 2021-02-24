@@ -42,21 +42,21 @@
  */
 package org.smooks.cartridges.templating.freemarker;
 
-import org.smooks.SmooksException;
-import org.smooks.cdr.ResourceConfig;
-import org.smooks.cdr.SmooksConfigurationException;
-import org.smooks.container.ApplicationContext;
-import org.smooks.delivery.ContentHandler;
-import org.smooks.delivery.ContentHandlerFactory;
-import org.smooks.injector.Scope;
-import org.smooks.javabean.context.BeanContext;
-import org.smooks.lifecycle.phase.PostConstructLifecyclePhase;
-import org.smooks.registry.lookup.LifecycleManagerLookup;
+import org.smooks.api.ApplicationContext;
+import org.smooks.api.SmooksConfigException;
+import org.smooks.api.SmooksException;
+import org.smooks.api.bean.context.BeanContext;
+import org.smooks.api.delivery.ContentHandlerFactory;
+import org.smooks.api.resource.ContentHandler;
+import org.smooks.api.resource.config.ResourceConfig;
+import org.smooks.engine.injector.Scope;
+import org.smooks.engine.lifecycle.PostConstructLifecyclePhase;
+import org.smooks.engine.lookup.LifecycleManagerLookup;
 
 import javax.inject.Inject;
 
 /**
- * <a href="http://freemarker.org/">FreeMarker</a> templating {@link org.smooks.delivery.Visitor} Creator class.
+ * <a href="http://freemarker.org/">FreeMarker</a> templating {@link org.smooks.api.resource.visitor.Visitor} Creator class.
  * <p/>
  * This templating solution relies on the <a href="http://milyn.codehaus.org/downloads">Smooks JavaBean Cartridge</a>
  * to perform the JavaBean population that's required by <a href="http://freemarker.org/">FreeMarker</a> (for the data model).
@@ -127,14 +127,14 @@ public class FreeMarkerContentHandlerFactory implements ContentHandlerFactory {
     /**
 	 * Create a FreeMarker based ContentHandler.
      * @param resourceConfig The SmooksResourceConfiguration for the FreeMarker.
-     * @return The FreeMarker {@link org.smooks.delivery.ContentHandler} instance.
+     * @return The FreeMarker {@link ContentHandler} instance.
 	 */
-	public synchronized ContentHandler create(ResourceConfig resourceConfig) throws SmooksConfigurationException {
+	public synchronized ContentHandler create(ResourceConfig resourceConfig) throws SmooksConfigException {
 		final FreeMarkerTemplateProcessor freeMarkerTemplateProcessor = new FreeMarkerTemplateProcessor();
 		try {
 			applicationContext.getRegistry().lookup(new LifecycleManagerLookup()).applyPhase(freeMarkerTemplateProcessor, new PostConstructLifecyclePhase(new Scope(applicationContext.getRegistry(), resourceConfig, freeMarkerTemplateProcessor)));
 			return freeMarkerTemplateProcessor;
-        } catch (SmooksConfigurationException e) {
+        } catch (SmooksConfigException e) {
             throw e;
         } catch (Exception e) {
 			InstantiationException instanceException = new InstantiationException("FreeMarker resource [" + resourceConfig.getResource() + "] not loadable.  FreeMarker resource invalid.");

@@ -42,24 +42,24 @@
  */
 package org.smooks.cartridges.templating.xslt;
 
-import org.smooks.SmooksException;
-import org.smooks.cdr.ResourceConfig;
-import org.smooks.cdr.SmooksConfigurationException;
-import org.smooks.container.ApplicationContext;
-import org.smooks.delivery.ContentHandler;
-import org.smooks.delivery.ContentHandlerFactory;
-import org.smooks.injector.Scope;
-import org.smooks.javabean.context.BeanContext;
-import org.smooks.lifecycle.phase.PostConstructLifecyclePhase;
-import org.smooks.registry.lookup.LifecycleManagerLookup;
+import org.smooks.api.ApplicationContext;
+import org.smooks.api.SmooksConfigException;
+import org.smooks.api.SmooksException;
+import org.smooks.api.bean.context.BeanContext;
+import org.smooks.api.delivery.ContentHandlerFactory;
+import org.smooks.api.resource.ContentHandler;
+import org.smooks.api.resource.config.ResourceConfig;
+import org.smooks.engine.injector.Scope;
+import org.smooks.engine.lifecycle.PostConstructLifecyclePhase;
+import org.smooks.engine.lookup.LifecycleManagerLookup;
 
 import javax.inject.Inject;
 
 
 /**
- * XSL {@link org.smooks.delivery.dom.DOMElementVisitor} Creator class.
+ * XSL {@link org.smooks.api.resource.visitor.dom.DOMElementVisitor} Creator class.
  * <p/>
- * Creates {@link org.smooks.delivery.dom.DOMElementVisitor} instances for performing node/element level
+ * Creates {@link org.smooks.api.resource.visitor.dom.DOMElementVisitor} instances for performing node/element level
  * <a href="http://www.w3.org/Style/XSL/">XSL</a> templating (aka XSLT).
  * <p/>
  * Template application can be done in a synchronized or unsynchronized fashion by setting
@@ -170,17 +170,17 @@ public class XslContentHandlerFactory implements ContentHandlerFactory {
     /**
      * Create an XSL based ContentHandler instance ie from an XSL byte streamResult.
      *
-     * @param resourceConfig The SmooksResourceConfiguration for the XSL {@link org.smooks.delivery.ContentHandler}
+     * @param resourceConfig The SmooksResourceConfiguration for the XSL {@link ContentHandler}
      *                       to be created.
-     * @return XSL {@link org.smooks.delivery.ContentHandler} instance.
-     * @see org.smooks.delivery.JavaContentHandlerFactory
+     * @return XSL {@link ContentHandler} instance.
+     * @see org.smooks.engine.delivery.JavaContentHandlerFactory
      */
-    public synchronized ContentHandler create(ResourceConfig resourceConfig) throws SmooksConfigurationException {
+    public synchronized ContentHandler create(ResourceConfig resourceConfig) throws SmooksConfigException {
         final XslTemplateProcessor xslTemplateProcessor = new XslTemplateProcessor();
         try {
             applicationContext.getRegistry().lookup(new LifecycleManagerLookup()).applyPhase(xslTemplateProcessor, new PostConstructLifecyclePhase(new Scope(applicationContext.getRegistry(), resourceConfig, xslTemplateProcessor)));
             return xslTemplateProcessor;
-        } catch(SmooksConfigurationException e) {
+        } catch (SmooksConfigException e) {
             throw e;
         } catch (Exception e) {
             InstantiationException instanceException = new InstantiationException("XSL ProcessingUnit resource [" + resourceConfig.getResource() + "] not loadable.");

@@ -44,8 +44,8 @@ package org.smooks.cartridges.templating.stringtemplate;
 
 import org.junit.Test;
 import org.smooks.Smooks;
-import org.smooks.SmooksUtil;
-import org.smooks.container.ExecutionContext;
+import org.smooks.api.ExecutionContext;
+import org.smooks.support.SmooksUtil;
 import org.xml.sax.SAXException;
 
 import javax.xml.transform.stream.StreamSource;

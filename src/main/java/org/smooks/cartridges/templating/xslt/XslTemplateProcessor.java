@@ -45,22 +45,22 @@ package org.smooks.cartridges.templating.xslt;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.smooks.SmooksException;
+import org.smooks.api.ExecutionContext;
+import org.smooks.api.SmooksConfigException;
+import org.smooks.api.SmooksException;
+import org.smooks.api.delivery.Filter;
+import org.smooks.api.delivery.FilterBypass;
+import org.smooks.api.delivery.ordering.Consumer;
+import org.smooks.api.resource.config.ResourceConfig;
+import org.smooks.api.resource.visitor.VisitAfterReport;
+import org.smooks.api.resource.visitor.VisitBeforeReport;
 import org.smooks.cartridges.templating.AbstractTemplateProcessor;
-import org.smooks.cdr.ParameterAccessor;
-import org.smooks.cdr.ResourceConfig;
-import org.smooks.cdr.SmooksConfigurationException;
-import org.smooks.container.ExecutionContext;
-import org.smooks.delivery.AbstractParser;
-import org.smooks.delivery.Filter;
-import org.smooks.delivery.FilterBypass;
-import org.smooks.delivery.dom.serialize.GhostElementSerializerVisitor;
-import org.smooks.delivery.ordering.Consumer;
-import org.smooks.event.report.annotation.VisitAfterReport;
-import org.smooks.event.report.annotation.VisitBeforeReport;
+import org.smooks.engine.delivery.AbstractParser;
+import org.smooks.engine.delivery.dom.serialize.GhostElementSerializerVisitor;
+import org.smooks.engine.resource.config.ParameterAccessor;
 import org.smooks.io.StreamUtils;
-import org.smooks.util.ClassUtil;
-import org.smooks.xml.DomUtils;
+import org.smooks.support.ClassUtil;
+import org.smooks.support.DomUtils;
 import org.smooks.xml.XmlUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -165,7 +165,7 @@ public class XslTemplateProcessor extends AbstractTemplateProcessor implements C
 
             return (inlineXSL && !(rootElementNS != null && rootElementNS.equals("http://www.w3.org/1999/XSL/Transform") && DomUtils.getName(rootElement).equals("stylesheet")));
         } catch (ParserConfigurationException | IOException e) {
-            throw new SmooksConfigurationException("Unable to parse XSL Document (Stylesheet/Templatelet).", e);
+            throw new SmooksConfigException("Unable to parse XSL Document (Stylesheet/Templatelet).", e);
         } catch (SAXException e) {
             return inlineXSL;
         }

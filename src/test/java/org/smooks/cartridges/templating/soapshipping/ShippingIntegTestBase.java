@@ -44,10 +44,10 @@ package org.smooks.cartridges.templating.soapshipping;
 
 import org.junit.Test;
 import org.smooks.Smooks;
-import org.smooks.SmooksUtil;
+import org.smooks.api.ExecutionContext;
 import org.smooks.cartridges.templating.util.CharUtils;
-import org.smooks.container.ExecutionContext;
-import org.smooks.profile.DefaultProfileSet;
+import org.smooks.engine.profile.DefaultProfileSet;
+import org.smooks.support.SmooksUtil;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
