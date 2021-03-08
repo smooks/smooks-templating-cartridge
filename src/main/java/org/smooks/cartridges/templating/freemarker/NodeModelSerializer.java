@@ -45,7 +45,7 @@ package org.smooks.cartridges.templating.freemarker;
 import freemarker.core.Environment;
 import freemarker.ext.dom.NodeModel;
 import freemarker.template.*;
-import org.smooks.xml.XmlUtil;
+import org.smooks.support.XmlUtil;
 import org.w3c.dom.Element;
 
 import java.io.IOException;

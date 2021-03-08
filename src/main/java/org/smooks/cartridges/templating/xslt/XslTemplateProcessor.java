@@ -61,7 +61,7 @@ import org.smooks.engine.resource.config.ParameterAccessor;
 import org.smooks.io.StreamUtils;
 import org.smooks.support.ClassUtil;
 import org.smooks.support.DomUtils;
-import org.smooks.xml.XmlUtil;
+import org.smooks.support.XmlUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.ErrorHandler;
