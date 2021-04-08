@@ -4,12 +4,6 @@ image:https://img.shields.io/maven-central/v/org.smooks.cartridges/smooks-templa
 image:https://img.shields.io/nexus/s/org.smooks.cartridges/smooks-templating-cartridge?server=https%3A%2F%2Foss.sonatype.org[Sonatype Nexus (Snapshots)]
 image:https://github.com/smooks/smooks-templating-cartridge/workflows/CI/badge.svg[Build Status]
 
-== License
-
-Smooks Templating Cartridge is open source and licensed under the terms of the Apache License Version 2.0, or the GNU Lesser General Public License version 3.0 or later. You may use Smooks Templating Cartridge according to either of these licenses as is most appropriate for your project.
-
-`+SPDX-License-Identifier: Apache-2.0 OR LGPL-3.0-or-later+`
-
 // tag::smooks-templating-cartridge[]
 Smooks provides two main templating options:
 
@@ -253,3 +247,9 @@ This can happen and is most likely going to be a result of your stylesheet conta
 </dependency>
 ----
 // end::smooks-templating-cartridge[]
+
+== License
+
+Smooks Templating Cartridge is open source and licensed under the terms of the Apache License Version 2.0, or the GNU Lesser General Public License version 3.0 or later. You may use Smooks Templating Cartridge according to either of these licenses as is most appropriate for your project.
+
+`+SPDX-License-Identifier: Apache-2.0 OR LGPL-3.0-or-later+`
