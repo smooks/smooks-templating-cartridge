@@ -1,0 +1,249 @@
+= Smooks Templating Cartridge
+
+image:https://img.shields.io/maven-central/v/org.smooks.cartridges/smooks-templating-cartridge[Maven Central]
+image:https://img.shields.io/nexus/s/org.smooks.cartridges/smooks-templating-cartridge?server=https%3A%2F%2Foss.sonatype.org[Sonatype Nexus (Snapshots)]
+image:https://github.com/smooks/smooks-templating-cartridge/workflows/CI/badge.svg[Build Status]
+
+// tag::smooks-templating-cartridge[]
+Smooks provides two main templating options:
+
+. http://freemarker.org/[FreeMarker Templating]
+. http://www.w3.org/Style/XSL/[XSL Templating]
+
+What Smooks adds here is the ability to use these templating technologies within the context of a Smooks filtering process. This means that these technologies:
+
+. Can be applied to a source message on a per fragment basis vs the whole message i.e. "Fragment-Based Transformations". This is useful in situations where (for example) you only wish to insert a piece of data into a message at a specific point (e.g. add headers to a SOAP message), but you don't wish to interfere with the rest of the message stream. In this case you can "target" (apply) the template to the fragment of interest.
+. Can take advantage of other Smooks technologies (cartridges) such as the https://github.com/smooks/smooks-javabean-cartridge/blob/master/README.adoc[Javabean cartridge]. In this scenario, you can use the Javabean cartridge to decode and bind data from the message into the Smooks bean context and then use (reference) that decoded data from
+inside your FreeMarker template (Smooks makes this data available to
+FreeMarker).
+. Can be used to process huge message streams (GBs), while at the same time maintain a relatively simple processing model, with a low memory footprint. See https://www.smooks.org/v2/documentation/#processing_huge_messages_gbs[Processing Huge Messages].
+. Can be used for generating "Split Message Fragments" that can then be routed (using https://www.smooks.org/v2/documentation/#splitting_routing[Smooks Routing components]) to physical endpoints (File, JMS), or logical endpoints on an ESB (a "Service").
+
+Smooks can also be extended (and will) to add support for other templating technologies.
+
+NOTE: Be sure to read the section on https://github.com/smooks/smooks-javabean-cartridge/blob/master/README.adoc#java-binding[Java
+Binding].
+
+== FreeMarker Templating
+
+http://freemarker.org/[FreeMarker] is a powerful templating engine. Smooks allows FreeMarker to be used as a means of generating textual content that can then be inserted into a message stream (aka a "Fragment Transform"), or used as a "Split Message Fragment" for https://www.smooks.org/v2/documentation/#splitting_routing[routing to another process].
+
+Configuring FreeMarker templates in Smooks is done through the `+https://www.smooks.org/xsd/smooks/freemarker-2.0.xsd+` configuration namespace. Just configure this XSD into your IDE and you're in business!
+
+*Example - Inline Template*:
+
+.smooks-config.xml
+[source,xml]
+----
+<smooks-resource-list xmlns="https://www.smooks.org/xsd/smooks-2.0.xsd"
+                      xmlns:ftl="https://www.smooks.org/xsd/smooks/freemarker-2.0.xsd">
+    <ftl:freemarker applyOnElement="order">
+        <ftl:template><!--<orderId>${order.id}</orderId>--></ftl:template>
+    </ftl:freemarker>
+</smooks-resource-list>
+----
+
+*Example - External Template Reference*:
+
+.smooks-config.xml
+[source,xml]
+----
+<smooks-resource-list xmlns="https://www.smooks.org/xsd/smooks-2.0.xsd"
+                      xmlns:ftl="https://www.smooks.org/xsd/smooks/freemarker-2.0.xsd">
+    <ftl:freemarker applyOnElement="order">
+        <ftl:template>/templates/shop/ordergen.ftl</ftl:template>
+    </ftl:freemarker>
+</smooks-resource-list>
+----
+
+=== FreeMarker Transformations using NodeModels
+
+The easiest way to construct message transformations in FreeMarker is to use FreeMarker's http://freemarker.org/docs/xgui_expose_dom.html[NodeModel] facility. This is where FreeMarker uses a W3C DOM as the Templating model, referencing the DOM nodes directly from inside the FreeMarker template.
+
+Smooks adds two additional capabilities here:
+
+. The ability to perform this on a fragment basis i.e. you don't have to use the full message as the DOM model, just the targeted fragment.
+. The ability to use http://freemarker.org/docs/xgui_expose_dom.html[NodeModel] in a streaming filter process.
+. The ability to use it on non-XML messages (CSV, EDI, etc...).
+
+To use this facility in Smooks, you need to define an additional resource that defines/declares the NodeModels to be captured (created in the case of SAX streaming):
+
+.smooks-config.xml
+[source,xml]
+----
+<?xml version="1.0"?>
+<smooks-resource-list xmlns="https://www.smooks.org/xsd/smooks-2.0.xsd"
+ xmlns:jb="https://www.smooks.org/xsd/smooks/javabean-1.6.xsd"
+ xmlns:ftl="https://www.smooks.org/xsd/smooks/freemarker-2.0.xsd">
+
+     <!--
+         Create 2 NodeModels. One high level model for the "order"
+         (header, etc...) and then one per "order-item".
+
+         These models are used in the FreeMarker templating resources
+         defined below. You need to make sure you set the selector such
+         that the total memory footprint is as low as possible. In this
+         example, the "order" model will contain everything accept the
+         <order-item> data (the main bulk of data in the message). The
+         "order-item" model only contains the current <order-item> data
+         (i.e. there's max 1 order-item in memory at any one time).
+     -->
+     <resource-config selector="order,order-item">
+        <resource>org.smooks.engine.resource.visitor.dom.DomModelCreator</resource>
+     </resource-config>
+
+     <!--
+         Apply the first part of the template when we reach the start
+         of the <order-items> element. Apply the second part when we
+         reach the end.
+
+         Note the <?TEMPLATE-SPLIT-PI?> Processing Instruction in the
+         template. This tells Smooks where to split the template,
+         resulting in the order-items being inserted at this point.
+     -->
+     <ftl:freemarker applyOnElement="order-items">
+        <ftl:template><!--<salesorder>
+ <details>
+ <orderid>${order.@id}</orderid>
+ <customer>
+ <id>${order.header.customer.@number}</id>
+ <name>${order.header.customer}</name>
+ </customer>
+ <details>
+ <itemList>
+ <?TEMPLATE-SPLIT-PI?>
+ </itemList>
+</salesorder>--></ftl:template>
+     </ftl:freemarker>
+
+     <!--
+         Output the <order-items> elements. This will appear in the
+         output message where the <?TEMPLATE-SPLIT-PI?> token appears in the
+         order-items template.
+     -->
+     <ftl:freemarker applyOnElement="order-item">
+        <ftl:template><!-- <item>
+ <id>${.vars["order-item"].@id}</id>
+ <productId>${.vars["order-item"].product}</productId>
+ <quantity>${.vars["order-item"].quantity}</quantity>
+ <price>${.vars["order-item"].price}</price>
+<item>--></ftl:template>
+     </ftl:freemarker>
+
+</smooks-resource-list>
+----
+
+NOTE: See full example in the https://github.com/smooks/smooks-examples/tree/v1.0.2/freemarker-huge-transform[freemarker-huge-transform] tutorial
+
+=== FreeMarker and the Javabean Cartridge
+
+FreeMarker NodeModel is very powerful and easy to use. The tradeoff is obviously that of performance. Constructing W3C DOMs is not cheap. It also may be the case that the required data has already been extracted and populated into a Java Object model anyway e.g. where the data also needs to be routed to a a JMS endpoint as Java Objects.
+
+In situations where using the NodeModel is not practical, Smooks allows you to use the Javabean Cartridge to populate a POJO (or a Virtual Model). This model can then be used in the FreeMarker Templating process. See the docs on the https://github.com/smooks/smooks-javabean-cartridge/blob/master/README.adoc[JavaBean Cartridge] for more details.
+
+*Example (using a Virtual Model)*:
+
+.smooks-config.xml
+[source,xml]
+----
+<?xml version="1.0"?>
+<smooks-resource-list xmlns="https://www.smooks.org/xsd/smooks-2.0.xsd"
+                      xmlns:jb="https://www.smooks.org/xsd/smooks/javabean-1.6.xsd"
+                      xmlns:ftl="https://www.smooks.org/xsd/smooks/freemarker-2.0.xsd">
+
+    <!-- Extract and decode data from the message. Used in the freemarker template (below). -->
+    <jb:bean beanId="order" class="java.util.Hashtable" createOnElement="order">
+        <jb:value property="orderId" decoder="Integer" data="order/@id"/>
+        <jb:value property="customerNumber" decoder="Long" data="header/customer/@number"/>
+        <jb:value property="customerName" data="header/customer"/>
+        <jb:wiring property="orderItem" beanIdRef="orderItem"/>
+    </jb:bean>
+    <jb:bean beanId="orderItem" class="java.util.Hashtable" createOnElement="order-item">
+        <jb:value property="itemId" decoder="Integer" data="order-item/@id"/>
+        <jb:value property="productId" decoder="Long" data="order-item/product"/>
+        <jb:value property="quantity" decoder="Integer" data="order-item/quantity"/>
+        <jb:value property="price" decoder="Double" data="order-item/price"/>
+    </jb:bean>
+
+    <ftl:freemarker applyOnElement="order-item">
+        <ftl:template><!--<orderitem id="${order.orderItem.itemId}" order="${order.orderId}">
+ <customer>
+ <name>${order.customerName}</name>
+ <number>${order.customerNumber?c}</number>
+ </customer>
+ <details>
+ <productId>${order.orderItem.productId}</productId>
+ <quantity>${order.orderItem.quantity}</quantity>
+ <price>${order.orderItem.price}</price>
+ </details>
+</orderitem>-->
+        </ftl:template>
+    </ftl:freemarker>
+
+</smooks-resource-list>
+----
+
+NOTE: See full example in the https://github.com/smooks/smooks-examples/tree/v1.0.2/file-router[file-router] example
+
+=== Programmatic Configuration
+
+FreeMarker templating configurations can be programmatically added to a Smooks instance simply by configuring and adding a link:/javadoc/v1.7.1/smooks/org/milyn/templating/freemarker/FreeMarkerTemplateProcessor.html[`+FreeMarkerTemplateProcessor+`] instance to the Smooks instance. The following example configures a Smooks instance with a Java Binding configuration and a FreeMarker templating configuration:
+
+[source,java]
+----
+Smooks smooks = new Smooks();
+
+smooks.addVisitor(new Bean(OrderItem.class, "orderItem", "order-item").bindTo("productId", "order-item/product/@id"));
+smooks.addVisitor(new FreeMarkerTemplateProcessor(new TemplatingConfiguration("/templates/order-tem.ftl")), "order-item");
+
+// And then just use Smooks as normal... filter a Source to a Result etc...
+----
+
+== XSL Templating
+
+Configuring XSL templates in Smooks is almost identical to that of configuring link:#freemarker-templating[FreeMarker templates]. It is done through the `+https://www.smooks.org/xsd/smooks/xsl-2.0.xsd+` configuration namespace. Just configure this XSD into your IDE and you're in business!
+
+*Example*:
+
+.smooks-config.xml
+[source,xml]
+----
+<?xml version="1.0"?>
+<smooks-resource-list xmlns="https://www.smooks.org/xsd/smooks-2.0.xsd"
+                      xmlns:xsl="https://www.smooks.org/xsd/smooks/xsl-2.0.xsd">
+
+    <xsl:xsl applyOnElement="#document">
+        <xsl:template><!--<xxxxxx/>--></xsl:template>
+    </xsl:xsl>
+
+</smooks-resource-list>
+----
+
+As with FreeMarker, external templates can be configured via URI reference in the element.
+
+As already stated, configuring XSL templates in Smooks is almost identical to that of configuring FreeMarker templates (See above). For this reason, please consult the FreeMarker configuration docs.Translating to XSL equivalents is simply a matter of changing the configuration namespace. Please read the following sections however.
+
+=== Points to Note Regarding XSL Support
+
+. It does not make sense to use Smooks for executing XSLT, unless:
+* You need to perform a fragment transform i.e. you are not transforming the whole message.
+* You need to use other Smooks functionality to perform other operations on the message, such as message splitting, persistence, etc...
+. Smooks applies XSLs on a message fragment basis (i.e. DOM Element Nodes) Vs to the whole document (i.e. DOM Document Node). This can be very useful for fragmenting/modularizing your XSLs, but don't assume that an XSL written and working standalone (externally to Smooks and on the whole document) will automatically work through Smooks without modification. For this reason, Smooks does handle XSLs targeted at the document root node differently in that it applies the XSL to the DOM Document Node (Vs the root DOM Element). The basic point here is that if you already have XSLs and are porting them to Smooks, you may need to make some tweaks to the Stylesheet.
+. XSLs typically contain a template matched to the root element. Because Smooks applies XSLs on a fragment basis, matching against the "root element" is no longer valid. You need to make sure the Stylesheet contains a template that matches against the context node (i.e. the targeted fragment).
+
+=== My XSLT Works Outside Smooks, but not Inside?
+
+This can happen and is most likely going to be a result of your stylesheet containing a template that's using an absolute path reference to the document root node. This will cause issues in the Smooks fragment-based processing model because the element being targeted by Smooks is not the document root node. Your XSLT needs to contain a template that matches against the context node being targeted by Smooks.
+
+== Maven Coordinates
+
+.pom.xml
+[source,xml]
+----
+<dependency>
+    <groupId>org.smooks.cartridges</groupId>
+    <artifactId>smooks-templating-cartridge</artifactId>
+    <version>2.0.0-M3</version>
+</dependency>
+----
+// end::smooks-templating-cartridge[]
