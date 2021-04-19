@@ -58,7 +58,7 @@
             </smooks-resource-list>
         </core:config>
     </core:smooks>
-    
+
     <jb:bean beanId="myBeanData" class="org.smooks.cartridges.templating.MyBean" createOnElement="c">
         <jb:value property="x" data="c/@x" />
     </jb:bean>

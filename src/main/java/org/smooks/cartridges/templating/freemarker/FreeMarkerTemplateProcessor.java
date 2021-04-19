@@ -126,11 +126,11 @@ public class FreeMarkerTemplateProcessor extends AbstractTemplateProcessor imple
 
         if (resourceConfig.isInline()) {
             byte[] templateBytes = resourceConfig.getBytes();
-            String[] templates = (new String(templateBytes)).split(AbstractTemplateProcessor.TEMPLATE_SPLIT_PI);
+            String[] templates = new String(templateBytes).split(AbstractTemplateProcessor.TEMPLATE_SPLIT_PI);
 
-            if(templates.length == 1) {
+            if (templates.length == 1) {
                 defaultTemplate = new Template("free-marker-template", new StringReader(templates[0]), configuration);
-            } else if(templates.length == 2) {
+            } else if (templates.length == 2) {
                 templateBefore = new Template("free-marker-template-before", new StringReader(templates[0]), configuration);
                 templateAfter = new Template("free-marker-template-after", new StringReader(templates[1]), configuration);
             } else {
