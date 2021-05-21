@@ -146,7 +146,7 @@ public class XslContentHandlerFactoryTest {
         StringResult result = new StringResult();
 
         smooks.filterSource(new StringSource("<a/>"), result);
-        assertEquals("<xxxxxx/>", result.getResult());
+        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?><xxxxxx/>", result.getResult());
     }
 
     @Test
@@ -155,7 +155,7 @@ public class XslContentHandlerFactoryTest {
         StringResult result = new StringResult();
 
         smooks.filterSource(new StringSource("<a name='kalle'/>"), result);
-        assertEquals("<x>kalle</x>", result.getResult());
+        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?><x>kalle</x>", result.getResult());
     }
 
     @Test
@@ -164,7 +164,7 @@ public class XslContentHandlerFactoryTest {
         StringResult result = new StringResult();
 
         smooks.filterSource(new StringSource("<a/>"), result);
-        assertEquals("Hi there!", result.getResult());
+        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?>Hi there!", result.getResult());
     }
 
     @Test
@@ -173,7 +173,7 @@ public class XslContentHandlerFactoryTest {
         StringResult result = new StringResult();
 
         smooks.filterSource(new StringSource("<a/>"), result);
-        assertEquals("<xxxxxx/>", result.getResult());
+        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?><xxxxxx/>", result.getResult());
     }
 
     @Test

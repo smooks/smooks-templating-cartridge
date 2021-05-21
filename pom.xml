@@ -155,6 +155,7 @@
                         <exclude>main/java/org/smooks/cartridges/templating/xslt/DefaultMemberAccess.java</exclude>
                         <exclude>test/java/org/smooks/cartridges/templating/freemarker/include.xml</exclude>
                         <exclude>test/java/org/smooks/cartridges/templating/freemarker/test-template.ftl</exclude>
+                        <exclude>test/java/org/smooks/cartridges/templating/stringtemplate/acmesecsample/AcmeFindaddressRequest.tran.expected.xml</exclude>
                     </excludes>
                 </configuration>
                 <executions>

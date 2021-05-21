@@ -42,12 +42,15 @@
  */
 package org.smooks.cartridges.templating.stringtemplate.acmesecsample;
 
+import org.custommonkey.xmlunit.XMLAssert;
+import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.Test;
 import org.smooks.Smooks;
 import org.smooks.api.ExecutionContext;
 import org.smooks.cartridges.templating.util.CharUtils;
 import org.smooks.engine.profile.DefaultProfileSet;
 import org.smooks.support.SmooksUtil;
+import org.smooks.support.StreamUtils;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
@@ -67,6 +70,7 @@ public class FindAddressSampleTest {
         InputStream requestStream = getClass().getResourceAsStream("AcmeFindaddressRequest.xml");
         ExecutionContext context = smooks.createExecutionContext("acme-findAddresses-request");
         String requestResult = SmooksUtil.filterAndSerialize(context, requestStream, smooks);
-        CharUtils.assertEquals("StringTemplate test failed.", "/org/smooks/cartridges/templating/stringtemplate/acmesecsample/AcmeFindaddressRequest.xml.tran.expected", requestResult);
+        XMLUnit.setIgnoreWhitespace(true);
+        XMLAssert.assertXMLEqual(StreamUtils.readStreamAsString(this.getClass().getResourceAsStream("/org/smooks/cartridges/templating/stringtemplate/acmesecsample/AcmeFindaddressRequest.tran.expected.xml"), "UTF-8"), requestResult);
     }
 }
