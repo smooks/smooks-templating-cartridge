@@ -44,8 +44,8 @@
 
 <smooks-resource-list xmlns="https://www.smooks.org/xsd/smooks-2.0.xsd" 
                       xmlns:jb="https://www.smooks.org/xsd/smooks/javabean-1.6.xsd" 
-                      xmlns:security="http://schemas.acme.com/security/"
                       xmlns:envelope="http://schemas.xmlsoap.org/soap/envelope/"
+                      xmlns:core="https://www.smooks.org/xsd/smooks/smooks-core-1.6.xsd"
                       default-target-profile="acme-request">
 
 	<!-- ==========================================================================
@@ -57,27 +57,51 @@
 		processing phase - adding the security info to the header as a 
 		WS-Security block.
 	========================================================================== -->
-        <jb:bean beanId="credentials" class="org.smooks.cartridges.templating.stringtemplate.acmesecsample.Credentials" createOnElement="acmeCreds" createOnElementNS="http://schemas.acme.com/security/" phase="ASSEMBLY">
+        <jb:bean beanId="credentials" class="org.smooks.cartridges.templating.stringtemplate.acmesecsample.Credentials" createOnElement="acmeCreds" createOnElementNS="http://schemas.acme.com/security/">
            <jb:value property="username" data="acmeCreds/usr"/>
            <jb:value property="password" data="acmeCreds/pwd"/>
         </jb:bean>
 
-	<!-- Remove the acmecreds element from the SOAP body.  In reality, you'd
-		 prob not need to remove this element in this way. It would probably
-		 get removed as part of a more general revamp of the SOAP body i.e. to
-		 "make it fit" a different schema altogether.-->
-	    <resource-config selector="security:acmeCreds">
-           <resource>org.smooks.cartridges.cdres.assemble.RemoveElementAU</resource>
-        </resource-config>
-	<!-- ==========================================================================
-		Use a StringTemplate template to write the Credentials info (gathered
-		during the Assembly Phase) into the SOAP header (add them to
-		the header i.e. "ADD_TO").
-		Note: This template is applied during the "Processing Phase".
-	========================================================================== -->
-	<resource-config selector="envelope:Envelope Header">
-           <resource>/org/smooks/cartridges/templating/stringtemplate/acmesecsample/WsseCredsWriter.st</resource>
-           <param name="action">ADD_TO</param>
-	</resource-config>
+    <core:smooks filterSourceOn="#document" maxNodeDepth="0">
+        <core:action>
+            <core:inline>
+                <core:replace/>
+            </core:inline>
+        </core:action>
+        <core:config>
+            <smooks-resource-list xmlns:envelope="http://schemas.xmlsoap.org/soap/envelope/">
+                <core:delegate-reader>
+                    <resource-config selector="#document">
+                        <resource>org.smooks.cartridges.templating.stringtemplate.acmesecsample.ScrollForwardVisitor</resource>
+                    </resource-config>
+                </core:delegate-reader>
+                <!-- Remove the acmecreds element from the SOAP body.  In reality, you'd
+                     prob not need to remove this element in this way. It would probably
+                     get removed as part of a more general revamp of the SOAP body i.e. to
+                     "make it fit" a different schema altogether.-->
+                <resource-config selector="*">
+                    <resource>org.smooks.cartridges.templating.stringtemplate.acmesecsample.FilterVisitor</resource>
+                </resource-config>
+                <core:smooks filterSourceOn="envelope:Envelope/Header">
+                    <core:action>
+                        <core:inline>
+                            <core:append-before/>
+                        </core:inline>
+                    </core:action>
+                    <core:config>
+                        <smooks-resource-list>
+                            <!-- ==========================================================================
+                                Use a StringTemplate template to write the Credentials info
+                                into the SOAP header (add them to the header i.e. "append-before").
+                                ========================================================================== -->
+                            <resource-config selector="#document">
+                                <resource type="stv4">/org/smooks/cartridges/templating/stringtemplate/acmesecsample/WsseCredsWriter.st</resource>
+                            </resource-config>
+                        </smooks-resource-list>
+                    </core:config>
+                </core:smooks>
+            </smooks-resource-list>
+        </core:config>
+    </core:smooks>
 	
 </smooks-resource-list>

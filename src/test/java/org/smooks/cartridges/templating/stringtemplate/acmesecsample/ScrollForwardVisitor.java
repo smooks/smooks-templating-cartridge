@@ -1,8 +1,8 @@
 /*-
  * ========================LICENSE_START=================================
- * smooks-templating-cartridge
+ * Smooks Templating Cartridge
  * %%
- * Copyright (C) 2020 Smooks
+ * Copyright (C) 2020 - 2021 Smooks
  * %%
  * Licensed under the terms of the Apache License Version 2.0, or
  * the GNU Lesser General Public License version 3.0 or later.
@@ -40,35 +40,26 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  * =========================LICENSE_END==================================
  */
-package org.smooks.cartridges.templating.stringtemplate.v4.acmesecsample;
+package org.smooks.cartridges.templating.stringtemplate.acmesecsample;
 
-import org.custommonkey.xmlunit.XMLAssert;
-import org.custommonkey.xmlunit.XMLUnit;
-import org.junit.Test;
-import org.smooks.Smooks;
 import org.smooks.api.ExecutionContext;
-import org.smooks.cartridges.templating.util.CharUtils;
-import org.smooks.engine.profile.DefaultProfileSet;
-import org.smooks.support.SmooksUtil;
-import org.smooks.support.StreamUtils;
-import org.xml.sax.SAXException;
+import org.smooks.api.SmooksException;
+import org.smooks.api.resource.visitor.sax.ng.AfterVisitor;
+import org.smooks.io.Stream;
+import org.smooks.support.XmlUtil;
+import org.w3c.dom.Element;
 
 import java.io.IOException;
-import java.io.InputStream;
 
-public class FindAddressSampleTest {
 
-    @Test
-    public void testTransform() throws SAXException, IOException {
-        Smooks smooks = new Smooks();
+public class ScrollForwardVisitor implements AfterVisitor {
 
-        SmooksUtil.registerProfileSet(new DefaultProfileSet("acme-findAddresses-request", new String[]{"acme-request"}), smooks);
-        smooks.addConfigurations("acme-creds.xml", getClass().getResourceAsStream("acme-creds.xml"));
-
-        InputStream requestStream = getClass().getResourceAsStream("AcmeFindaddressRequest.xml");
-        ExecutionContext context = smooks.createExecutionContext("acme-findAddresses-request");
-        String requestResult = SmooksUtil.filterAndSerialize(context, requestStream, smooks);
-        XMLUnit.setIgnoreWhitespace(true);
-        XMLAssert.assertXMLEqual(StreamUtils.readStreamAsString(this.getClass().getResourceAsStream("/org/smooks/cartridges/templating/stringtemplate/acmesecsample/AcmeFindaddressRequest.tran.expected.xml"), "UTF-8"), requestResult);
+    @Override
+    public void visitAfter(Element element, ExecutionContext executionContext) {
+        try {
+            Stream.out(executionContext).write(XmlUtil.serialize(element));
+        } catch (IOException e) {
+            throw new SmooksException(e);
+        }
     }
 }
