@@ -82,7 +82,8 @@ public class FreeMarkerProgramaticConfigTest {
         nestedSmooksVisitor.setNestedSmooks(nestedSmooks);
         
         Smooks smooks = new Smooks();
-        smooks.addVisitors(new Bean(MyBean.class, "myBeanData", "c").bindTo("x", "c/@x"));
+        Bean bean = new Bean(MyBean.class, "myBeanData", "c", smooks.getApplicationContext().getRegistry());
+        smooks.addVisitors(bean.bindTo("x", "c/@x"));
         smooks.addVisitor(nestedSmooksVisitor, "c");
 
         test_ftl(smooks, "<a><b><c x='xvalueonc1'/><c x='xvalueonc2'/></b></a>", "<a><b><mybean>xvalueonc1</mybean><mybean>xvalueonc2</mybean></b></a>");
@@ -139,7 +140,8 @@ public class FreeMarkerProgramaticConfigTest {
         nestedSmooksVisitor.setNestedSmooks(nestedSmooks);
         
         Smooks smooks = new Smooks();
-        smooks.addVisitors(new Bean(MyBean.class, "myBeanData", "c").bindTo("x", "c/@x"));
+        Bean bean = new Bean(MyBean.class, "myBeanData", "c", smooks.getApplicationContext().getRegistry());
+        smooks.addVisitors(bean.bindTo("x", "c/@x"));
         smooks.addVisitor(nestedSmooksVisitor, "c");
 
         context = smooks.createExecutionContext();
@@ -164,7 +166,8 @@ public class FreeMarkerProgramaticConfigTest {
         nestedSmooksVisitor.setNestedSmooks(nestedSmooks);
         
         Smooks smooks = new Smooks();
-        smooks.addVisitors(new Bean(MyBean.class, "myBeanData", "b").bindTo("x", "b/@x"));
+        Bean bean = new Bean(MyBean.class, "myBeanData", "b", smooks.getApplicationContext().getRegistry());
+        smooks.addVisitors(bean.bindTo("x", "b/@x"));
         smooks.addVisitor(nestedSmooksVisitor, "c");
 
         test_ftl(smooks, "<a><b x='xvalueonc1'/><c/><d/></a>",
@@ -189,7 +192,8 @@ public class FreeMarkerProgramaticConfigTest {
         nestedSmooksVisitor.setNestedSmooks(nestedSmooks);
 
         Smooks smooks = new Smooks();
-        smooks.addVisitors(new Bean(MyBean.class, "myBeanData", "b").bindTo("x", "b/@x"));
+        Bean bean = new Bean(MyBean.class, "myBeanData", "b", smooks.getApplicationContext().getRegistry());
+        smooks.addVisitors(bean.bindTo("x", "b/@x"));
         smooks.addVisitor(nestedSmooksVisitor, "c");
         
         test_ftl(smooks, "<a><b x='xvalueonc1'/><c/><d/></a>", "<a><b x=\"xvalueonc1\"/><c></c><mybean>xvalueonc1</mybean><d/></a>");
@@ -217,7 +221,8 @@ public class FreeMarkerProgramaticConfigTest {
         nestedSmooksVisitor.setNestedSmooks(nestedSmooks);
         
         Smooks smooks = new Smooks();
-        smooks.addVisitors(new Bean(MyBean.class, "myBeanData", "b").bindTo("x", "b/@x"));
+        Bean bean = new Bean(MyBean.class, "myBeanData", "b", smooks.getApplicationContext().getRegistry());
+        smooks.addVisitors(bean.bindTo("x", "b/@x"));
         smooks.addVisitor(nestedSmooksVisitor, "c");
 
         test_ftl(smooks, "<a><b x='xvalueonc1'/><c/><d/></a>", "<a><b x=\"xvalueonc1\"/><c><mybean>xvalueonc1</mybean></c><d/></a>");
