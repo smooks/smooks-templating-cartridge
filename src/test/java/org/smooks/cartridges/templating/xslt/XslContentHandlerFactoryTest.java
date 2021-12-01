@@ -61,6 +61,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.util.Optional;
+import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -74,7 +75,7 @@ public class XslContentHandlerFactoryTest {
     @Test
     public void testXslUnitTrans_filebased_replace() {
         Smooks smooks = new Smooks();
-        ResourceConfig resourceConfig = new DefaultResourceConfig("p", "org/smooks/cartridges/templating/xslt/xsltransunit.xsl");
+        ResourceConfig resourceConfig = new DefaultResourceConfig("p", new Properties(), "org/smooks/cartridges/templating/xslt/xsltransunit.xsl");
 
         System.setProperty("javax.xml.transform.TransformerFactory", org.apache.xalan.processor.TransformerFactoryImpl.class.getName());
         smooks.getApplicationContext().getRegistry().registerResourceConfig(resourceConfig);
@@ -95,7 +96,7 @@ public class XslContentHandlerFactoryTest {
     }
 
     public void testXslUnitTrans_parambased(NestedSmooksVisitor.Action action, String expectedFileName) {
-        ResourceConfig res = new DefaultResourceConfig("p", "<z id=\"{@id}\">Content from template!!</z>");
+        ResourceConfig res = new DefaultResourceConfig("p", new Properties(), "<z id=\"{@id}\">Content from template!!</z>");
         res.setResourceType("xsl");
         res.setParameter(XslContentHandlerFactory.IS_XSLT_TEMPLATELET, "true");
 
@@ -184,7 +185,7 @@ public class XslContentHandlerFactoryTest {
             smooks.filterSource(smooks.createExecutionContext(), new StreamSource(new StringReader("<doc/>")), null);
             fail("Expected SmooksConfigurationException.");
         } catch (SmooksConfigException e) {
-            assertEquals("Error loading Templating resource: Target Profile: [[org.smooks.api.profile.Profile#default_profile]], Selector: [#document], Selector Namespace URI: [null], Resource: [/org/smooks/cartridges/templating/xslt/bad-stylesheet.xsl], Num Params: [0]", e.getCause().getMessage());
+            assertEquals("Error loading Templating resource: Target Profile: [[org.smooks.api.profile.Profile#default_profile]], Selector: [/*], Selector Namespace URI: [null], Resource: [/org/smooks/cartridges/templating/xslt/bad-stylesheet.xsl], Num Params: [0]", e.getCause().getMessage());
         }
     }
 }
