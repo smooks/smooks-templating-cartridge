@@ -42,7 +42,6 @@
  */
 package org.smooks.cartridges.templating.xslt;
 
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.smooks.api.ExecutionContext;
@@ -145,7 +144,7 @@ public class XslTemplateProcessor extends AbstractTemplateProcessor implements C
             String templateletWrapper = new String(StreamUtils.readStream(ClassUtil.getResourceAsStream("doc-files/templatelet.xsl", getClass())));
             String templatelet = new String(xslBytes);
 
-            templateletWrapper = StringUtils.replace(templateletWrapper, "@@@templatelet@@@", templatelet);
+            templateletWrapper = templateletWrapper.replace("@@@templatelet@@@", templatelet);
             xslBytes = templateletWrapper.getBytes();
             xslString = new String(xslBytes, getEncoding().name());
         }
