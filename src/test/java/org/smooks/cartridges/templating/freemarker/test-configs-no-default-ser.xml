@@ -64,7 +64,7 @@
     </resource-config>
 
     <resource-config selector="d">
-        <resource>org.smooks.engine.delivery.sax.ng.SaxNgSerializerVisitor</resource>
+        <resource>org.smooks.engine.delivery.sax.ng.ConsumeSerializerVisitor</resource>
     </resource-config>
 
 </smooks-resource-list>

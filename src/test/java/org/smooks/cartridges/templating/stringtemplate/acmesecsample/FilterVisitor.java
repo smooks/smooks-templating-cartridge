@@ -43,23 +43,13 @@
 package org.smooks.cartridges.templating.stringtemplate.acmesecsample;
 
 import org.smooks.api.ExecutionContext;
-import org.smooks.api.SmooksException;
-import org.smooks.api.resource.visitor.sax.ng.ElementVisitor;
 import org.smooks.engine.delivery.fragment.NodeFragment;
-import org.smooks.engine.delivery.sax.ng.SaxNgSerializerVisitor;
+import org.smooks.engine.delivery.sax.ng.ConsumeSerializerVisitor;
 import org.smooks.engine.memento.SimpleVisitorMemento;
-import org.smooks.io.DomToXmlWriter;
-import org.smooks.io.FragmentWriter;
-import org.smooks.io.SAXWriter;
-import org.smooks.io.Stream;
-import org.smooks.support.XmlUtil;
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.Element;
 
-import javax.inject.Inject;
-import java.io.IOException;
-
-public class FilterVisitor extends SaxNgSerializerVisitor {
+public class FilterVisitor extends ConsumeSerializerVisitor {
 
     @Override
     public void visitAfter(Element element, ExecutionContext executionContext) {
