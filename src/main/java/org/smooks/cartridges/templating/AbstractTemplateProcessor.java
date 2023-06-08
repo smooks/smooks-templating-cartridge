@@ -54,7 +54,7 @@ import org.smooks.engine.resource.config.DefaultResourceConfig;
 import org.smooks.io.Stream;
 import org.w3c.dom.Element;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.xml.transform.TransformerConfigurationException;
 import java.io.IOException;
