@@ -1,6 +1,6 @@
 <trackingNumber>
-	<shipperID>$it.shipperID$</shipperID>
+	<shipperID>$trackingNumber.shipperID$</shipperID>
 	<shipmentNumber>
-		$it.shipmentNumber$
+		$trackingNumber.shipmentNumber$
 	</shipmentNumber>
 </trackingNumber>

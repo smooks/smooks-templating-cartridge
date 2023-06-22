@@ -42,9 +42,9 @@
   =========================LICENSE_END==================================
   -->
 
-<smooks-resource-list xmlns="https://www.smooks.org/xsd/smooks-2.0.xsd" 
-                      xmlns:jb="https://www.smooks.org/xsd/smooks/javabean-1.6.xsd"
+<smooks-resource-list xmlns="https://www.smooks.org/xsd/smooks-2.0.xsd"
                       xmlns:core="https://www.smooks.org/xsd/smooks/smooks-core-1.6.xsd"
+                      xmlns:jb="https://www.smooks.org/xsd/smooks/javabean-1.6.xsd" 
                       default-target-profile="shipping-response">
 
     <!--

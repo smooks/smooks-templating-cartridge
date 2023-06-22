@@ -60,7 +60,7 @@ import static org.junit.Assert.assertEquals;
 public class RouteToOutputStreamResourceTest {
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         MockOutStreamResource.outputStream = new ByteArrayOutputStream();
     }
     

@@ -1,3 +1,3 @@
 <trackingNumbers>
-	$history.trackingNumbers:org/smooks/cartridges/templating/soapshipping/st/TrackingNumberOut()$
+	$history.trackingNumbers:{trackingNumber|$trackingNumber:TrackingNumberOut()$}$
 </trackingNumbers>
