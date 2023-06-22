@@ -43,24 +43,24 @@
   -->
 
 <smooks-resource-list xmlns="https://www.smooks.org/xsd/smooks-2.0.xsd" 
-                      xmlns:jb="https://www.smooks.org/xsd/smooks/javabean-1.6.xsd" 
                       xmlns:envelope="http://schemas.xmlsoap.org/soap/envelope/"
+                      xmlns:jb="https://www.smooks.org/xsd/smooks/javabean-1.6.xsd"
                       xmlns:core="https://www.smooks.org/xsd/smooks/smooks-core-1.6.xsd"
                       default-target-profile="acme-request">
 
-	<!-- ==========================================================================
-		Configure the Credentials bean creation and population.
-		In the case of a SOAP invocations from "Acme", Acme insist
-		on setting the username/password details in the SOAP body.
-		We need to extract the user creds from the body during the assembly
-		phase and have it available for a template that gets applied during the 
-		processing phase - adding the security info to the header as a 
-		WS-Security block.
-	========================================================================== -->
-        <jb:bean beanId="credentials" class="org.smooks.cartridges.templating.stringtemplate.acmesecsample.Credentials" createOnElement="acmeCreds" createOnElementNS="http://schemas.acme.com/security/">
-           <jb:value property="username" data="acmeCreds/usr"/>
-           <jb:value property="password" data="acmeCreds/pwd"/>
-        </jb:bean>
+    <!-- ==========================================================================
+        Configure the Credentials bean creation and population.
+        In the case of a SOAP invocations from "Acme", Acme insist
+        on setting the username/password details in the SOAP body.
+        We need to extract the user creds from the body during the assembly
+        phase and have it available for a template that gets applied during the
+        processing phase - adding the security info to the header as a
+        WS-Security block.
+    ========================================================================== -->
+    <jb:bean beanId="credentials" class="org.smooks.cartridges.templating.stringtemplate.acmesecsample.Credentials" createOnElement="acmeCreds" createOnElementNS="http://schemas.acme.com/security/">
+        <jb:value property="username" data="acmeCreds/usr"/>
+        <jb:value property="password" data="acmeCreds/pwd"/>
+    </jb:bean>
 
     <core:smooks filterSourceOn="#document" maxNodeDepth="0">
         <core:action>
@@ -95,7 +95,7 @@
                                 into the SOAP header (add them to the header i.e. "append-before").
                                 ========================================================================== -->
                             <resource-config selector="#document">
-                                <resource type="stv4">/org/smooks/cartridges/templating/stringtemplate/acmesecsample/WsseCredsWriter.st</resource>
+                                <resource>/org/smooks/cartridges/templating/stringtemplate/acmesecsample/WsseCredsWriter.st</resource>
                             </resource-config>
                         </smooks-resource-list>
                     </core:config>
@@ -103,5 +103,4 @@
             </smooks-resource-list>
         </core:config>
     </core:smooks>
-	
 </smooks-resource-list>

@@ -48,17 +48,9 @@
                       default-target-profile="shipping-request">
 
     <!--
-    Configure the TrackingNumber bean creation and population...
+        Use a StringTemplate template to perform the transformation.
+        We're transforming the "trackingNumber" element...
     -->
-    <jb:bean beanId="trackingNumber" class="org.smooks.cartridges.templating.soapshipping.TrackingNumber" createOnElement="trackingNumber">
-        <jb:value property="shipperID" data="trackingNumber/shipperID" />
-        <jb:value property="shipmentNumber" data="trackingNumber/shipmentNumber" />
-    </jb:bean>
-    
-    <!--
-      Use a StringTemplate template to perform the transformation.
-      We're transforming the "trackingNumber" element...
-      -->
     <core:smooks filterSourceOn="trackingNumber">
         <core:action>
             <core:inline>
@@ -73,5 +65,13 @@
             </smooks-resource-list>
         </core:config>
     </core:smooks>
-    
+
+	<!--
+		Configure the TrackingNumber bean creation and population...
+	-->
+    <jb:bean beanId="trackingNumber" class="org.smooks.cartridges.templating.soapshipping.TrackingNumber" createOnElement="trackingNumber">
+      <jb:value property="shipperID" data="trackingNumber/shipperID" />
+      <jb:value property="shipmentNumber" data="trackingNumber/shipmentNumber" />
+    </jb:bean>
+
 </smooks-resource-list>

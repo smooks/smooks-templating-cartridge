@@ -42,12 +42,11 @@
  */
 package org.smooks.cartridges.templating.stringtemplate;
 
-import org.antlr.stringtemplate.StringTemplate;
-import org.antlr.stringtemplate.StringTemplateGroup;
 import org.smooks.api.ApplicationContext;
 import org.smooks.api.ExecutionContext;
 import org.smooks.api.SmooksConfigException;
 import org.smooks.api.SmooksException;
+import org.smooks.api.bean.context.BeanContext;
 import org.smooks.api.delivery.ContentHandlerFactory;
 import org.smooks.api.delivery.ordering.Consumer;
 import org.smooks.api.delivery.ContentHandler;
@@ -58,6 +57,8 @@ import org.smooks.cartridges.templating.AbstractTemplateProcessor;
 import org.smooks.engine.injector.Scope;
 import org.smooks.engine.lifecycle.PostConstructLifecyclePhase;
 import org.smooks.engine.lookup.LifecycleManagerLookup;
+import org.stringtemplate.v4.ST;
+import org.stringtemplate.v4.STRawGroupDir;
 import org.w3c.dom.Element;
 
 import javax.inject.Inject;
@@ -86,7 +87,7 @@ import java.util.Map;
  *          2. be added to ("ADD_TO") the target element, or
  *          3. be inserted before ("INSERT_BEFORE") the target element, or
  *          4. be inserted after ("INSERT_AFTER") the target element.
- *          5. be bound to ("BIND_TO") a {@link org.smooks.api.bean.context.BeanContext} variable named by the "bindId" param.
+ *          5. be bound to ("BIND_TO") a {@link BeanContext} variable named by the "bindId" param.
  *          Default "replace".--&gt;
  *     &lt;param name="<b>action</b>"&gt;<i>REPLACE/ADD_TO/INSERT_BEFORE/INSERT_AFTER</i>&lt;/param&gt;
  *
@@ -111,17 +112,18 @@ import java.util.Map;
  *
  * @author tfennelly
  */
-public class StringTemplateContentHandlerFactory implements ContentHandlerFactory<StringTemplateContentHandlerFactory.StringTemplateTemplateProcessor> {
+public class StringTemplateContentHandlerFactory implements ContentHandlerFactory {
 
 	@Inject
-	private ApplicationContext applicationContext;
+    private ApplicationContext applicationContext;
 
-	/**
-	 * Create a StringTemplate based ContentHandler.
+    /**
+     * Create a StringTemplate based ContentHandler.
+     *
      * @param resourceConfig The SmooksResourceConfiguration for the StringTemplate.
      * @return The StringTemplate {@link ContentHandler} instance.
-	 */
-	public synchronized StringTemplateTemplateProcessor create(ResourceConfig resourceConfig) throws SmooksConfigException {
+     */
+    public synchronized ContentHandler create(ResourceConfig resourceConfig) throws SmooksConfigException {
         final StringTemplateTemplateProcessor stringTemplateTemplateProcessor = new StringTemplateTemplateProcessor();
         try {
             applicationContext.getRegistry().lookup(new LifecycleManagerLookup()).applyPhase(stringTemplateTemplateProcessor, new PostConstructLifecyclePhase(new Scope(applicationContext.getRegistry(), resourceConfig, stringTemplateTemplateProcessor)));
@@ -129,11 +131,11 @@ public class StringTemplateContentHandlerFactory implements ContentHandlerFactor
         } catch (SmooksConfigException e) {
             throw e;
         } catch (Exception e) {
-			InstantiationException instanceException = new InstantiationException("StringTemplate ProcessingUnit resource [" + resourceConfig.getResource() + "] not loadable.  StringTemplate resource invalid.");
-			instanceException.initCause(e);
+            InstantiationException instanceException = new InstantiationException("StringTemplate ProcessingUnit resource [" + resourceConfig.getResource() + "] not loadable.  StringTemplate resource invalid.");
+            instanceException.initCause(e);
             throw new SmooksException(instanceException.getMessage(), instanceException);
-		}
-	}
+        }
+    }
 
     @Override
     public String getType() {
@@ -141,50 +143,56 @@ public class StringTemplateContentHandlerFactory implements ContentHandlerFactor
     }
 
     /**
-	 * StringTemplate template application ProcessingUnit.
-	 * @author tfennelly
-	 */
+     * StringTemplate template application ProcessingUnit.
+     *
+     * @author tfennelly
+     */
     @VisitBeforeReport(condition = "false")
     @VisitAfterReport(summary = "Applied StringTemplate Template.", detailTemplate = "reporting/StringTemplateTemplateProcessor_After.html")
-	protected static class StringTemplateTemplateProcessor extends AbstractTemplateProcessor implements Consumer {
+    private static class StringTemplateTemplateProcessor extends AbstractTemplateProcessor implements Consumer {
 
-        private StringTemplate template;
+        private ST template = null;
+        private String templateName;
+        STRawGroupDir templateGroupDir;
 
         @Override
-		protected void loadTemplate(ResourceConfig config) {
-            String path = config.getResource();
+        protected void loadTemplate(ResourceConfig resourceConfig) throws IOException {
+            String path = resourceConfig.getResource();
 
-            if(path.charAt(0) == '/') {
+            if (path.charAt(0) == '/') {
                 path = path.substring(1);
             }
-            if(path.endsWith(".st")) {
-                path = path.substring(0, path.length() - 3);
-            }
 
-            StringTemplateGroup templateGroup = new StringTemplateGroup(path);
-            templateGroup.setFileCharEncoding(getEncoding().displayName());
-            template = templateGroup.getInstanceOf(path);
+            String dir = path.substring(0, path.lastIndexOf('/'));
+
+            templateName = path.substring(path.lastIndexOf('/'), path.indexOf(".st"));
+            templateGroupDir = new STRawGroupDir(dir, getEncoding().displayName(), '$', '$');
+            template = templateGroupDir.getInstanceOf(templateName);
         }
-
+        
         protected void applyTemplate(ExecutionContext executionContext, Writer writer) {
             // First thing we do is clone the template for this transformation...
-            StringTemplate thisTransTemplate = template.getInstanceOf();
+            // Commented out as due to https://github.com/antlr/stringtemplate4/issues/100
+            // ST transform = new ST(template);
+            ST transform = templateGroupDir.getInstanceOf(templateName);
+
             Map<String, Object> beans = executionContext.getBeanContext().getBeanMap();
-            String templatingResult;
 
             // Set the document data beans on the template and apply it...
-            thisTransTemplate.setAttributes(beans);
-            templatingResult = thisTransTemplate.toString();
+            for (Map.Entry<String, Object> entry : beans.entrySet()) {
+                transform.add(entry.getKey(), entry.getValue());
+            }
 
+            String templatingResult = transform.render().trim();
             try {
                 writer.write(templatingResult);
             } catch (IOException e) {
                 throw new SmooksException(e.getMessage(), e);
             }
         }
-
+        
         public boolean consumes(Object object) {
-            return template.getTemplate().contains(object.toString());
+            return template.impl.getTemplateSource().contains(object.toString());
         }
 
         @Override

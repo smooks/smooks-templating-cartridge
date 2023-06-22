@@ -47,7 +47,6 @@ import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.Test;
 import org.smooks.Smooks;
 import org.smooks.api.ExecutionContext;
-import org.smooks.cartridges.templating.util.CharUtils;
 import org.smooks.engine.profile.DefaultProfileSet;
 import org.smooks.support.SmooksUtil;
 import org.smooks.support.StreamUtils;
@@ -62,11 +61,9 @@ public class FindAddressSampleTest {
     public void testTransform() throws SAXException, IOException {
         Smooks smooks = new Smooks();
 
-        // Configure Smooks...
         SmooksUtil.registerProfileSet(new DefaultProfileSet("acme-findAddresses-request", new String[]{"acme-request"}), smooks);
         smooks.addConfigurations("acme-creds.xml", getClass().getResourceAsStream("acme-creds.xml"));
 
-        // Perform the transformation...
         InputStream requestStream = getClass().getResourceAsStream("AcmeFindaddressRequest.xml");
         ExecutionContext context = smooks.createExecutionContext("acme-findAddresses-request");
         String requestResult = SmooksUtil.filterAndSerialize(context, requestStream, smooks);
