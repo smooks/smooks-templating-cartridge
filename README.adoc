@@ -7,8 +7,8 @@ image:https://github.com/smooks/smooks-templating-cartridge/workflows/CI/badge.s
 // tag::smooks-templating-cartridge[]
 Smooks Templating Cartridge supports the following template providers:
 
-. http://freemarker.org/[FreeMarker Templating]
-. https://www.w3.org/TR/xslt/[XSLT Templating]
+. http://freemarker.org/[FreeMarker]
+. https://www.w3.org/TR/xslt/[XSLT]
 . https://www.stringtemplate.org/[StringTemplate]
 
 This cartridge adds the ability to use these templating technologies within the Smooks filtering process. This means that templates can:
