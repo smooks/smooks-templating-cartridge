@@ -17,9 +17,9 @@ This cartridge adds the ability to use these templating technologies within the 
 
 . Take advantage of other Smooks cartridges such as the https://github.com/smooks/smooks-javabean-cartridge/blob/master/README.adoc[JavaBean cartridge]. You can use the JavaBean cartridge to (1) decode and bind the stream data to the Smooks bean context, and then (2) reference that decoded data from within your FreeMarker template.
 
-. Be used to process huge message streams (e.g., gigabytes), while at the same time maintain a relatively simple processing model, with a low memory footprint. See https://www.smooks.org/v2/documentation/#processing_huge_messages_gbs[Processing Huge Messages] for further information.
+. Be used to process huge message streams (e.g., gigabytes), while at the same time maintain a relatively simple processing model, with a low memory footprint. See https://www.smooks.org/documentation/#processing_huge_messages_gbs[Processing Huge Messages] for further information.
 
-. Be used for generating new fragments that can then be routed (using https://www.smooks.org/v2/documentation/#splitting_routing[Smooks Routing components]) to physical endpoints (e.g., File, JMS), or logical endpoints on an ESB (a "Service").
+. Be used for generating new fragments that can then be routed (using https://www.smooks.org/documentation/#splitting_routing[Smooks Routing components]) to physical endpoints (e.g., File, JMS), or logical endpoints on an ESB (a "Service").
 
 Smooks can be extended to support other templating technologies.
 
@@ -27,7 +27,7 @@ NOTE: Be sure to read the section on https://github.com/smooks/smooks-javabean-c
 
 == FreeMarker Templating
 
-http://freemarker.org/[FreeMarker] is a powerful templating engine. Smooks uses FreeMarker to create text from a fragment. This text can then be inserted into the result stream, or https://www.smooks.org/v2/documentation/#splitting_routing[routed to another process].
+http://freemarker.org/[FreeMarker] is a powerful templating engine. Smooks uses FreeMarker to create text from a fragment. This text can then be inserted into the result stream, or https://www.smooks.org/documentation/#splitting_routing[routed to another process].
 
 Add the schema declaration `+https://www.smooks.org/xsd/smooks/freemarker-2.0.xsd+` to the Smooks XML config to configure FreeMarker resources with namespace elements.
 
@@ -196,7 +196,7 @@ NOTE: See full example in the https://github.com/smooks/smooks-examples/tree/v1.
 
 === Programmatic Configuration
 
-FreeMarker templating configurations can be programmatically added to a Smooks instance by configuring and adding a link:https://www.smooks.org/v2/javadoc/v2.0.0-RC3/smooks/org/smooks/cartridges/templating/freemarker/FreeMarkerTemplateProcessor.html[`+FreeMarkerTemplateProcessor+`] instance to the Smooks instance. The following example creates a Smooks instance with Java binding and FreeMarker templating configurations:
+FreeMarker templating configurations can be programmatically added to a Smooks instance by configuring and adding a link:https://www.smooks.org/javadoc/v2.0.0-RC3/smooks/org/smooks/cartridges/templating/freemarker/FreeMarkerTemplateProcessor.html[`+FreeMarkerTemplateProcessor+`] instance to the Smooks instance. The following example creates a Smooks instance with Java binding and FreeMarker templating configurations:
 
 [source,java]
 ----
