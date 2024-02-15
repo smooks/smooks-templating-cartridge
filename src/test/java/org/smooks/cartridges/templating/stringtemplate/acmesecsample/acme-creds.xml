@@ -46,6 +46,7 @@
                       xmlns:envelope="http://schemas.xmlsoap.org/soap/envelope/"
                       xmlns:jb="https://www.smooks.org/xsd/smooks/javabean-1.6.xsd"
                       xmlns:core="https://www.smooks.org/xsd/smooks/smooks-core-1.6.xsd"
+                      xmlns:security="http://schemas.acme.com/security/"
                       default-target-profile="acme-request">
 
     <!-- ==========================================================================
@@ -57,7 +58,7 @@
         processing phase - adding the security info to the header as a
         WS-Security block.
     ========================================================================== -->
-    <jb:bean beanId="credentials" class="org.smooks.cartridges.templating.stringtemplate.acmesecsample.Credentials" createOnElement="acmeCreds" createOnElementNS="http://schemas.acme.com/security/">
+    <jb:bean beanId="credentials" class="org.smooks.cartridges.templating.stringtemplate.acmesecsample.Credentials" createOnElement="security:acmeCreds">
         <jb:value property="username" data="acmeCreds/usr"/>
         <jb:value property="password" data="acmeCreds/pwd"/>
     </jb:bean>
