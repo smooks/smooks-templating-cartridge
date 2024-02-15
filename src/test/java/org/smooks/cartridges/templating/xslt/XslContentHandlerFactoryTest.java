@@ -185,7 +185,7 @@ public class XslContentHandlerFactoryTest {
             smooks.filterSource(smooks.createExecutionContext(), new StreamSource(new StringReader("<doc/>")), null);
             fail("Expected SmooksConfigurationException.");
         } catch (SmooksConfigException e) {
-            assertEquals("Error loading Templating resource: Target Profile: [[org.smooks.api.profile.Profile#default_profile]], Selector: [/*], Selector Namespace URI: [null], Resource: [/org/smooks/cartridges/templating/xslt/bad-stylesheet.xsl], Num Params: [0]", e.getCause().getMessage());
+            assertEquals("Error loading Templating resource: Target Profile: [[org.smooks.api.profile.Profile#default_profile]], Selector: [/*], Resource: [/org/smooks/cartridges/templating/xslt/bad-stylesheet.xsl], Num Params: [0]", e.getCause().getMessage());
         }
     }
 }
