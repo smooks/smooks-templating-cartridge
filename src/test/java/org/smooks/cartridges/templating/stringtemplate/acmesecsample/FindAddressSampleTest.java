@@ -62,7 +62,7 @@ public class FindAddressSampleTest {
         Smooks smooks = new Smooks();
 
         SmooksUtil.registerProfileSet(new DefaultProfileSet("acme-findAddresses-request", new String[]{"acme-request"}), smooks);
-        smooks.addConfigurations("acme-creds.xml", getClass().getResourceAsStream("acme-creds.xml"));
+        smooks.addResourceConfigs("acme-creds.xml", getClass().getResourceAsStream("acme-creds.xml"));
 
         InputStream requestStream = getClass().getResourceAsStream("AcmeFindaddressRequest.xml");
         ExecutionContext context = smooks.createExecutionContext("acme-findAddresses-request");

@@ -62,8 +62,8 @@ public abstract class ShippingIntegTestBase {
         // Configure Smooks
         SmooksUtil.registerProfileSet(new DefaultProfileSet("shipping-request"), smooks);
         SmooksUtil.registerProfileSet(new DefaultProfileSet("shipping-response"), smooks);
-        smooks.addConfigurations("trans-request.xml", getClass().getResourceAsStream("trans-request.xml"));
-        smooks.addConfigurations("trans-response.xml", getClass().getResourceAsStream("trans-response.xml"));
+        smooks.addResourceConfigs("trans-request.xml", getClass().getResourceAsStream("trans-request.xml"));
+        smooks.addResourceConfigs("trans-response.xml", getClass().getResourceAsStream("trans-response.xml"));
                 
         InputStream requestStream = getClass().getResourceAsStream("/org/smooks/cartridges/templating/soapshipping/request.xml");
         ExecutionContext context = smooks.createExecutionContext("shipping-request");
