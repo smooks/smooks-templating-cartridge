@@ -64,19 +64,19 @@ public abstract class CharUtils {
 	 */
 	public static boolean compareCharStreams(InputStream s1, InputStream s2) {
 		StringBuffer s1Buf, s2Buf;
-		
+
 		try {
 			s1Buf = trimLines(s1);
 			s2Buf = trimLines(s2);
-			
+
 			return s1Buf.toString().equals(s2Buf.toString());
 		} catch (IOException e) {
 			// fail the comparison
 		}
-		
+
 		return false;
 	}
-	
+
 	public static void assertEquals(String failMessage, String expectedFileClasspath, String actual) {
 		InputStream expectedStream = CharUtils.class.getResourceAsStream(expectedFileClasspath);
 		

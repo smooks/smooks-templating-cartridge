@@ -57,7 +57,7 @@ import org.smooks.cartridges.templating.AbstractTemplateProcessor;
 import org.smooks.engine.delivery.AbstractParser;
 import org.smooks.engine.delivery.dom.serialize.GhostElementSerializerVisitor;
 import org.smooks.engine.resource.config.ParameterAccessor;
-import org.smooks.support.ClassUtil;
+import org.smooks.support.ClassUtils;
 import org.smooks.support.DomUtils;
 import org.smooks.support.StreamUtils;
 import org.smooks.support.XmlUtil;
@@ -141,7 +141,7 @@ public class XslTemplateProcessor extends AbstractTemplateProcessor implements C
         // If it's not a full XSL template, we need to make it so by wrapping it...
         isTemplatelet = isTemplatelet(isInlineXSL, new String(xslBytes));
         if (isTemplatelet) {
-            String templateletWrapper = new String(StreamUtils.readStream(ClassUtil.getResourceAsStream("doc-files/templatelet.xsl", getClass())));
+            String templateletWrapper = new String(StreamUtils.readStream(ClassUtils.getResourceAsStream("doc-files/templatelet.xsl", getClass())));
             String templatelet = new String(xslBytes);
 
             templateletWrapper = templateletWrapper.replace("@@@templatelet@@@", templatelet);
