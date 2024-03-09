@@ -31,6 +31,7 @@
 package org.smooks.cartridges.templating.xslt;
 
 import ognl.MemberAccess;
+import ognl.OgnlContext;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Member;
@@ -52,7 +53,7 @@ import java.util.Map;
 class DefaultMemberAccess implements MemberAccess {
 
     @Override
-    public Object setup(final Map context, final Object target, final Member member, final String propertyName) {
+    public Object setup(final OgnlContext context, final Object target, final Member member, final String propertyName) {
         Object result = null;
         if (isAccessible(context, target, member, propertyName)) {
             final AccessibleObject accessible = (AccessibleObject) member;
@@ -65,7 +66,7 @@ class DefaultMemberAccess implements MemberAccess {
     }
 
     @Override
-    public void restore(final Map context, final Object target, final Member member, final String propertyName,
+    public void restore(final OgnlContext context, final Object target, final Member member, final String propertyName,
                         final Object state) {
         if (state != null) {
             ((AccessibleObject) member).setAccessible(((Boolean) state));
@@ -73,7 +74,7 @@ class DefaultMemberAccess implements MemberAccess {
     }
 
     @Override
-    public boolean isAccessible(final Map context, final Object target, final Member member, final String propertyName) {
+    public boolean isAccessible(final OgnlContext context, final Object target, final Member member, final String propertyName) {
         return Modifier.isPublic(member.getModifiers());
     }
 }
