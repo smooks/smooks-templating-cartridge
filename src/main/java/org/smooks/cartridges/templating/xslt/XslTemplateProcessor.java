@@ -60,7 +60,7 @@ import org.smooks.engine.resource.config.ParameterAccessor;
 import org.smooks.support.ClassUtils;
 import org.smooks.support.DomUtils;
 import org.smooks.support.StreamUtils;
-import org.smooks.support.XmlUtil;
+import org.smooks.support.XmlUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.ErrorHandler;
@@ -158,7 +158,7 @@ public class XslTemplateProcessor extends AbstractTemplateProcessor implements C
 
     private boolean isTemplatelet(boolean inlineXSL, String templateCode) {
         try {
-            Document xslDoc = XmlUtil.parseStream(new StringReader(templateCode), logErrorHandler);
+            Document xslDoc = XmlUtils.parseStream(new StringReader(templateCode), logErrorHandler);
             Element rootElement = xslDoc.getDocumentElement();
             String rootElementNS = rootElement.getNamespaceURI();
 
@@ -193,7 +193,7 @@ public class XslTemplateProcessor extends AbstractTemplateProcessor implements C
         }
 
         try {
-            writer.write(XmlUtil.serialize(ghostElement.getChildNodes(), Boolean.parseBoolean(ParameterAccessor.getParameterValue(Filter.CLOSE_EMPTY_ELEMENTS, String.class, "false", executionContext.getContentDeliveryRuntime().getContentDeliveryConfig()))));
+            writer.write(XmlUtils.serialize(ghostElement.getChildNodes(), Boolean.parseBoolean(ParameterAccessor.getParameterValue(Filter.CLOSE_EMPTY_ELEMENTS, String.class, "false", executionContext.getContentDeliveryRuntime().getContentDeliveryConfig()))));
         } catch (IOException e) {
             throw new SmooksException(e.getMessage(), e);
         }

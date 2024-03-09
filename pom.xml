@@ -11,9 +11,7 @@
     <name>Smooks Templating Cartridge</name>
     <url>https://www.smooks.org</url>
 
-    <description>The Smooks Templating Cartridge adds the ability to use templating technologies within the context of a
-        Smooks filtering process
-    </description>
+    <description>The Smooks Templating Cartridge adds the ability to use templating technologies within the context of a Smooks filtering process</description>
 
     <licenses>
         <license>
