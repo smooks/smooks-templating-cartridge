@@ -6,35 +6,35 @@
  * %%
  * Licensed under the terms of the Apache License Version 2.0, or
  * the GNU Lesser General Public License version 3.0 or later.
- * 
+ *
  * SPDX-License-Identifier: Apache-2.0 OR LGPL-3.0-or-later
- * 
+ *
  * ======================================================================
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * ======================================================================
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 3 of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
@@ -90,7 +90,7 @@ import java.util.Map;
 @VisitBeforeReport(summary = "FreeMarker Template - See Detail.", detailTemplate = "reporting/FreeMarkerTemplateProcessor_before.html")
 @VisitAfterReport(summary = "FreeMarker Template - See Detail.", detailTemplate = "reporting/FreeMarkerTemplateProcessor_After.html")
 public class FreeMarkerTemplateProcessor extends AbstractTemplateProcessor implements Consumer {
-    
+
     @Inject
     @Named("templating.freemarker.defaultNumberFormat")
     private String defaultNumberFormat = FreeMarkerTemplate.DEFAULT_MACHINE_READABLE_NUMBER_FORMAT;
@@ -108,6 +108,7 @@ public class FreeMarkerTemplateProcessor extends AbstractTemplateProcessor imple
 
     /**
      * Programmatically configure the FreeMarker Templating Visitor.
+     *
      * @param templatingConfiguration The templating configuration.
      * @return This Visitor instance.
      */
@@ -116,7 +117,7 @@ public class FreeMarkerTemplateProcessor extends AbstractTemplateProcessor imple
     }
 
     @Override
-	protected void loadTemplate(ResourceConfig resourceConfig) throws IOException {
+    protected void loadTemplate(ResourceConfig resourceConfig) throws IOException {
         this.resourceConfig = resourceConfig;
 
         Configuration configuration = new Configuration(Configuration.VERSION_2_3_21);
@@ -146,9 +147,9 @@ public class FreeMarkerTemplateProcessor extends AbstractTemplateProcessor imple
     }
 
     public boolean consumes(Object object) {
-        if(defaultTemplate != null && defaultTemplate.toString().contains(object.toString())) {
+        if (defaultTemplate != null && defaultTemplate.toString().contains(object.toString())) {
             return true;
-        } else if(templateBefore != null && templateBefore.toString().contains(object.toString())) {
+        } else if (templateBefore != null && templateBefore.toString().contains(object.toString())) {
             return true;
         } else {
             return templateAfter != null && templateAfter.toString().contains(object.toString());
@@ -159,7 +160,7 @@ public class FreeMarkerTemplateProcessor extends AbstractTemplateProcessor imple
     protected void applyTemplate(Element element, ExecutionContext executionContext, Writer writer) {
         applyTemplate(defaultTemplate, element, executionContext, writer);
     }
-    
+
     protected void applyTemplate(Template template, Element element, ExecutionContext executionContext, Writer writer) throws SmooksException {
         try {
             final Map<String, Object> model = new HashMap<>(FreeMarkerUtils.getMergedModel(executionContext));
@@ -174,7 +175,7 @@ public class FreeMarkerTemplateProcessor extends AbstractTemplateProcessor imple
 
     private static class ContextClassLoaderTemplateLoader extends URLTemplateLoader {
         @Override
-		protected URL getURL(String name) {
+        protected URL getURL(String name) {
             return Thread.currentThread().getContextClassLoader().getResource(name);
         }
     }
