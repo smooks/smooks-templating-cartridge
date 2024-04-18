@@ -196,7 +196,7 @@ NOTE: See full example in the https://github.com/smooks/smooks-examples/tree/v1.
 
 === Programmatic Configuration
 
-FreeMarker templating configurations can be programmatically added to a Smooks instance by configuring and adding a link:https://www.smooks.org/javadoc/v2.0.0-RC3/smooks-templating-cartridge/org/smooks/cartridges/templating/freemarker/FreeMarkerTemplateProcessor.html[`+FreeMarkerTemplateProcessor+`] instance to the Smooks instance. The following example creates a Smooks instance with Java binding and FreeMarker templating configurations:
+FreeMarker templating configurations can be programmatically added to a Smooks instance by configuring and adding a link:https://www.smooks.org/javadoc/v2.0.0-RC4/smooks-templating-cartridge/org/smooks/cartridges/templating/freemarker/FreeMarkerTemplateProcessor.html[`+FreeMarkerTemplateProcessor+`] instance to the Smooks instance. The following example creates a Smooks instance with Java binding and FreeMarker templating configurations:
 
 [source,java]
 ----
@@ -254,7 +254,7 @@ This can happen and is most likely going to be a result of your stylesheet conta
 <dependency>
     <groupId>org.smooks.cartridges</groupId>
     <artifactId>smooks-templating-cartridge</artifactId>
-    <version>2.0.0-RC3</version>
+    <version>2.0.0-RC4</version>
 </dependency>
 ----
 // end::smooks-templating-cartridge[]
