@@ -71,11 +71,11 @@
         </core:action>
         <core:config>
             <smooks-resource-list xmlns:envelope="http://schemas.xmlsoap.org/soap/envelope/">
-                <core:delegate-reader>
+                <core:rewrite>
                     <resource-config selector="#document">
                         <resource>org.smooks.cartridges.templating.stringtemplate.acmesecsample.ScrollForwardVisitor</resource>
                     </resource-config>
-                </core:delegate-reader>
+                </core:rewrite>
                 <!-- Remove the acmecreds element from the SOAP body.  In reality, you'd
                      prob not need to remove this element in this way. It would probably
                      get removed as part of a more general revamp of the SOAP body i.e. to
