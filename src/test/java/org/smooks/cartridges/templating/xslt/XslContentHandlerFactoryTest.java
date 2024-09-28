@@ -51,12 +51,12 @@ import org.smooks.cartridges.templating.util.CharUtils;
 import org.smooks.engine.DefaultApplicationContextBuilder;
 import org.smooks.engine.resource.config.DefaultResourceConfig;
 import org.smooks.engine.resource.visitor.smooks.NestedSmooksVisitor;
-import org.smooks.io.payload.StringResult;
-import org.smooks.io.payload.StringSource;
+import org.smooks.io.sink.StringSink;
+import org.smooks.io.source.ReaderSource;
+import org.smooks.io.source.StringSource;
 import org.smooks.support.SmooksUtil;
 import org.xml.sax.SAXException;
 
-import javax.xml.transform.stream.StreamSource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
@@ -130,50 +130,50 @@ public class XslContentHandlerFactoryTest {
 
         input = new StringReader("<a><b><c/></b></a>");
         context = smooks.createExecutionContext();
-        smooks.filterSource(context, new StreamSource(input), null);
+        smooks.filterSource(context, new ReaderSource<>(input), null);
 
         assertEquals("<bind/>", context.getBeanContext().getBean("mybeanTemplate"));
 
         input = new StringReader("<c/>");
         context = smooks.createExecutionContext();
-        smooks.filterSource(context, new StreamSource(input), null);
+        smooks.filterSource(context, new ReaderSource<>(input), null);
         assertEquals("<bind/>", context.getBeanContext().getBean("mybeanTemplate"));
     }
 
     @Test
     public void test_inline_01() throws SAXException, IOException {
         Smooks smooks = new Smooks(getClass().getResourceAsStream("inline-01.xml"));
-        StringResult result = new StringResult();
+        StringSink sink = new StringSink();
 
-        smooks.filterSource(new StringSource("<a/>"), result);
-        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?><xxxxxx/>", result.getResult());
+        smooks.filterSource(new StringSource("<a/>"), sink);
+        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?><xxxxxx/>", sink.getResult());
     }
 
     @Test
     public void test_inline_xsl_function() throws SAXException, IOException {
         Smooks smooks = new Smooks(getClass().getResourceAsStream("inline-xsl.xml"));
-        StringResult result = new StringResult();
+        StringSink sink = new StringSink();
 
-        smooks.filterSource(new StringSource("<a name='kalle'/>"), result);
-        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?><x>kalle</x>", result.getResult());
+        smooks.filterSource(new StringSource("<a name='kalle'/>"), sink);
+        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?><x>kalle</x>", sink.getResult());
     }
 
     @Test
     public void test_inline_02() throws SAXException, IOException {
         Smooks smooks = new Smooks(getClass().getResourceAsStream("inline-02.xml"));
-        StringResult result = new StringResult();
+        StringSink sink = new StringSink();
 
-        smooks.filterSource(new StringSource("<a/>"), result);
-        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?>Hi there!", result.getResult());
+        smooks.filterSource(new StringSource("<a/>"), sink);
+        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?>Hi there!", sink.getResult());
     }
 
     @Test
     public void test_inline_03() throws SAXException, IOException {
         Smooks smooks = new Smooks(getClass().getResourceAsStream("inline-03.xml"));
-        StringResult result = new StringResult();
+        StringSink sink = new StringSink();
 
-        smooks.filterSource(new StringSource("<a/>"), result);
-        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?><xxxxxx/>", result.getResult());
+        smooks.filterSource(new StringSource("<a/>"), sink);
+        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?><xxxxxx/>", sink.getResult());
     }
 
     @Test
@@ -181,7 +181,7 @@ public class XslContentHandlerFactoryTest {
         Smooks smooks = new Smooks(getClass().getResourceAsStream("bad-xsl-config.xml"));
 
         try {
-            smooks.filterSource(smooks.createExecutionContext(), new StreamSource(new StringReader("<doc/>")), null);
+            smooks.filterSource(smooks.createExecutionContext(), new ReaderSource<>(new StringReader("<doc/>")), null);
             fail("Expected SmooksConfigurationException.");
         } catch (SmooksConfigException e) {
             assertEquals("Error loading Templating resource: Target Profile: [[org.smooks.api.profile.Profile#default_profile]], Selector: [/*], Resource: [/org/smooks/cartridges/templating/xslt/bad-stylesheet.xsl], Num Params: [0]", e.getCause().getMessage());

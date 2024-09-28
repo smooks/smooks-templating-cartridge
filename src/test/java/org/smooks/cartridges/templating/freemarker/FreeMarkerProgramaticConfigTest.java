@@ -55,11 +55,11 @@ import org.smooks.cartridges.templating.MyBean;
 import org.smooks.cartridges.templating.TemplatingConfiguration;
 import org.smooks.engine.DefaultApplicationContextBuilder;
 import org.smooks.engine.resource.visitor.smooks.NestedSmooksVisitor;
-import org.smooks.io.payload.StringResult;
-import org.smooks.io.payload.StringSource;
+import org.smooks.io.sink.StringSink;
+import org.smooks.io.source.ReaderSource;
+import org.smooks.io.source.StringSource;
 import org.xml.sax.SAXException;
 
-import javax.xml.transform.stream.StreamSource;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
@@ -104,9 +104,9 @@ public class FreeMarkerProgramaticConfigTest {
         Smooks smooks = new Smooks();
         smooks.addVisitor(nestedSmooksVisitor, "a");
 
-        StringResult result = new StringResult();
-        smooks.filterSource(new StringSource("<a><b><c>cvalue1</c><c>cvalue2</c><c>cvalue3</c></b></a>"), result);
-        assertEquals("'cvalue1''cvalue2''cvalue3'", result.getResult());
+        StringSink sink = new StringSink();
+        smooks.filterSource(new StringSource("<a><b><c>cvalue1</c><c>cvalue2</c><c>cvalue3</c></b></a>"), sink);
+        assertEquals("'cvalue1''cvalue2''cvalue3'", sink.getResult());
     }
 
     @Test
@@ -146,13 +146,13 @@ public class FreeMarkerProgramaticConfigTest {
 
         context = smooks.createExecutionContext();
         input = new StringReader("<a><b><c x='xvalueonc2'/></b></a>");
-        smooks.filterSource(context, new StreamSource(input), null);
+        smooks.filterSource(context, new ReaderSource<>(input), null);
 
         assertEquals("<mybean>xvalueonc2</mybean>", context.getBeanContext().getBean("mybeanTemplate"));
 
         context = smooks.createExecutionContext();
         input = new StringReader("<c x='xvalueonc1'/>");
-        smooks.filterSource(context, new StreamSource(input), null);
+        smooks.filterSource(context, new ReaderSource<>(input), null);
         assertEquals("<mybean>xvalueonc1</mybean>", context.getBeanContext().getBean("mybeanTemplate"));
     }
 
@@ -277,11 +277,11 @@ public class FreeMarkerProgramaticConfigTest {
     }
 
     private void test_ftl(Smooks smooks, ExecutionContext context, String input, String expected) throws IOException, SAXException {
-        StringResult result = new StringResult();
+        StringSink sink = new StringSink();
 
-        smooks.filterSource(context, new StringSource(input), result);
+        smooks.filterSource(context, new StringSource(input), sink);
 
         XMLUnit.setIgnoreWhitespace(true);
-        XMLAssert.assertXMLEqual(expected, result.getResult());
+        XMLAssert.assertXMLEqual(expected, sink.getResult());
     }
 }

@@ -45,10 +45,10 @@ package org.smooks.cartridges.templating.bugfixes.MILYN_285;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.Test;
 import org.smooks.Smooks;
-import org.smooks.io.payload.StringResult;
+import org.smooks.io.sink.StringSink;
+import org.smooks.io.source.StreamSource;
 import org.xml.sax.SAXException;
 
-import javax.xml.transform.stream.StreamSource;
 import java.io.IOException;
 
 /**
@@ -59,14 +59,14 @@ public class MILYN285Test {
     @Test
     public void test() throws IOException, SAXException {
         Smooks smooks = new Smooks(getClass().getResourceAsStream("smooks-config.xml"));
-        StringResult result = new StringResult();
+        StringSink sink = new StringSink();
 
-        smooks.filterSource(new StreamSource(getClass().getResourceAsStream("message.xml")), result);
+        smooks.filterSource(new StreamSource<>(getClass().getResourceAsStream("message.xml")), sink);
         XMLUnit.compareXML("<root>\n" +
                 "\t<abc>def</abc>\n" +
                 "\t<bla>\n" +
                 "\t\tdef\n" +
                 "\t</bla>\n" +
-                "</root>", result.toString());
+                "</root>", sink.toString());
     }
 }

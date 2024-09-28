@@ -46,7 +46,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.smooks.Smooks;
 import org.smooks.cartridges.templating.MockOutStreamResource;
-import org.smooks.io.payload.StringSource;
+import org.smooks.io.source.StringSource;
 import org.xml.sax.SAXException;
 
 import java.io.ByteArrayOutputStream;

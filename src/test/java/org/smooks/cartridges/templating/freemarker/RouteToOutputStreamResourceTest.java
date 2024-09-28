@@ -46,10 +46,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.smooks.Smooks;
 import org.smooks.cartridges.templating.MockOutStreamResource;
-import org.smooks.io.payload.StringSource;
+import org.smooks.io.source.StringSource;
 import org.xml.sax.SAXException;
 
-import javax.xml.transform.Result;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
@@ -69,7 +68,7 @@ public class RouteToOutputStreamResourceTest {
     public void test_1() throws IOException, SAXException {
         Smooks smooks = new Smooks(getClass().getResourceAsStream("route-to-stream-01.xml"));
 
-        smooks.filterSource(new StringSource("<a><c x='cx' /><d><e x='ex' /></d></a>"), (Result) null);
+        smooks.filterSource(new StringSource("<a><c x='cx' /><d><e x='ex' /></d></a>"));
         assertEquals("<mybean>ex</mybean><mybean>cx</mybean>", new String(MockOutStreamResource.outputStream.toByteArray()));
     }
 
@@ -77,7 +76,7 @@ public class RouteToOutputStreamResourceTest {
     public void test_2() throws IOException, SAXException {
         Smooks smooks = new Smooks(getClass().getResourceAsStream("route-to-stream-02.xml"));
 
-        smooks.filterSource(new StringSource("<a><c x='cx' /><d><e x='ex' /></d></a>"), (Result) null);
+        smooks.filterSource(new StringSource("<a><c x='cx' /><d><e x='ex' /></d></a>"));
         assertEquals("<mybean>cx</mybean><mybean>ex</mybean>", new String(MockOutStreamResource.outputStream.toByteArray()));
     }
 }

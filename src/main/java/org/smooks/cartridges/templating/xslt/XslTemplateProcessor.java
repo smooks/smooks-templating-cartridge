@@ -50,6 +50,8 @@ import org.smooks.api.SmooksException;
 import org.smooks.api.delivery.Filter;
 import org.smooks.api.delivery.FilterBypass;
 import org.smooks.api.delivery.ordering.Consumer;
+import org.smooks.api.io.Sink;
+import org.smooks.api.io.Source;
 import org.smooks.api.resource.config.ResourceConfig;
 import org.smooks.api.resource.visitor.VisitAfterReport;
 import org.smooks.api.resource.visitor.VisitBeforeReport;
@@ -57,6 +59,12 @@ import org.smooks.cartridges.templating.AbstractTemplateProcessor;
 import org.smooks.engine.delivery.AbstractParser;
 import org.smooks.engine.delivery.dom.serialize.GhostElementSerializerVisitor;
 import org.smooks.engine.resource.config.ParameterAccessor;
+import org.smooks.io.sink.DOMSink;
+import org.smooks.io.sink.StreamSink;
+import org.smooks.io.sink.WriterSink;
+import org.smooks.io.source.DOMSource;
+import org.smooks.io.source.ReaderSource;
+import org.smooks.io.source.StreamSource;
 import org.smooks.support.ClassUtils;
 import org.smooks.support.DomUtils;
 import org.smooks.support.StreamUtils;
@@ -69,11 +77,15 @@ import org.xml.sax.SAXParseException;
 
 import javax.inject.Inject;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.*;
+import javax.xml.transform.ErrorListener;
+import javax.xml.transform.Result;
+import javax.xml.transform.Templates;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMResult;
-import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.Writer;
@@ -86,9 +98,9 @@ import java.io.Writer;
 @VisitBeforeReport(condition = "false")
 @VisitAfterReport(summary = "Applied XSL Template.", detailTemplate = "reporting/XslTemplateProcessor_After.html")
 public class XslTemplateProcessor extends AbstractTemplateProcessor implements Consumer, FilterBypass {
-    
+
     static final ThreadLocal<ExecutionContext> executionContextThreadLocal = new ThreadLocal<>();
-    
+
     /**
      * Logger.
      */
@@ -112,7 +124,7 @@ public class XslTemplateProcessor extends AbstractTemplateProcessor implements C
      */
     @Inject
     private Boolean enableFilterBypass = true;
-    
+
     /**
      * Is the Smooks configuration, for which this visitor is a part, targeted at an XML message stream.
      * We know if it is by the XML reader configured (or not configured).
@@ -132,7 +144,7 @@ public class XslTemplateProcessor extends AbstractTemplateProcessor implements C
     @Override
     protected void loadTemplate(ResourceConfig resourceConfig) throws IOException, TransformerConfigurationException {
         TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        StreamSource xslStreamSource;
+        javax.xml.transform.stream.StreamSource xslStreamSource;
         boolean isInlineXSL = resourceConfig.isInline();
         byte[] xslBytes = resourceConfig.getBytes();
 
@@ -151,7 +163,7 @@ public class XslTemplateProcessor extends AbstractTemplateProcessor implements C
 
         boolean failOnWarning = resourceConfig.getParameterValue("failOnWarning", Boolean.class, true);
 
-        xslStreamSource = new StreamSource(new StringReader(xslString));
+        xslStreamSource = new javax.xml.transform.stream.StreamSource(new StringReader(xslString));
         transformerFactory.setErrorListener(new XslErrorListener(failOnWarning));
         xslTemplate = transformerFactory.newTemplates(xslStreamSource);
     }
@@ -198,62 +210,79 @@ public class XslTemplateProcessor extends AbstractTemplateProcessor implements C
             throw new SmooksException(e.getMessage(), e);
         }
     }
-    
+
     private void performTransform(Element element, Element transRes, Document ownerDoc, ExecutionContext executionContext) throws TransformerException {
         Transformer transformer = xslTemplate.newTransformer();
 
         try {
             executionContextThreadLocal.set(executionContext);
             if (element == ownerDoc.getDocumentElement()) {
-                transformer.transform(new DOMSource(ownerDoc), new DOMResult(transRes));
+                transformer.transform(new javax.xml.transform.dom.DOMSource(ownerDoc), new DOMResult(transRes));
             } else {
-                transformer.transform(new DOMSource(element), new DOMResult(transRes));
+                transformer.transform(new javax.xml.transform.dom.DOMSource(element), new DOMResult(transRes));
             }
         } finally {
             executionContextThreadLocal.remove();
         }
     }
-    
-    @Override
-	public boolean bypass(ExecutionContext executionContext, Source source, Result result) throws SmooksException {
-		if(!enableFilterBypass) {
-			return false;
-		} 		
-		if(!isXMLTargetedConfiguration(executionContext)) {
-			return false;
-		}
-		if((source instanceof StreamSource || source instanceof DOMSource) && (result instanceof StreamResult || result instanceof DOMResult)) {
-	        try {
-				Transformer transformer = xslTemplate.newTransformer();
-				transformer.transform(source, result);
-				return true;
-			} catch (TransformerException e) {
-				throw new SmooksException("Error applying XSLT.", e);
-			}
-        }
-				
-		return false;
-	}
 
-	private boolean isXMLTargetedConfiguration(ExecutionContext executionContext) {
-		if(isXMLTargetedConfiguration == null) {
-			synchronized (this) {				
-				if(isXMLTargetedConfiguration == null) {
+    @Override
+    public boolean bypass(ExecutionContext executionContext, Source source, Sink sink) throws SmooksException {
+        if (!enableFilterBypass) {
+            return false;
+        }
+        if (!isXMLTargetedConfiguration(executionContext)) {
+            return false;
+        }
+        javax.xml.transform.Source xmlSource = null;
+        Result outputTarget = null;
+        if (source instanceof StreamSource) {
+            xmlSource = new javax.xml.transform.stream.StreamSource(((StreamSource<?>) source).getInputStream());
+        } else if (source instanceof ReaderSource) {
+            xmlSource = new javax.xml.transform.stream.StreamSource(((ReaderSource<?>) source).getReader());
+        } else if (source instanceof DOMSource) {
+            xmlSource = new javax.xml.transform.dom.DOMSource(((DOMSource) source).getNode());
+        }
+        if (sink instanceof StreamSink) {
+            outputTarget = new StreamResult(((StreamSink<?>) sink).getOutputStream());
+        } else if (sink instanceof WriterSink) {
+            outputTarget = new StreamResult(((WriterSink<?>) sink).getWriter());
+        } else if (sink instanceof DOMSink) {
+            outputTarget = new DOMResult(((DOMSink) sink).getNode());
+        }
+        if (xmlSource != null && outputTarget != null) {
+            try {
+                Transformer transformer = xslTemplate.newTransformer();
+                transformer.transform(xmlSource, outputTarget);
+
+                return true;
+            } catch (TransformerException e) {
+                throw new SmooksException("Error applying XSLT.", e);
+            }
+        }
+
+        return false;
+    }
+
+    private boolean isXMLTargetedConfiguration(ExecutionContext executionContext) {
+        if (isXMLTargetedConfiguration == null) {
+            synchronized (this) {
+                if (isXMLTargetedConfiguration == null) {
                     ResourceConfig readerConfiguration = AbstractParser.getSAXParserConfiguration(executionContext.getContentDeliveryRuntime().getContentDeliveryConfig());
-					if(readerConfiguration != null) {
-						// We have an reader config, if the class is not configured, we assume 
-						// the expected Source to be XML...
-						isXMLTargetedConfiguration = (readerConfiguration.getResource() == null);
-					} else {
-						// If no reader config is present at all, we assume the expected Source is XML...
-						isXMLTargetedConfiguration = true;
-					}
-				}
-			}
-		}
-		
-		return isXMLTargetedConfiguration;
-	}
+                    if (readerConfiguration != null) {
+                        // We have an reader config, if the class is not configured, we assume
+                        // the expected Source to be XML...
+                        isXMLTargetedConfiguration = (readerConfiguration.getResource() == null);
+                    } else {
+                        // If no reader config is present at all, we assume the expected Source is XML...
+                        isXMLTargetedConfiguration = true;
+                    }
+                }
+            }
+        }
+
+        return isXMLTargetedConfiguration;
+    }
 
     private static class XslErrorListener implements ErrorListener {
         private final boolean failOnWarning;
@@ -263,7 +292,7 @@ public class XslTemplateProcessor extends AbstractTemplateProcessor implements C
         }
 
         public void warning(TransformerException exception) throws TransformerException {
-            if(failOnWarning) {
+            if (failOnWarning) {
                 throw exception;
             } else {
                 LOGGER.debug("XSL Warning.", exception);
@@ -283,8 +312,8 @@ public class XslTemplateProcessor extends AbstractTemplateProcessor implements C
      * Simple ErrorHandler that only reports errors, fatals, and warnings
      * at a debug log level.
      * <p/>
-     * @author <a href="mailto:daniel.bevenius@gmail.com">Daniel Bevenius</a>
      *
+     * @author <a href="mailto:daniel.bevenius@gmail.com">Daniel Bevenius</a>
      */
     private static class DomErrorHandler implements ErrorHandler {
         public void error(final SAXParseException exception) throws SAXException {

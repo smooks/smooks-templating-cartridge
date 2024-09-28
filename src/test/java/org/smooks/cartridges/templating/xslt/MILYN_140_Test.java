@@ -44,8 +44,8 @@ package org.smooks.cartridges.templating.xslt;
 
 import org.junit.Test;
 import org.smooks.Smooks;
-import org.smooks.io.payload.StringResult;
-import org.smooks.io.payload.StringSource;
+import org.smooks.io.sink.StringSink;
+import org.smooks.io.source.StringSource;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
@@ -69,9 +69,9 @@ public class MILYN_140_Test {
 
     public void test(String config) throws IOException, SAXException {
         Smooks smooks = new Smooks(getClass().getResourceAsStream(config));
-        StringResult result = new StringResult();
+        StringSink sink = new StringSink();
 
-        smooks.filterSource(new StringSource("<x/>"), result);
-        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?>Hi there!", result.getResult());
+        smooks.filterSource(new StringSource("<x/>"), sink);
+        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?>Hi there!", sink.getResult());
     }
 }

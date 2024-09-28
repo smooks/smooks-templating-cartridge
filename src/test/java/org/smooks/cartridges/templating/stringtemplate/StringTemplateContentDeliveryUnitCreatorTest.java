@@ -45,10 +45,10 @@ package org.smooks.cartridges.templating.stringtemplate;
 import org.junit.Test;
 import org.smooks.Smooks;
 import org.smooks.api.ExecutionContext;
+import org.smooks.io.source.ReaderSource;
 import org.smooks.support.SmooksUtil;
 import org.xml.sax.SAXException;
 
-import javax.xml.transform.stream.StreamSource;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -86,13 +86,13 @@ public class StringTemplateContentDeliveryUnitCreatorTest {
 
         context = smooks.createExecutionContext();
         input = new StringReader("<a><b><c x='xvalueonc2' /></b></a>");
-        smooks.filterSource(context, new StreamSource(input), null);
+        smooks.filterSource(context, new ReaderSource<>(input), null);
 
         assertEquals("<mybean>xvalueonc2</mybean>", context.getBeanContext().getBean("mybeanTemplate"));
 
         context = smooks.createExecutionContext();
         input = new StringReader("<c x='xvalueonc2' />");
-        smooks.filterSource(context, new StreamSource(input), null);
+        smooks.filterSource(context, new ReaderSource<>(input), null);
         assertEquals("<mybean>xvalueonc2</mybean>", context.getBeanContext().getBean("mybeanTemplate"));
     }
 }
