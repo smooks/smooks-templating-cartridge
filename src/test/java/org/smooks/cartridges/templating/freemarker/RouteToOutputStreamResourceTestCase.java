@@ -57,7 +57,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author <a href="mailto:tom.fennelly@gmail.com">tom.fennelly@gmail.com</a>
  */
-public class RouteToOutputStreamResourceTest {
+public class RouteToOutputStreamResourceTestCase {
 
     @Before
     public void setUp() throws Exception {
