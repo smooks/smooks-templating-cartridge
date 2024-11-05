@@ -50,6 +50,8 @@ import freemarker.ext.dom.NodeModel;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+import freemarker.template.utility.SecurityUtilities;
+import org.smooks.api.ApplicationContext;
 import org.smooks.api.ExecutionContext;
 import org.smooks.api.SmooksException;
 import org.smooks.api.delivery.ordering.Consumer;
@@ -65,12 +67,14 @@ import org.w3c.dom.Element;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.Writer;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * <a href="http://freemarker.org/">FreeMarker</a> template application ProcessingUnit.
@@ -93,12 +97,18 @@ public class FreeMarkerTemplateProcessor extends AbstractTemplateProcessor imple
 
     @Inject
     @Named("templating.freemarker.defaultNumberFormat")
-    private String defaultNumberFormat = FreeMarkerTemplate.DEFAULT_MACHINE_READABLE_NUMBER_FORMAT;
+    protected String defaultNumberFormat = FreeMarkerTemplate.DEFAULT_MACHINE_READABLE_NUMBER_FORMAT;
 
-    private Template defaultTemplate;
-    private Template templateBefore;
-    private Template templateAfter;
-    private ResourceConfig resourceConfig;
+    @Inject
+    protected Optional<String> baseDir;
+
+    @Inject
+    protected ApplicationContext applicationContext;
+
+    protected Template defaultTemplate;
+    protected Template templateBefore;
+    protected Template templateAfter;
+    protected ResourceConfig resourceConfig;
 
     /**
      * Default constructor.
@@ -135,10 +145,11 @@ public class FreeMarkerTemplateProcessor extends AbstractTemplateProcessor imple
                 templateBefore = new Template("free-marker-template-before", new StringReader(templates[0]), configuration);
                 templateAfter = new Template("free-marker-template-after", new StringReader(templates[1]), configuration);
             } else {
-                throw new IOException("Invalid FreeMarker template config.  Zero split tokens.");
+                throw new IOException("Invalid FreeMarker template config. Zero split tokens.");
             }
         } else {
-            TemplateLoader[] loaders = new TemplateLoader[]{new FileTemplateLoader(), new ContextClassLoaderTemplateLoader()};
+            final File baseDirFile = baseDir.map(File::new).orElseGet(() -> new File(SecurityUtilities.getSystemProperty("user.dir")));
+            TemplateLoader[] loaders = new TemplateLoader[]{new FileTemplateLoader(baseDirFile), new ContextClassLoaderTemplateLoader(applicationContext.getClassLoader())};
             MultiTemplateLoader multiLoader = new MultiTemplateLoader(loaders);
 
             configuration.setTemplateLoader(multiLoader);
@@ -146,6 +157,7 @@ public class FreeMarkerTemplateProcessor extends AbstractTemplateProcessor imple
         }
     }
 
+    @Override
     public boolean consumes(Object object) {
         if (defaultTemplate != null && defaultTemplate.toString().contains(object.toString())) {
             return true;
@@ -169,14 +181,21 @@ public class FreeMarkerTemplateProcessor extends AbstractTemplateProcessor imple
             }
             template.process(model, writer);
         } catch (TemplateException | IOException e) {
-            throw new SmooksException("Failed to apply FreeMarker template to fragment '" + DomUtils.getXPath(element) + "'.  Resource: " + resourceConfig, e);
+            throw new SmooksException(String.format("Failed to apply FreeMarker template to fragment [%s] from resource [%s]", DomUtils.getXPath(element), resourceConfig), e);
         }
     }
 
     private static class ContextClassLoaderTemplateLoader extends URLTemplateLoader {
+
+        private final ClassLoader classLoader;
+
+        public ContextClassLoaderTemplateLoader(ClassLoader classLoader) {
+            this.classLoader = classLoader;
+        }
+
         @Override
         protected URL getURL(String name) {
-            return Thread.currentThread().getContextClassLoader().getResource(name);
+            return classLoader.getResource(name);
         }
     }
 }

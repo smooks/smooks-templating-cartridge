@@ -70,7 +70,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author <a href="mailto:tom.fennelly@jboss.com">tom.fennelly@jboss.com</a>
  */
-public class FreeMarkerProgramaticConfigTest {
+public class FreeMarkerProgramaticConfigTestCase {
 
     @Test
     public void testFreeMarkerTrans_01() throws SAXException, IOException {
