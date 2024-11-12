@@ -29,7 +29,7 @@ NOTE: Be sure to read the section on https://github.com/smooks/smooks-javabean-c
 
 http://freemarker.org/[FreeMarker] is a powerful templating engine. Smooks uses FreeMarker to create text from a fragment. This text can then be inserted into the result stream, or https://www.smooks.org/documentation/#splitting_routing[routed to another process].
 
-Add the schema declaration `+https://www.smooks.org/xsd/smooks/freemarker-2.0.xsd+` to the Smooks XML config to configure FreeMarker resources with namespace elements.
+Add the schema declaration `+https://www.smooks.org/xsd/smooks/freemarker-2.1.xsd+` to the Smooks XML config to configure FreeMarker resources with namespace elements.
 
 *Example - Inline Template*:
 
@@ -37,7 +37,7 @@ Add the schema declaration `+https://www.smooks.org/xsd/smooks/freemarker-2.0.xs
 [source,xml]
 ----
 <smooks-resource-list xmlns="https://www.smooks.org/xsd/smooks-2.0.xsd"
-                      xmlns:ftl="https://www.smooks.org/xsd/smooks/freemarker-2.0.xsd">
+                      xmlns:ftl="https://www.smooks.org/xsd/smooks/freemarker-2.1.xsd">
     <ftl:freemarker applyOnElement="order">
         <ftl:template><!--<orderId>${order.id}</orderId>--></ftl:template>
     </ftl:freemarker>
@@ -50,7 +50,7 @@ Add the schema declaration `+https://www.smooks.org/xsd/smooks/freemarker-2.0.xs
 [source,xml]
 ----
 <smooks-resource-list xmlns="https://www.smooks.org/xsd/smooks-2.0.xsd"
-                      xmlns:ftl="https://www.smooks.org/xsd/smooks/freemarker-2.0.xsd">
+                      xmlns:ftl="https://www.smooks.org/xsd/smooks/freemarker-2.1.xsd">
     <ftl:freemarker applyOnElement="order">
         <ftl:template>/templates/shop/ordergen.ftl</ftl:template>
     </ftl:freemarker>
@@ -73,7 +73,7 @@ To take advantage of this facility in Smooks, you need to configure a `org.smook
 <?xml version="1.0"?>
 <smooks-resource-list xmlns="https://www.smooks.org/xsd/smooks-2.0.xsd"
                       xmlns:core="https://www.smooks.org/xsd/smooks/smooks-core-1.6.xsd"
-                      xmlns:ftl="https://www.smooks.org/xsd/smooks/freemarker-2.0.xsd">
+                      xmlns:ftl="https://www.smooks.org/xsd/smooks/freemarker-2.1.xsd">
 
     <!--
       Create a pipeline that replaces <order>...</order> with <salesorder>...</salesorder>. In this example, the total memory footprint is kept as low as possible. An <order> event will hold only the order ID and not the main bulk of data in the message (i.e., order-item elements). At any one time, Smooks will have just a single <order-item> in main memory.
@@ -158,7 +158,7 @@ In situations where using a node tree is not practical, Smooks allows you to use
 <?xml version="1.0"?>
 <smooks-resource-list xmlns="https://www.smooks.org/xsd/smooks-2.0.xsd"
                       xmlns:jb="https://www.smooks.org/xsd/smooks/javabean-1.6.xsd"
-                      xmlns:ftl="https://www.smooks.org/xsd/smooks/freemarker-2.0.xsd">
+                      xmlns:ftl="https://www.smooks.org/xsd/smooks/freemarker-2.1.xsd">
 
     <!-- Extract and decode data from the message. Used in the freemarker template (below). -->
     <jb:bean beanId="order" class="java.util.Hashtable" createOnElement="order">
