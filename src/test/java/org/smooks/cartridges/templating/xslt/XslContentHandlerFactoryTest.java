@@ -99,12 +99,12 @@ public class XslContentHandlerFactoryTest {
         res.setResourceType("xsl");
         res.setParameter(XslContentHandlerFactory.IS_XSLT_TEMPLATELET, "true");
 
-        Smooks nestedSmooks = new Smooks(new DefaultApplicationContextBuilder().withSystemResources(false).build());
-        nestedSmooks.addResourceConfig(res);
+        Smooks pipeline = new Smooks(new DefaultApplicationContextBuilder().withSystemResources(false).build());
+        pipeline.addResourceConfig(res);
 
         NestedSmooksVisitor nestedSmooksVisitor = new NestedSmooksVisitor();
         nestedSmooksVisitor.setAction(Optional.of(action));
-        nestedSmooksVisitor.setNestedSmooks(nestedSmooks);
+        nestedSmooksVisitor.setPipeline(pipeline);
 
         Smooks smooks = new Smooks();
         smooks.addVisitor(nestedSmooksVisitor, "p");

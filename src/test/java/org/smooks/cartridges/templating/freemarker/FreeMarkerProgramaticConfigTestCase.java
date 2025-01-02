@@ -54,6 +54,7 @@ import org.smooks.cartridges.templating.MockOutStreamResource;
 import org.smooks.cartridges.templating.MyBean;
 import org.smooks.cartridges.templating.TemplatingConfiguration;
 import org.smooks.engine.DefaultApplicationContextBuilder;
+import org.smooks.engine.DefaultFilterSettings;
 import org.smooks.engine.resource.visitor.smooks.NestedSmooksVisitor;
 import org.smooks.io.sink.StringSink;
 import org.smooks.io.source.ReaderSource;
@@ -74,12 +75,12 @@ public class FreeMarkerProgramaticConfigTestCase {
 
     @Test
     public void testFreeMarkerTrans_01() throws SAXException, IOException {
-        Smooks nestedSmooks = new Smooks(new DefaultApplicationContextBuilder().withSystemResources(false).build());
-        nestedSmooks.addVisitor(new FreeMarkerTemplateProcessor(new TemplatingConfiguration("/org/smooks/cartridges/templating/freemarker/test-template.ftl")), "c");
+        Smooks pipeline = new Smooks(new DefaultApplicationContextBuilder().withSystemResources(false).build());
+        pipeline.addVisitor(new FreeMarkerTemplateProcessor(new TemplatingConfiguration("/org/smooks/cartridges/templating/freemarker/test-template.ftl")), "c");
 
         NestedSmooksVisitor nestedSmooksVisitor = new NestedSmooksVisitor();
         nestedSmooksVisitor.setAction(Optional.of(NestedSmooksVisitor.Action.REPLACE));
-        nestedSmooksVisitor.setNestedSmooks(nestedSmooks);
+        nestedSmooksVisitor.setPipeline(pipeline);
 
         Smooks smooks = new Smooks();
         Bean bean = new Bean(MyBean.class, "myBeanData", "c", smooks.getApplicationContext().getRegistry());
@@ -93,13 +94,13 @@ public class FreeMarkerProgramaticConfigTestCase {
 
     @Test
     public void test_nodeModel_1() {
-        Smooks nestedSmooks = new Smooks(new DefaultApplicationContextBuilder().withSystemResources(false).build());
-        nestedSmooks.addVisitor(new FreeMarkerTemplateProcessor(new TemplatingConfiguration("<#foreach c in a.b.c>'${c}'</#foreach>")), "a");
+        Smooks pipeline = new Smooks(new DefaultApplicationContextBuilder().withSystemResources(false).build());
+        pipeline.addVisitor(new FreeMarkerTemplateProcessor(new TemplatingConfiguration("<#foreach c in a.b.c>'${c}'</#foreach>")), "a");
 
         NestedSmooksVisitor nestedSmooksVisitor = new NestedSmooksVisitor();
         nestedSmooksVisitor.setMaxNodeDepth(Integer.MAX_VALUE);
         nestedSmooksVisitor.setAction(Optional.of(NestedSmooksVisitor.Action.REPLACE));
-        nestedSmooksVisitor.setNestedSmooks(nestedSmooks);
+        nestedSmooksVisitor.setPipeline(pipeline);
 
         Smooks smooks = new Smooks();
         smooks.addVisitor(nestedSmooksVisitor, "a");
@@ -111,13 +112,13 @@ public class FreeMarkerProgramaticConfigTestCase {
 
     @Test
     public void test_nodeModel_2() throws IOException, SAXException {
-        Smooks nestedSmooks = new Smooks(new DefaultApplicationContextBuilder().withSystemResources(false).build());
-        nestedSmooks.addVisitor(new FreeMarkerTemplateProcessor(new TemplatingConfiguration("<x>'${c}'</x>")), "c");
+        Smooks pipeline = new Smooks(new DefaultApplicationContextBuilder().withSystemResources(false).build());
+        pipeline.addVisitor(new FreeMarkerTemplateProcessor(new TemplatingConfiguration("<x>'${c}'</x>")), "c");
 
         NestedSmooksVisitor nestedSmooksVisitor = new NestedSmooksVisitor();
         nestedSmooksVisitor.setMaxNodeDepth(Integer.MAX_VALUE);
         nestedSmooksVisitor.setAction(Optional.of(NestedSmooksVisitor.Action.REPLACE));
-        nestedSmooksVisitor.setNestedSmooks(nestedSmooks);
+        nestedSmooksVisitor.setPipeline(pipeline);
 
         Smooks smooks = new Smooks();
         smooks.addVisitor(nestedSmooksVisitor, "c");
@@ -127,43 +128,43 @@ public class FreeMarkerProgramaticConfigTestCase {
 
     @Test
     public void testFreeMarkerTrans_bind() {
-        StringReader input;
-        ExecutionContext context;
+        StringReader stringReader;
+        ExecutionContext executionContext;
 
-        Smooks nestedSmooks = new Smooks(new DefaultApplicationContextBuilder().withSystemResources(false).build());
-        nestedSmooks.addVisitor(new FreeMarkerTemplateProcessor(new TemplatingConfiguration("<mybean>${myBeanData.x}</mybean>")), "c");
+        Smooks pipeline = new Smooks(new DefaultApplicationContextBuilder().withSystemResources(false).build());
+        pipeline.addVisitor(new FreeMarkerTemplateProcessor(new TemplatingConfiguration("<mybean>${myBeanData.x}</mybean>")), "c");
 
         NestedSmooksVisitor nestedSmooksVisitor = new NestedSmooksVisitor();
         nestedSmooksVisitor.setMaxNodeDepth(Integer.MAX_VALUE);
         nestedSmooksVisitor.setAction(Optional.of(NestedSmooksVisitor.Action.BIND_TO));
         nestedSmooksVisitor.setBindIdOptional(Optional.of("mybeanTemplate"));
-        nestedSmooksVisitor.setNestedSmooks(nestedSmooks);
+        nestedSmooksVisitor.setPipeline(pipeline);
 
         Smooks smooks = new Smooks();
         Bean bean = new Bean(MyBean.class, "myBeanData", "c", smooks.getApplicationContext().getRegistry());
         smooks.addVisitors(bean.bindTo("x", "c/@x"));
         smooks.addVisitor(nestedSmooksVisitor, "c");
 
-        context = smooks.createExecutionContext();
-        input = new StringReader("<a><b><c x='xvalueonc2'/></b></a>");
-        smooks.filterSource(context, new ReaderSource<>(input), null);
+        executionContext = smooks.createExecutionContext();
+        stringReader = new StringReader("<a><b><c x='xvalueonc2'/></b></a>");
+        smooks.filterSource(executionContext, new ReaderSource<>(stringReader), null);
 
-        assertEquals("<mybean>xvalueonc2</mybean>", context.getBeanContext().getBean("mybeanTemplate"));
+        assertEquals("<mybean>xvalueonc2</mybean>", executionContext.getBeanContext().getBean("mybeanTemplate"));
 
-        context = smooks.createExecutionContext();
-        input = new StringReader("<c x='xvalueonc1'/>");
-        smooks.filterSource(context, new ReaderSource<>(input), null);
-        assertEquals("<mybean>xvalueonc1</mybean>", context.getBeanContext().getBean("mybeanTemplate"));
+        executionContext = smooks.createExecutionContext();
+        stringReader = new StringReader("<c x='xvalueonc1'/>");
+        smooks.filterSource(executionContext, new ReaderSource<>(stringReader), null);
+        assertEquals("<mybean>xvalueonc1</mybean>", executionContext.getBeanContext().getBean("mybeanTemplate"));
     }
 
     @Test
     public void testInsertBefore() throws SAXException, IOException {
-        Smooks nestedSmooks = new Smooks(new DefaultApplicationContextBuilder().withSystemResources(false).build());
-        nestedSmooks.addVisitor(new FreeMarkerTemplateProcessor(new TemplatingConfiguration("/org/smooks/cartridges/templating/freemarker/test-template.ftl")), "c");
+        Smooks pipeline = new Smooks(new DefaultApplicationContextBuilder().withSystemResources(false).build());
+        pipeline.addVisitor(new FreeMarkerTemplateProcessor(new TemplatingConfiguration("/org/smooks/cartridges/templating/freemarker/test-template.ftl")), "c");
 
         NestedSmooksVisitor nestedSmooksVisitor = new NestedSmooksVisitor();
         nestedSmooksVisitor.setAction(Optional.of(NestedSmooksVisitor.Action.PREPEND_BEFORE));
-        nestedSmooksVisitor.setNestedSmooks(nestedSmooks);
+        nestedSmooksVisitor.setPipeline(pipeline);
 
         Smooks smooks = new Smooks();
         Bean bean = new Bean(MyBean.class, "myBeanData", "b", smooks.getApplicationContext().getRegistry());
@@ -184,12 +185,12 @@ public class FreeMarkerProgramaticConfigTestCase {
 
     @Test
     public void testInsertAfter() throws SAXException, IOException {
-        Smooks nestedSmooks = new Smooks(new DefaultApplicationContextBuilder().withSystemResources(false).build());
-        nestedSmooks.addVisitor(new FreeMarkerTemplateProcessor(new TemplatingConfiguration("/org/smooks/cartridges/templating/freemarker/test-template.ftl")), "c");
+        Smooks pipeline = new Smooks(new DefaultApplicationContextBuilder().withSystemResources(false).build());
+        pipeline.addVisitor(new FreeMarkerTemplateProcessor(new TemplatingConfiguration("/org/smooks/cartridges/templating/freemarker/test-template.ftl")), "c");
 
         NestedSmooksVisitor nestedSmooksVisitor = new NestedSmooksVisitor();
         nestedSmooksVisitor.setAction(Optional.of(NestedSmooksVisitor.Action.APPEND_AFTER));
-        nestedSmooksVisitor.setNestedSmooks(nestedSmooks);
+        nestedSmooksVisitor.setPipeline(pipeline);
 
         Smooks smooks = new Smooks();
         Bean bean = new Bean(MyBean.class, "myBeanData", "b", smooks.getApplicationContext().getRegistry());
@@ -208,8 +209,8 @@ public class FreeMarkerProgramaticConfigTestCase {
 
     @Test
     public void testAddTo() throws SAXException, IOException {
-        Smooks nestedSmooks = new Smooks(new DefaultApplicationContextBuilder().withSystemResources(false).build());
-        nestedSmooks.addVisitor(
+        Smooks pipeline = new Smooks(new DefaultApplicationContextBuilder().withSystemResources(false).build());
+        pipeline.addVisitor(
                 new FreeMarkerTemplateProcessor(
                         new TemplatingConfiguration("/org/smooks/cartridges/templating/freemarker/test-template.ftl")
                 ),
@@ -218,7 +219,7 @@ public class FreeMarkerProgramaticConfigTestCase {
 
         NestedSmooksVisitor nestedSmooksVisitor = new NestedSmooksVisitor();
         nestedSmooksVisitor.setAction(Optional.of(NestedSmooksVisitor.Action.PREPEND_AFTER));
-        nestedSmooksVisitor.setNestedSmooks(nestedSmooks);
+        nestedSmooksVisitor.setPipeline(pipeline);
 
         Smooks smooks = new Smooks();
         Bean bean = new Bean(MyBean.class, "myBeanData", "b", smooks.getApplicationContext().getRegistry());
@@ -251,12 +252,12 @@ public class FreeMarkerProgramaticConfigTestCase {
 
     @Test
     public void test_outputTo_Stream() {
-        Smooks nestedSmooks = new Smooks(new DefaultApplicationContextBuilder().withSystemResources(false).build());
-        nestedSmooks.addVisitor(new FreeMarkerTemplateProcessor(new TemplatingConfiguration("data to outstream")), "#document");
+        Smooks pipeline = new Smooks(new DefaultApplicationContextBuilder().withSystemResources(false).withFilterSettings(new DefaultFilterSettings().setCloseSink(false)).build());
+        pipeline.addVisitor(new FreeMarkerTemplateProcessor(new TemplatingConfiguration("data to outstream")), "#document");
 
         NestedSmooksVisitor nestedSmooksVisitor = new NestedSmooksVisitor();
         nestedSmooksVisitor.setAction(Optional.of(NestedSmooksVisitor.Action.OUTPUT_TO));
-        nestedSmooksVisitor.setNestedSmooks(nestedSmooks);
+        nestedSmooksVisitor.setPipeline(pipeline);
         nestedSmooksVisitor.setOutputStreamResourceOptional(Optional.of("outRes"));
 
         Smooks smooks = new Smooks();
