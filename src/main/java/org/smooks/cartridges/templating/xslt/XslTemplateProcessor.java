@@ -58,7 +58,7 @@ import org.smooks.api.resource.visitor.VisitBeforeReport;
 import org.smooks.cartridges.templating.AbstractTemplateProcessor;
 import org.smooks.engine.delivery.AbstractParser;
 import org.smooks.engine.delivery.dom.serialize.GhostElementSerializerVisitor;
-import org.smooks.engine.resource.config.ParameterAccessor;
+import org.smooks.engine.lookup.GlobalParamsLookup;
 import org.smooks.io.sink.DOMSink;
 import org.smooks.io.sink.StreamSink;
 import org.smooks.io.sink.WriterSink;
@@ -203,9 +203,9 @@ public class XslTemplateProcessor extends AbstractTemplateProcessor implements C
         } catch (TransformerException e) {
             throw new SmooksException("Error applying XSLT to node [" + executionContext.getDocumentSource() + ":" + DomUtils.getXPath(element) + "]", e);
         }
-
+        final boolean closeEmptyElements = Boolean.parseBoolean(executionContext.getApplicationContext().getRegistry().lookup(new GlobalParamsLookup()).getParameterValue(Filter.CLOSE_EMPTY_ELEMENTS));
         try {
-            writer.write(XmlUtils.serialize(ghostElement.getChildNodes(), Boolean.parseBoolean(ParameterAccessor.getParameterValue(Filter.CLOSE_EMPTY_ELEMENTS, String.class, "false", executionContext.getContentDeliveryRuntime().getContentDeliveryConfig()))));
+            writer.write(XmlUtils.serialize(ghostElement.getChildNodes(), closeEmptyElements));
         } catch (IOException e) {
             throw new SmooksException(e.getMessage(), e);
         }
