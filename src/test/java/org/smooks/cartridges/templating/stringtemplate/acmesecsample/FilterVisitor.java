@@ -44,8 +44,8 @@ package org.smooks.cartridges.templating.stringtemplate.acmesecsample;
 
 import org.smooks.api.ExecutionContext;
 import org.smooks.engine.delivery.fragment.NodeFragment;
-import org.smooks.engine.delivery.sax.ng.ConsumeSerializerVisitor;
 import org.smooks.engine.memento.SimpleVisitorMemento;
+import org.smooks.engine.resource.visitor.ConsumeSerializerVisitor;
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.Element;
 
